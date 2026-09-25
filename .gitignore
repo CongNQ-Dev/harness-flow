@@ -1,3 +1,9 @@
 bump-admin/
 bump-backend/
 bump-mobile-app/
+
+# AI Flow
+graphify-out/
+aiflow/.state/
+.DS_Store
+.claude/settings.local.json

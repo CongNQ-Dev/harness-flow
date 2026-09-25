@@ -1,0 +1,134 @@
+# AI Flow — workspace manifest (the control surface)
+#
+# Every aiflow-* skill reads this file first. It is the single place to change
+# repo facts, branch rules, triage thresholds, and models — edit here, not in
+# the skills. Lightweight version of the harness-workflow builder's
+# .harness/workflow.md: same idea (manifest + I/O contracts + gates), sized for
+# a bug-fix / small-feature flow across 3 repos.
+
+project: bump
+project_code: PDT                 # ticket id prefix (Notion)
+language: ja                      # every artifact under docs/aiflow/ + PR text is Japanese
+artifacts_dir: docs/aiflow        # one folder per ticket: docs/aiflow/<TICKET-ID>/
+
+# ---------------------------------------------------------------------------
+# Repos this workspace wraps. Each is its own git repo (ignored by the
+# workspace repo). A task in plan.md belongs to exactly ONE repo.
+# ---------------------------------------------------------------------------
+repos:
+  bump-backend:
+    path: bump-backend
+    remote: https://github.com/emole-inc/bump-backend.git
+    base_branch: develop
+    stack: Go 1.23 / gqlgen (GraphQL) + REST admin API (swagger) / sqlc / MySQL
+    test: make test-usecase && make test-controller && make test-util   # host-side, no docker
+    test_task: make test-package PKG=<pkg path under app/>               # per-task narrow run
+    lint: golangci-lint run ./...
+    notes: >-
+      `make test` runs inside docker-compose (needs the stack up); prefer the host-side targets above.
+      Generated code: `make gen` (mock/swagger/sqlc/wire/api). Never hand-edit generated files.
+      Integration tests need `make test-db-up`.
+  bump-admin:
+    path: bump-admin
+    remote: https://github.com/emole-inc/bump-admin.git
+    base_branch: develop
+    stack: Next.js / TypeScript / aspida + openapi-generator (client generated from backend swagger)
+    test: yarn type-check && yarn lint
+    lint: yarn lint
+    notes: >-
+      No unit test runner is configured — verification = type-check + lint + manual test cases.
+      API client is generated from ../bump-backend/docs/swagger.yaml (`yarn openapi:build`).
+  bump-mobile-app:
+    path: bump-mobile-app
+    remote: https://github.com/emole-inc/bump-mobile-app.git
+    base_branch: main
+    stack: Flutter (FVM) / Dart / graphql_flutter + graphql_codegen / openapi (dio)
+    test: bin/fvm flutter test --dart-define=flavor=prod
+    lint: make lint-dart
+    notes: >-
+      ALWAYS use the bin/fvm wrapper (never plain flutter/dart).
+      Resolve package APIs from .dart_tool/package_config.json, never `find /`.
+      GraphQL operations live in lib/graphql/*.graphql (schema owned by bump-backend).
+    # The mobile team's own AI guidance — the flow follows it, never overrides it.
+    guides: [CLAUDE.md, docs/ai/README.md, docs/ai/IMPLEMENTATION_GUIDE.md, test/README.md]
+    repo_skills:                    # read <repo>/.claude/skills/<name>/SKILL.md and follow it
+      tests_usecase: bump-usecase-testing
+      tests_viewmodel: bump-viewmodel-testing
+      code_review: bump-code-review
+      e2e: bump-patrol-e2e
+
+# Every repo may define `guides:` (files to read before touching code) and
+# `repo_skills:` (the repo team's own skills, read from <repo>/.claude/skills/).
+# These are the repo owners' rules; AI Flow stages pass them to every subagent.
+
+# Cross-repo contracts — when a spec touches one side, check the other side.
+contracts:
+  - name: Admin REST API
+    owner: bump-backend (docs/swagger.yaml)
+    consumers: [bump-admin]
+    regenerate: "cd bump-admin && yarn openapi:build"
+  - name: App GraphQL API
+    owner: bump-backend (gqlgen schema, see gqlgen.yml)
+    consumers: [bump-mobile-app]
+    regenerate: "cd bump-mobile-app && bin/fvm dart run build_runner build"
+
+# ---------------------------------------------------------------------------
+# Branches & PRs
+# ---------------------------------------------------------------------------
+branch:
+  bug: bug/<TICKET-ID>/<slug>          # slug = short English snake_case
+  feature: feature/<TICKET-ID>/<slug>
+pr:
+  tool: gh                              # all repos are on GitHub
+  title: "[<TICKET-ID>] <Japanese title>"
+  copy_artifacts_into_repo: true        # at delivery, docs/aiflow/<ID>/ is copied into each repo's
+                                        # branch so reviewers accept by reading md files in the PR
+  post_review_comment: true             # post final-review summary as a PR comment
+
+# ---------------------------------------------------------------------------
+# Stages — one folder, fixed filenames, a hard stop after every stage.
+# `cmd` is the skill that runs it; /aiflow <ID> always picks the right one.
+# gate: a human must approve before the next stage starts (recorded in status.md).
+# ---------------------------------------------------------------------------
+stages:
+  - {n: 1, id: ticket,   name_ja: チケット正規化,          cmd: aiflow-spec,   writes: [ticket.md, status.md], gate: true}
+  - {n: 2, id: spec,     name_ja: 仕様作成,                cmd: aiflow-spec,   writes: [spec.md],               gate: true}
+  - {n: 3, id: plan,     name_ja: 修正プラン,              cmd: aiflow-plan,   writes: [plan.md],               gate: true,  routes: [full]}
+  - {n: 4, id: impl,     name_ja: 修正実装,                cmd: aiflow-impl,   writes: [code, reviews/task*.md], gate: false}
+  - {n: 5, id: review,   name_ja: レビュー・テストケース作成, cmd: aiflow-review, writes: [reviews/final-review.md, test-cases.md], gate: false, routes: [full]}
+  - {n: 6, id: deliver,  name_ja: 納品（PR作成）,          cmd: aiflow-review, writes: [PR per repo],           gate: true}
+
+# ---------------------------------------------------------------------------
+# Triage (難易度判断) — decided at the end of Stage 1, re-checked at the end of
+# Stage 2. light = stages 1,2,4,6 ; full = 1..6. Human always confirms unless
+# auto_light is true AND every check is clean.
+# ---------------------------------------------------------------------------
+triage:
+  auto_light: false
+  light_requires_all:
+    - one repo only
+    - "expected files changed <= 3"
+    - no API / GraphQL schema / DB migration / contract change
+    - root cause located with evidence (file:line)
+    - not a new feature (kind: bug)
+    - no sensitive area touched
+  sensitive_areas:            # always full route
+    - 課金 / purchase / coin / subscription
+    - 認証 / login / account transfer (引継ぎ)
+    - DB migration
+
+# Subagent models per route (Agent tool `model:` values).
+models:
+  light: {implementer: sonnet, reviewer: sonnet}
+  full:  {implementer: sonnet, reviewer: opus, final_reviewer: opus, test_case_writer: sonnet}
+
+# Knowledge graph (ナレッジグラフ) — workspace-wide, built by /aiflow-analyze.
+knowledge_graph:
+  graph: graphify-out/graph.json        # merged graph of all repos (+ docs)
+  per_repo: <repo>/graphify-out/graph.json
+  include_docs: [bump-backend/docs, bump-mobile-app/docs, docs/aiflow]
+
+# Usage log (log.json per ticket) — tokens/time/cost per stage, for tuning triage.
+usage_log:
+  enabled: true
+  pricing: aiflow/pricing.json          # API-equivalent USD per MTok; edit when prices change
