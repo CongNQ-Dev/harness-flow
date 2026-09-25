@@ -344,6 +344,8 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
           <td><span data-l="ja">テストケースだけ先に作成・再作成</span><span data-l="en">Create or regenerate only the test cases</span></td></tr>
         <tr><td class="c"><code>/aiflow analyze</code><button type="button" class="mini" data-copy="/aiflow analyze">copy</button></td>
           <td><span data-l="ja">3リポジトリ横断のナレッジグラフを更新（初回と大きなマージ後）</span><span data-l="en">Refresh the cross-repo knowledge graph (first time and after big merges)</span></td></tr>
+        <tr><td class="c"><code>/aiflow wiki</code><button type="button" class="mini" data-copy="/aiflow wiki">copy</button></td>
+          <td><span data-l="ja">プロジェクトwikiを生成・更新（AIがコード全体を読むためトークンを消費、実行前に確認あり）</span><span data-l="en">Generate/refresh the project wiki (the AI reads real code, so it costs tokens — asks first)</span></td></tr>
         <tr><td class="c"><code>/aiflow &lt;PR URL&gt;</code></td>
           <td><span data-l="ja">既存PRをレビュー（コメント投稿は確認してから）</span><span data-l="en">Review an existing PR (asks before commenting)</span></td></tr>
       </tbody>
@@ -486,6 +488,13 @@ git clone https://github.com/emole-inc/bump-mobile-app.git</pre></div></li>
     <summary><span data-l="ja">不具合と新規開発、どうやって見分ける？</span><span data-l="en">How does it tell a bug from a new feature?</span></summary>
     <div><p data-l="ja"><code>/aiflow PDT-XXXX feature</code> と明示すれば最優先で feature になります。指定がなければ、まず Notion チケットの<strong>種別プロパティ</strong>を見ます — 「不具合」「Bug」系の値なら bug、「新機能」「Feature」「新規開発」系の値なら feature。これが主な判断材料で、<code>ticket.md</code> の「種別」欄にそのまま記録されるので、後から確認もできます。種別が空・曖昧な場合は本文を見て、既存の壊れた挙動＋再現手順があれば bug、新しい望ましい挙動の説明だけなら feature と判断します。それでも決められない場合だけ、AIが1回質問します — 推測はしません。</p>
     <p data-l="en"><code>/aiflow PDT-XXXX feature</code> overrides everything. Otherwise the primary signal is the Notion ticket's <strong>種別 (type) property</strong> — a defect-naming value (不具合 / Bug) → bug, a new/improved-behavior value (新機能 / Feature / new development) → feature — recorded in <code>ticket.md</code>'s 種別 row as the evidence, so you can check it later. If 種別 is empty or ambiguous, the AI reads the ticket body: broken current behavior with repro steps → bug; only a description of desired new behavior → feature. It asks you, once, only if that still doesn't resolve it — never a guess.</p></div>
+  </details>
+  <details>
+    <summary><span data-l="ja">wiki とナレッジグラフ、何が違う？なぜ wiki は自動更新しない？</span><span data-l="en">Wiki vs. knowledge graph — and why doesn't the wiki auto-update?</span></summary>
+    <div><p data-l="ja">ナレッジグラフ（<code>graphify-out/</code>）は<strong>機械的な抽出</strong>です — コードのAST解析だけで、LLM費用がかからないので commit/checkout のたびに自動更新しても問題ありません。wiki（<code>wiki/</code>）は<strong>AIがコードを読んで文章を書く</strong>もので、実行するたびに本物のトークンを消費します。これが、グラフは <code>/aiflow analyze</code> で気軽に更新できるのに、wiki は <code>/aiflow wiki</code> を明示的に実行したときだけ生成・更新される理由です — git フックで自動化すると、commitのたびにAI費用が発生してしまいます。</p>
+    <p data-l="ja">初回生成のあとは自動で古くならないよう更新され<strong>ません</strong>。チケットの仕様で本当に重要なアーキテクチャ決定があったときだけ、<code>aiflow-spec</code> が <code>wiki/architecture/decisions/</code> に1件だけ追加します（そのチケットで既に調べた内容を使うだけなので追加コストはほぼゼロ）。コード全体を読み直したいときは <code>/aiflow wiki refresh</code> を手動で実行してください。</p>
+    <p data-l="en">The knowledge graph (<code>graphify-out/</code>) is a <strong>mechanical extraction</strong> — AST analysis only, no LLM cost, so it's safe to auto-refresh on every commit/checkout. The wiki (<code>wiki/</code>) is <strong>the AI reading code and writing prose</strong> — it costs real tokens every time it runs. That's why the graph can be casually refreshed with <code>/aiflow analyze</code>, while the wiki is only generated or updated when you explicitly run <code>/aiflow wiki</code> — automating it via a git hook would mean AI spend on every commit.</p>
+    <p data-l="en">After the initial write, it does <strong>not</strong> keep itself current automatically. When a ticket's spec genuinely records an architecture decision, <code>aiflow-spec</code> appends one entry to <code>wiki/architecture/decisions/</code> — cheap, since it reuses that ticket's own investigation. Run <code>/aiflow wiki refresh</code> yourself for a full re-scan.</p></div>
   </details>
   <details>
     <summary><span data-l="ja">設定を変えたい（テストコマンド・ブランチ・判定条件）</span><span data-l="en">I want to change settings (test commands, branches, triage)</span></summary>

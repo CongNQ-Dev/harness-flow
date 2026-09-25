@@ -15,6 +15,7 @@ for cross-repo tickets.
 
 Occasionally useful: `/aiflow PDT-2350 status` · `/aiflow PDT-2350 redo spec` ·
 `/aiflow PDT-2350 feature` (new/maintenance development) · `/aiflow analyze` ·
+`/aiflow wiki` (generate/refresh the project wiki) ·
 `/aiflow <PR URL>` (review an existing PR).
 
 Every stage stops when it finishes. Read the output, then type `/aiflow PDT-2350` again.
@@ -85,6 +86,29 @@ purpose instead of root cause). Stages 2–6 are the same.
 `/aiflow analyze docs` also adds design documents (this step uses tokens, so it
 asks first). All stages query the graph before reading files.
 
+## Project wiki (`/aiflow wiki`)
+
+The graph above is a **mechanical extraction** (AST only, free). The wiki is
+**the AI reading code and writing prose** — it costs real tokens every run,
+which is why it's never auto-updated by a git hook the way the graph could be.
+
+`/aiflow wiki` (the `aiflow-wiki` skill, confirms before spending tokens):
+
+1. reads repo topology from `workflow.yaml` `repos:` — never re-asks
+   mono-repo vs. multi-repo, since this workspace already is 3 repos;
+2. writes one `wiki/architecture/<repo>.md` per repo (stack, layer/module
+   map, key modules) from that repo's own guides, the knowledge graph, and
+   real code;
+3. writes `wiki/architecture/contracts.md` (cross-repo contracts, with the
+   rationale `workflow.yaml`'s `contracts:` block doesn't carry) and, when
+   warranted, `wiki/architecture/decisions/`.
+
+After the initial write, it doesn't update itself. When a ticket's spec
+genuinely records an architecture decision, `aiflow-spec` may append one
+small entry to `wiki/architecture/decisions/` — cheap, since it reuses that
+ticket's own investigation. Run `/aiflow wiki refresh` yourself for a full
+re-scan (after a big merge, or when it's been untouched a long time).
+
 ## Setup (once per machine)
 
 ```bash
@@ -125,6 +149,7 @@ automatically from that description (e.g. `systematic-debugging` on any bug,
 name. You never call one directly; a stage does.
 | `docs/aiflow/<ID>/` | One folder per ticket; `status.md` is the resume point |
 | `aiflow/selected-bugs/` | Notion ticket lists (ticket ID → Notion URL) |
+| `wiki/` | Architecture knowledge from `/aiflow wiki` (committed, not gitignored) |
 
 ## Picking up someone else's ticket
 

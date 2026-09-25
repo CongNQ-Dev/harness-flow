@@ -18,6 +18,7 @@ combined step (conventions §4's one documented exception). Read
 |---|---|
 | *(nothing)* | Board: run `python3 aiflow/scripts/aiflow_status.py` and show it, then the 3-line help below. |
 | `analyze` | Invoke the `aiflow-analyze` skill. |
+| `wiki` or `wiki refresh` | Invoke the `aiflow-wiki` skill (passing `refresh` through if given). |
 | `<ID>` or `<ID> feature` | **Run next stage** (below). `feature` marks a new ticket as 新規・保守開発. |
 | `<ID> status` | Show `docs/aiflow/<ID>/status.md` + `python3 aiflow/scripts/aiflow_log.py summary <ID>`. Run nothing. |
 | `<ID> redo <stage>` | Stage = `ticket`/`spec`/`plan`/`impl`/`review`/`deliver` (or its number). Confirm with `AskUserQuestion` that later artifacts will be regenerated, set `stage_done` to the stage before it, then invoke that stage's skill. |
@@ -47,7 +48,8 @@ Ticket IDs are case-insensitive; normalize to upper case (`pdt-2350` → `PDT-23
 ```
 /aiflow PDT-XXXX            次のステージを実行（新規チケットもこれで開始）
 /aiflow PDT-XXXX status     進捗・処理ログを表示        /aiflow analyze   ナレッジグラフ更新
-/aiflow PDT-XXXX redo spec  ステージをやり直す          /aiflow <PR URL>  既存PRをレビュー
+/aiflow PDT-XXXX redo spec  ステージをやり直す          /aiflow wiki      プロジェクトwiki生成・更新
+/aiflow <PR URL>             既存PRをレビュー
 ```
 
 ## Stages (for reference)

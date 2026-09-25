@@ -11,7 +11,7 @@ bump-backend / bump-admin / bump-mobile-app の3プロジェクトを横断し�
 ```
 
 必要に応じて: `/aiflow PDT-2350 status`（進捗と処理ログ） · `/aiflow PDT-2350 redo spec`（やり直し） ·
-`/aiflow PDT-2350 feature`（新規・保守開発として開始） · `/aiflow analyze`（ナレッジグラフ更新） · `/aiflow <PRのURL>`（既存PRのレビュー）
+`/aiflow PDT-2350 feature`（新規・保守開発として開始） · `/aiflow analyze`（ナレッジグラフ更新） · `/aiflow wiki`（プロジェクトwiki生成・更新） · `/aiflow <PRのURL>`（既存PRのレビュー）
 
 各ステップは完了すると必ず停止します。成果物を確認し、もう一度 `/aiflow PDT-2350` を実行すると次へ進みます。
 
@@ -67,6 +67,18 @@ bump-backend / bump-admin / bump-mobile-app の3プロジェクトを横断し�
 
 `/aiflow analyze docs` を実行すると設計書も取り込みます（トークンを消費するため、実行前に確認します）。どのステップもソースを読む前にグラフを検索します。
 
+## プロジェクトwiki（`/aiflow wiki`）
+
+`graphify` のグラフは**機械的な抽出**（AST解析のみ、無料）ですが、wiki は**AIがコードを読んで文章を書く**もので、実行のたびにトークンを消費します。このためグラフのように git フックで自動更新はしません。
+
+`/aiflow wiki` を実行すると（`aiflow-wiki` スキル、実行前に確認あり）:
+
+1. `aiflow/workflow.yaml` の `repos:` からリポジトリ構成を読む（mono/multiを毎回聞き直さない — 既にこのワークスペースは3リポジトリ構成と分かっている）
+2. リポジトリ毎の `wiki/architecture/<repo>.md`（スタック・レイヤー構成・主要モジュール）を、各リポジトリ自身のガイド＋ナレッジグラフ＋実コードから生成
+3. `wiki/architecture/contracts.md`（リポジトリ間契約とその理由）、必要なら `wiki/architecture/decisions/`（アーキテクチャ上の決定）も生成
+
+生成後の更新は自動ではありません。個々のチケットで本当に重要なアーキテクチャ決定があった場合のみ、`aiflow-spec` がそのチケットの spec.md から `wiki/architecture/decisions/` に1件追加することがあります（そのチケット自身が既に調べた内容を使うだけなので追加コストはほぼなし）。コード全体を読み直す完全な再生成をしたいときだけ `/aiflow wiki refresh` を実行してください。
+
 ## セットアップ（端末ごとに1回）
 
 ```bash
@@ -93,6 +105,7 @@ Notion チケットは Notion MCP、ブラウザ、貼り付けのいずれか�
 | `.claude/skills/`（`aiflow-` が付かないもの） | 各ステージが内部的に読み込む汎用スキル（下記） |
 | `docs/aiflow/<ID>/` | チケット毎のフォルダ。再開時は `status.md` から読む |
 | `aiflow/selected-bugs/` | Notion のチケット一覧（チケットID → Notion URL） |
+| `wiki/` | `/aiflow wiki` が生成するアーキテクチャ知識（コミット対象） |
 
 **`aiflow-` が付いていないスキルについて。** `.claude/skills/` には
 `test-driven-development` `systematic-debugging` `verification-before-completion`

@@ -90,7 +90,7 @@ and says which approval is missing.
   **Japanese**. Code, identifiers, file paths, commands stay as typed.
   Chat with the user in the language they use.
 
-## 7. Knowledge graph before grep
+## 7. Knowledge graph — and wiki — before grep
 
 When `graphify-out/graph.json` exists at the workspace root, orient with
 `graphify query "<question>"` (cross-repo), `graphify path "A" "B"`,
@@ -98,6 +98,14 @@ When `graphify-out/graph.json` exists at the workspace root, orient with
 subagent prompt that explores code. If the graph is missing or older than the
 repo HEADs, tell the user once that `/aiflow-analyze` will refresh it — do not
 block on it.
+
+If `wiki/` exists (`/aiflow-wiki` has run), check `wiki/architecture/` for
+already-written context — stack, module map, cross-repo contracts and their
+rationale — before re-deriving it from the graph and raw code. The graph
+tells you *what calls what*; the wiki tells you *why it's built that way*,
+when someone has already written that down. If `wiki/` doesn't exist, that's
+normal, not a problem to fix — never suggest running `/aiflow-wiki` mid-ticket;
+it's an occasional utility run, not a per-ticket dependency.
 
 ## 8. Subagents
 

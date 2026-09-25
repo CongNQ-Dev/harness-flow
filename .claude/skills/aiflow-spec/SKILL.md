@@ -131,6 +131,14 @@ gate, not two:
    実装タスク. Self-review inline against
    `spec-document-reviewer-prompt.md`'s checklist (no subagent — one repo,
    small enough to just re-read) and fix issues before the gate.
+5. **Optional: append a wiki decision, only if this is a real one.** A small
+   bug's fast-track spec is almost never one — skip this unless 修正方針
+   genuinely records an architectural choice (a new contract, a pattern
+   change). If `wiki/` doesn't exist yet (`/aiflow-wiki` never ran), skip
+   silently — this is never a reason to block or suggest running it now.
+   Otherwise write one file from
+   `.claude/skills/aiflow-wiki/decision-template.md` into
+   `wiki/architecture/decisions/`, sourced from this spec.
 
 ### 1.5 Gate — confirm with the user
 
@@ -237,6 +245,15 @@ Write `docs/aiflow/<ID>/spec.md` from `.claude/skills/aiflow-spec/spec-template.
 section as "`/aiflow-plan` で作成". Then review it yourself with
 `spec-document-reviewer-prompt.md`'s checklist (for a spec touching 2+ repos,
 dispatch it as a subagent instead) and fix issues inline.
+
+**Optional: append a wiki decision, only if this is a real one.** Full-route
+tickets are more likely to carry a genuine architectural choice than light
+ones — still only write an entry when 修正方針 actually is one (a new
+cross-repo contract, a bounded-context change, a pattern the team should
+follow going forward), never for routine per-ticket detail. If `wiki/`
+doesn't exist yet, skip silently. Otherwise write one file from
+`.claude/skills/aiflow-wiki/decision-template.md` into
+`wiki/architecture/decisions/`, sourced from this spec.
 
 ### 2.4 Gate
 
