@@ -1,0 +1,519 @@
+<title>BUMP AI Flow ガイド</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap">
+<style>
+:root{
+  --ground:#F7F5F4; --surface:#FFFFFF; --sunk:#EFEBEA; --ink:#1E1A1B; --muted:#655D5F;
+  --line:#E3DCDC; --accent:#C8102E; --accent-ink:#FFFFFF; --accent-soft:#FBE7EA;
+  --lite:#1E7A67; --lite-soft:#E2F2EE; --term:#1E1A1B; --term-ink:#F3EEEE; --term-dim:#A99FA1;
+  --display:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#131011; --surface:#1C1819; --sunk:#241F20; --ink:#F0EBEB; --muted:#A79FA1;
+    --line:#342D2F; --accent:#FF4D63; --accent-ink:#1A0508; --accent-soft:#3A1A20;
+    --lite:#4CC3A8; --lite-soft:#15302A; --term:#0B0909; --term-ink:#F0EBEB; --term-dim:#8E8486;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#131011; --surface:#1C1819; --sunk:#241F20; --ink:#F0EBEB; --muted:#A79FA1;
+  --line:#342D2F; --accent:#FF4D63; --accent-ink:#1A0508; --accent-soft:#3A1A20;
+  --lite:#4CC3A8; --lite-soft:#15302A; --term:#0B0909; --term-ink:#F0EBEB; --term-dim:#8E8486;
+}
+
+html:not(.en) [data-l="en"]{display:none!important}
+html.en [data-l="ja"]{display:none!important}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.8 var(--body);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+code,kbd,pre{font-family:var(--mono)}
+code{font-size:.88em;background:var(--sunk);padding:.1em .4em;border-radius:5px}
+h1,h2,h3{font-family:var(--display);line-height:1.35;text-wrap:balance;margin:0}
+h2{font-size:1.6rem;font-weight:700}
+h3{font-size:1.08rem;font-weight:700}
+p{margin:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.wrap{max-width:920px;margin:0 auto;padding-inline:20px}
+
+/* header */
+header.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar-in{display:flex;align-items:center;gap:16px;min-height:56px}
+.brand{font-family:var(--display);font-weight:900;letter-spacing:.02em;white-space:nowrap}
+.brand b{color:var(--accent)}
+nav.toc{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{color:var(--muted);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:99px;white-space:nowrap}
+nav.toc a:hover{color:var(--ink);background:var(--sunk)}
+.lang{display:flex;border:1px solid var(--line);border-radius:99px;padding:2px;flex:none}
+.lang button{font:600 12px var(--body);border:0;background:none;color:var(--muted);padding:4px 10px;border-radius:99px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+
+section{padding-block:56px;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+.eyebrow{font:600 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.lead{color:var(--muted);max-width:62ch;margin-top:12px}
+
+/* hero */
+.hero{padding-block:64px 48px}
+.hero h1{font-size:clamp(1.9rem,4.6vw,2.9rem);font-weight:900;letter-spacing:-.01em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .lead{font-size:1.05rem}
+.term{margin-top:28px;background:var(--term);color:var(--term-ink);border-radius:var(--r);padding:18px 20px;font-family:var(--mono);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.term .ps{color:var(--term-dim)}
+.term .cmd{font-size:clamp(1.05rem,3vw,1.35rem);font-weight:600}
+.term .cmd .arg{color:#FF8A99}
+.term .note{color:var(--term-dim);font-size:13px;flex-basis:100%}
+.copy{margin-left:auto;font:600 12px var(--body);color:var(--term-ink);background:transparent;border:1px solid #4A4244;border-radius:6px;padding:5px 10px;cursor:pointer}
+.copy:hover{border-color:var(--term-ink)}
+.loop{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.loop div{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px 16px}
+.loop b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:2px}
+.loop span{color:var(--muted);font-size:13.5px}
+
+/* pipeline */
+.route{display:inline-flex;margin-top:22px;border:1px solid var(--line);border-radius:99px;padding:3px;background:var(--surface)}
+.route button{font:600 13px var(--body);border:0;background:none;color:var(--muted);padding:6px 14px;border-radius:99px;cursor:pointer}
+.route button[aria-pressed="true"][data-r="full"]{background:var(--accent);color:var(--accent-ink)}
+.route button[aria-pressed="true"][data-r="light"]{background:var(--lite);color:var(--surface)}
+.route-note{font-size:13.5px;color:var(--muted);margin-top:10px}
+.stages{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:12px}
+.stage{display:grid;grid-template-columns:52px 1fr;gap:0 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;transition:opacity .2s}
+.stage .n{grid-row:1/4;font:900 1.7rem/1 var(--display);color:var(--accent);padding-top:2px}
+.stage h3{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cmdtag{font:700 12.5px var(--mono);color:var(--accent);background:var(--accent-soft);padding:2px 9px;border-radius:5px;white-space:nowrap}
+.internal{font:500 11px var(--mono);color:var(--muted)}
+.internal::before{content:"→ ";color:var(--line)}
+.gate{font:700 11px var(--body);letter-spacing:.04em;color:var(--accent);border:1px solid currentColor;padding:1px 7px;border-radius:99px}
+.skipbadge{display:none;font:700 11px var(--body);color:var(--lite);background:var(--lite-soft);padding:2px 8px;border-radius:99px}
+.stage .cols{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;margin-top:10px;font-size:14px}
+.stage .cols dt{font:700 11.5px var(--body);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.stage .cols dd{margin:0 0 6px}
+.stage .out{grid-column:2;margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.stage .out code{background:var(--accent-soft);color:var(--ink)}
+.light-mode .stage.fullonly{opacity:.42}
+.light-mode .stage.fullonly .skipbadge{display:inline-block}
+.light-mode .stage.fullonly .n{color:var(--muted)}
+
+/* table */
+.tbl{overflow-x:auto;margin-top:22px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:700 12px var(--body);color:var(--muted);letter-spacing:.05em;background:var(--sunk)}
+td.c{white-space:nowrap}
+td.c code{background:none;padding:0;font-size:13.5px;color:var(--accent);font-weight:600}
+.mini{font:600 11px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:5px;padding:2px 7px;cursor:pointer;margin-left:6px}
+
+/* triage */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.panel.l{border-top:3px solid var(--lite)}
+.panel.f{border-top:3px solid var(--accent)}
+.panel h3 small{font:500 12px var(--mono);color:var(--muted);margin-left:6px}
+.panel ul{margin:10px 0 0;padding-left:1.2em;font-size:14px}
+.panel li{margin:3px 0}
+
+/* repos diagram */
+.repos{margin-top:24px;overflow-x:auto}
+.repos svg{display:block;width:100%;min-width:620px;height:auto}
+.repos .box{fill:var(--surface);stroke:var(--line)}
+.repos .ws{fill:var(--accent-soft);stroke:var(--accent)}
+.repos text{fill:var(--ink);font-family:var(--body)}
+.repos .t-mono{font-family:var(--mono);fill:var(--muted)}
+.repos .edge{stroke:var(--muted);fill:none}
+.repos .edge-a{stroke:var(--accent);fill:none}
+.bul{margin:18px 0 0;padding-left:1.2em;max-width:70ch}
+.bul li{margin:6px 0}
+
+/* setup */
+.steps{counter-reset:s;list-style:none;padding:0;margin:22px 0 0;display:grid;gap:14px}
+.steps>li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:12px}
+.steps>li::before{content:counter(s);font:900 1.1rem/34px var(--display);text-align:center;width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--ground)}
+pre{margin:8px 0 0;background:var(--term);color:var(--term-ink);border-radius:8px;padding:14px 16px;font-size:13px;line-height:1.7;overflow-x:auto}
+pre .cm{color:var(--term-dim)}
+
+/* faq */
+details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:0 18px;margin-top:10px}
+summary{cursor:pointer;font-weight:700;padding:14px 0;list-style:none;display:flex;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+";color:var(--accent);font-family:var(--mono);font-weight:700}
+details[open] summary::before{content:"−"}
+details>div{padding:0 0 16px;font-size:14.5px;color:var(--ink)}
+details>div p+p{margin-top:8px}
+
+footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
+
+@media (max-width:720px){
+  .loop,.two{grid-template-columns:1fr}
+  .stage{grid-template-columns:36px 1fr;padding:16px}
+  .stage .n{font-size:1.35rem}
+  .stage .cols{grid-template-columns:1fr}
+  nav.toc{display:none}
+  .bar-in{justify-content:space-between}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="bar">
+  <div class="wrap bar-in">
+    <div class="brand"><b>BUMP</b> AI Flow</div>
+    <nav class="toc" aria-label="sections">
+      <a href="#flow"><span data-l="ja">流れ</span><span data-l="en">Flow</span></a>
+      <a href="#commands"><span data-l="ja">コマンド</span><span data-l="en">Commands</span></a>
+      <a href="#route"><span data-l="ja">省略版と完全版</span><span data-l="en">Routes</span></a>
+      <a href="#repos"><span data-l="ja">3リポジトリ横断</span><span data-l="en">Cross-repo</span></a>
+      <a href="#setup"><span data-l="ja">セットアップ</span><span data-l="en">Setup</span></a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="lang" role="group" aria-label="language">
+      <button type="button" id="lang-ja" data-lang="ja" aria-pressed="true">日本語</button>
+      <button type="button" id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section class="hero">
+  <div class="eyebrow">AI Harness Workflow · backend / admin / mobile</div>
+  <h1 data-l="ja">覚えるコマンドは<em>1つ</em>だけ。</h1>
+  <h1 data-l="en">One command to <em>remember</em>.</h1>
+  <p class="lead" data-l="ja">bump-backend・bump-admin・bump-mobile-app の3リポジトリを1つのフローで扱います。チケットIDを渡すと、AIが今どのステップかを判断し、次のステップを1つだけ実行して止まります。</p>
+  <p class="lead" data-l="en">One flow for bump-backend, bump-admin and bump-mobile-app. Give it a ticket ID: the AI works out which stage the ticket is at, runs exactly the next stage, and stops.</p>
+
+  <div class="term">
+    <span class="ps">❯</span>
+    <span class="cmd">/aiflow <span class="arg">PDT-2350</span></span>
+    <button type="button" class="copy" id="copy-hero" data-copy="/aiflow PDT-2350"><span data-l="ja">コピー</span><span data-l="en">Copy</span></button>
+    <span class="note" data-l="ja">新規チケットも途中のチケットも同じコマンド。Claude Code を ai-flow-demo フォルダで起動して入力します。</span>
+    <span class="note" data-l="en">Same command for new and in-progress tickets. Type it in Claude Code started in the ai-flow-demo folder.</span>
+  </div>
+
+  <div class="loop">
+    <div><b data-l="ja">① 実行</b><b data-l="en">① Run</b><span data-l="ja"><code>/aiflow PDT-XXXX</code> を入力</span><span data-l="en">Type <code>/aiflow PDT-XXXX</code></span></div>
+    <div><b data-l="ja">② 確認</b><b data-l="en">② Check</b><span data-l="ja">ステップ完了で停止。成果物（md）を確認・承認</span><span data-l="en">It stops after the stage. Read and approve the md output</span></div>
+    <div><b data-l="ja">③ 繰り返し</b><b data-l="en">③ Repeat</b><span data-l="ja">同じコマンドで次のステップへ。PR作成まで</span><span data-l="en">Same command moves to the next stage, up to the PR</span></div>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="eyebrow">Pipeline</div>
+  <h2 data-l="ja">チケット1件の流れ</h2>
+  <h2 data-l="en">How one ticket flows</h2>
+  <p class="lead" data-l="ja">全6ステップ。各ステップの成果物は <code>docs/aiflow/&lt;チケットID&gt;/</code> に日本語で保存され、<code>status.md</code> を見れば誰でも続きから再開できます。<strong>どのステップも入力するコマンドは同じ <code>/aiflow PDT-XXXX</code> です</strong> — カード内の <span class="internal">aiflow-spec</span> のような表記は、その裏で自動的に呼ばれる内部スキル名の参考情報にすぎません。</p>
+  <p class="lead" data-l="en">Six stages. Every output is saved in Japanese under <code>docs/aiflow/&lt;ticket ID&gt;/</code>, and <code>status.md</code> lets anyone resume where it stopped. <strong>You type the same <code>/aiflow PDT-XXXX</code> for every stage</strong> — a label like <span class="internal">aiflow-spec</span> on a card is just the internal skill name it calls automatically, for reference only.</p>
+
+  <div class="route" role="group" aria-label="route">
+    <button type="button" id="route-full" data-r="full" aria-pressed="true"><span data-l="ja">完全版 1→6</span><span data-l="en">Full 1→6</span></button>
+    <button type="button" id="route-light" data-r="light" aria-pressed="false"><span data-l="ja">省略版 1→2→4→6</span><span data-l="en">Light 1→2→4→6</span></button>
+  </div>
+  <p class="route-note" id="route-note">
+    <span data-l="ja">完全版: 複数リポジトリ・API変更・新規開発など。全ステップを実行します。</span>
+    <span data-l="en">Full: multi-repo, API changes, new features. Every stage runs.</span>
+  </p>
+
+  <ol class="stages" id="stages">
+    <li class="stage">
+      <div class="n">1</div>
+      <h3><span data-l="ja">チケット正規化</span><span data-l="en">Ticket normalize</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-spec</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
+      <dl class="cols">
+        <div><dt data-l="ja">AI</dt><dt data-l="en">AI</dt>
+          <dd data-l="ja">Notionチケットを読み取り、テンプレートに正規化。ナレッジグラフで影響リポジトリを判定し、難易度判断で省略版/完全版を提案。各リポジトリに同名ブランチを作成。</dd>
+          <dd data-l="en">Reads the Notion ticket and normalizes it. Finds the affected repos with the knowledge graph, proposes light/full, creates the same branch in each repo.</dd></div>
+        <div><dt data-l="ja">あなた</dt><dt data-l="en">You</dt>
+          <dd data-l="ja">読み取り方法（Notion MCP / ブラウザ / 貼り付け）を選び、内容・対象リポジトリ・ルートを承認。</dd>
+          <dd data-l="en">Pick how to read the ticket (Notion MCP / browser / paste), then approve the content, repos and route.</dd></div>
+      </dl>
+      <div class="out"><code>ticket.md</code><code>status.md</code></div>
+    </li>
+    <li class="stage">
+      <div class="n">2</div>
+      <h3><span data-l="ja">仕様作成</span><span data-l="en">Spec</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-spec</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
+      <dl class="cols">
+        <div><dt>AI</dt>
+          <dd data-l="ja">コードを読んで根本原因を特定（file:line の根拠付き）。2〜3案を比較し、リポジトリ別の変更とAPI契約を整理。コードはまだ書かない。</dd>
+          <dd data-l="en">Traces the root cause in the code, with file:line evidence. Compares 2–3 approaches and lists changes per repo and API contract. Writes no code yet.</dd></div>
+        <div><dt data-l="ja">あなた</dt><dt data-l="en">You</dt>
+          <dd data-l="ja">AIの質問に1つずつ回答し、方針を選んで仕様を承認。</dd>
+          <dd data-l="en">Answer its questions one at a time, pick the approach, approve the spec.</dd></div>
+      </dl>
+      <div class="out"><code>spec.md</code></div>
+    </li>
+    <li class="stage fullonly">
+      <div class="n">3</div>
+      <h3><span data-l="ja">修正プラン</span><span data-l="en">Fix plan</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-plan</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span> <span class="skipbadge" data-l="ja">省略版ではスキップ</span><span class="skipbadge" data-l="en">skipped on light</span></h3>
+      <dl class="cols">
+        <div><dt>AI</dt>
+          <dd data-l="ja">TDD前提の実装計画。1タスク＝1リポジトリで、API提供側（backend）を先に並べる。ファイル・コード・コマンド・期待結果まで具体的に書く。</dd>
+          <dd data-l="en">A TDD plan with one repo per task, the API owner (backend) first. It spells out files, code, commands and expected output.</dd></div>
+        <div><dt data-l="ja">あなた</dt><dt data-l="en">You</dt>
+          <dd data-l="ja">タスクの粒度と順序を確認して承認。</dd>
+          <dd data-l="en">Check task size and order, approve.</dd></div>
+      </dl>
+      <div class="out"><code>plan.md</code></div>
+    </li>
+    <li class="stage">
+      <div class="n">4</div>
+      <h3><span data-l="ja">修正実装</span><span data-l="en">Implementation</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-impl</span></h3>
+      <dl class="cols">
+        <div><dt>AI</dt>
+          <dd data-l="ja">タスク毎に実装担当エージェントが「失敗するテスト → 実装 → 成功」を実施。仕様準拠レビュー → 品質レビューを通過するまで修正。</dd>
+          <dd data-l="en">Per task, an implementer writes a failing test, implements, and turns it green. It keeps fixing until the spec review, then the quality review, both pass.</dd></div>
+        <div><dt data-l="ja">あなた</dt><dt data-l="en">You</dt>
+          <dd data-l="ja">待つだけ。途中で止まっても同じコマンドで続きのタスクから再開。</dd>
+          <dd data-l="en">Just wait. If it stops midway, the same command resumes at the next task.</dd></div>
+      </dl>
+      <div class="out"><code>reviews/task*-spec.md</code><code>reviews/task*-quality.md</code></div>
+    </li>
+    <li class="stage fullonly">
+      <div class="n">5</div>
+      <h3><span data-l="ja">レビュー・テストケース作成</span><span data-l="en">Review & test cases</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-review</span> <span class="skipbadge" data-l="ja">省略版ではスキップ</span><span class="skipbadge" data-l="en">skipped on light</span></h3>
+      <dl class="cols">
+        <div><dt>AI</dt>
+          <dd data-l="ja">全リポジトリの変更をまとめて最終レビュー（契約の整合性・後方互換性・影響範囲）。QA向けの手動テストケースを作成（アプリは実機、管理画面はブラウザ、APIは呼び出し手順）。</dd>
+          <dd data-l="en">A final review of the change across all repos (contracts, backward compatibility, impact). Writes manual test cases for QA: device steps for the app, browser steps for admin, API calls for backend.</dd></div>
+        <div><dt data-l="ja">あなた</dt><dt data-l="en">You</dt>
+          <dd data-l="ja">レビュー結果とテストケースを確認。</dd>
+          <dd data-l="en">Read the review and the test cases.</dd></div>
+      </dl>
+      <div class="out"><code>reviews/final-review.md</code><code>test-cases.md</code></div>
+    </li>
+    <li class="stage">
+      <div class="n">6</div>
+      <h3><span data-l="ja">納品（PR作成）</span><span data-l="en">Delivery (PRs)</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-review</span> <span class="gate" data-l="ja">動作確認</span><span class="gate" data-l="en">QA gate</span></h3>
+      <dl class="cols">
+        <div><dt>AI</dt>
+          <dd data-l="ja">全テストを実行。確認OK後、リポジトリ毎にPRを作成（backend/admin→develop、mobile→main）してPR同士をリンク。md成果物もPRに同梱し、レビュー要約をPRコメントに投稿。</dd>
+          <dd data-l="en">Runs every test suite. After your OK it opens one PR per repo (backend/admin → develop, mobile → main) and links them. The md outputs go into the PR, and the review summary is posted as a PR comment.</dd></div>
+        <div><dt data-l="ja">あなた</dt><dt data-l="en">You</dt>
+          <dd data-l="ja">test-cases.md で動作確認し「確認OK」を選択。不具合があれば「不具合あり」→ テスト追加から修正。</dd>
+          <dd data-l="en">Test with test-cases.md and choose "OK". Found a bug? Choose "bug found": the AI adds a test first, then fixes it.</dd></div>
+      </dl>
+      <div class="out"><code>status.md → PR URL</code><code>log.json</code></div>
+    </li>
+  </ol>
+</section>
+
+<section id="commands">
+  <div class="eyebrow">Cheat sheet</div>
+  <h2 data-l="ja">コマンド早見表</h2>
+  <h2 data-l="en">Commands</h2>
+  <p class="lead" data-l="ja">基本は1行目だけ。残りは必要なときに。</p>
+  <p class="lead" data-l="en">The first row is all you need day to day. The rest are for when you need them.</p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th data-l="ja">入力</th><th data-l="en">Type</th><th data-l="ja">動作</th><th data-l="en">What happens</th></tr></thead>
+      <tbody>
+        <tr><td class="c"><code>/aiflow PDT-XXXX</code><button type="button" class="mini" data-copy="/aiflow PDT-XXXX">copy</button></td>
+          <td><span data-l="ja">次のステップを1つ実行して停止（新規チケットはステップ1から）</span><span data-l="en">Runs the next stage and stops (a new ticket starts at stage 1)</span></td></tr>
+        <tr><td class="c"><code>/aiflow</code><button type="button" class="mini" data-copy="/aiflow">copy</button></td>
+          <td><span data-l="ja">全チケットの進捗一覧</span><span data-l="en">Board of every ticket</span></td></tr>
+        <tr><td class="c"><code>/aiflow PDT-XXXX status</code></td>
+          <td><span data-l="ja">進捗とステップ毎の時間・トークン・概算料金</span><span data-l="en">Progress, plus time / tokens / estimated cost per stage</span></td></tr>
+        <tr><td class="c"><code>/aiflow PDT-XXXX feature</code></td>
+          <td><span data-l="ja">新規・保守開発として開始（<code>feature/…</code> ブランチ）</span><span data-l="en">Start as new development (<code>feature/…</code> branch)</span></td></tr>
+        <tr><td class="c"><code>/aiflow PDT-XXXX redo spec</code></td>
+          <td><span data-l="ja">ステップのやり直し（ticket / spec / plan / impl / review / deliver）</span><span data-l="en">Redo a stage (ticket / spec / plan / impl / review / deliver)</span></td></tr>
+        <tr><td class="c"><code>/aiflow PDT-XXXX testcases</code></td>
+          <td><span data-l="ja">テストケースだけ先に作成・再作成</span><span data-l="en">Create or regenerate only the test cases</span></td></tr>
+        <tr><td class="c"><code>/aiflow analyze</code><button type="button" class="mini" data-copy="/aiflow analyze">copy</button></td>
+          <td><span data-l="ja">3リポジトリ横断のナレッジグラフを更新（初回と大きなマージ後）</span><span data-l="en">Refresh the cross-repo knowledge graph (first time and after big merges)</span></td></tr>
+        <tr><td class="c"><code>/aiflow &lt;PR URL&gt;</code></td>
+          <td><span data-l="ja">既存PRをレビュー（コメント投稿は確認してから）</span><span data-l="en">Review an existing PR (asks before commenting)</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="route">
+  <div class="eyebrow">Triage · 難易度判断</div>
+  <h2 data-l="ja">省略版と完全版</h2>
+  <h2 data-l="en">Light route and full route</h2>
+  <p class="lead" data-l="ja">ステップ1の最後にAIが根拠付きで判定し、あなたが確定します。簡単なチケットは軽量モデル＋省略版でAI利用料を抑えます。ステップ2で複雑さが判明したら自動で完全版に切り替わります。</p>
+  <p class="lead" data-l="en">At the end of stage 1 the AI proposes a route with evidence, and you confirm it. Simple tickets use a cheaper model and the light route to keep AI costs down. If stage 2 finds more complexity, the ticket switches to full automatically.</p>
+  <div class="two">
+    <div class="panel l">
+      <h3><span data-l="ja">省略版</span><span data-l="en">Light</span><small>1 → 2 → 4 → 6</small></h3>
+      <ul data-l="ja">
+        <li>1リポジトリのみ</li><li>変更ファイル3以下</li><li>API・GraphQL・DB・契約の変更なし</li>
+        <li>原因箇所を特定済み（file:line）</li><li>不具合対応（新規開発ではない）</li><li>課金・認証・引継ぎ・DB に該当しない</li>
+      </ul>
+      <ul data-l="en">
+        <li>One repo only</li><li>3 files or fewer</li><li>No API / GraphQL / DB / contract change</li>
+        <li>Root cause located (file:line)</li><li>A bug, not new development</li><li>Not billing, auth, account transfer or DB</li>
+      </ul>
+    </div>
+    <div class="panel f">
+      <h3><span data-l="ja">完全版</span><span data-l="en">Full</span><small>1 → 2 → 3 → 4 → 5 → 6</small></h3>
+      <ul data-l="ja">
+        <li>上記のどれか1つでも満たさない場合</li><li>判断できない項目がある場合（「不明」は完全版扱い）</li>
+        <li>複数リポジトリにまたがる不具合</li><li>新規・保守開発</li>
+      </ul>
+      <ul data-l="en">
+        <li>Any light condition not met</li><li>Anything that can't be determined ("unknown" counts as full)</li>
+        <li>Bugs spanning several repos</li><li>New or maintenance development</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="repos">
+  <div class="eyebrow">One flow · three repos</div>
+  <h2 data-l="ja">3リポジトリを1つのフローで</h2>
+  <h2 data-l="en">Three repos, one flow</h2>
+  <p class="lead" data-l="ja">フローは ai-flow-demo リポジトリだけにあり、ソースコードのリポジトリにはコピーを置きません。横断ナレッジグラフが backend の型とアプリ・管理画面側の型をつなぎ、片側だけでは直らない不具合も両側まとめて扱えます。</p>
+  <p class="lead" data-l="en">The flow lives only in the ai-flow-demo repo; the source repos carry no copy. The cross-repo knowledge graph links backend types to their app and admin counterparts, so a bug that needs both sides is handled as one ticket.</p>
+  <div class="repos">
+    <svg viewBox="0 0 760 250" role="img" aria-label="ai-flow-demo workspace wraps bump-backend, bump-admin and bump-mobile-app">
+      <rect class="ws" x="10" y="10" width="740" height="64" rx="10"/>
+      <text x="30" y="38" font-size="15" font-weight="700">ai-flow-demo</text>
+      <text class="t-mono" x="30" y="60" font-size="12">/aiflow · workflow.yaml · docs/aiflow/&lt;ID&gt;/ · graphify-out/ (merged graph)</text>
+      <path class="edge-a" d="M140 74 V120"/><path class="edge-a" d="M380 74 V120"/><path class="edge-a" d="M620 74 V120"/>
+      <rect class="box" x="30" y="120" width="220" height="110" rx="10"/>
+      <text x="48" y="148" font-size="14" font-weight="700">bump-backend</text>
+      <text class="t-mono" x="48" y="170" font-size="11.5">Go · GraphQL · REST</text>
+      <text class="t-mono" x="48" y="190" font-size="11.5">base: develop</text>
+      <text class="t-mono" x="48" y="210" font-size="11.5">PR ①</text>
+      <rect class="box" x="270" y="120" width="220" height="110" rx="10"/>
+      <text x="288" y="148" font-size="14" font-weight="700">bump-admin</text>
+      <text class="t-mono" x="288" y="170" font-size="11.5">Next.js · swagger client</text>
+      <text class="t-mono" x="288" y="190" font-size="11.5">base: develop</text>
+      <text class="t-mono" x="288" y="210" font-size="11.5">PR ②</text>
+      <rect class="box" x="510" y="120" width="220" height="110" rx="10"/>
+      <text x="528" y="148" font-size="14" font-weight="700">bump-mobile-app</text>
+      <text class="t-mono" x="528" y="170" font-size="11.5">Flutter · GraphQL client</text>
+      <text class="t-mono" x="528" y="190" font-size="11.5">base: main</text>
+      <text class="t-mono" x="528" y="210" font-size="11.5">PR ③</text>
+      <path class="edge" stroke-dasharray="4 4" d="M250 160 H270"/>
+      <path class="edge" stroke-dasharray="4 4" d="M250 200 C 380 245, 420 245, 510 200"/>
+    </svg>
+  </div>
+  <ul class="bul" data-l="ja">
+    <li>ステップ1で影響リポジトリを判定し、<b>全対象リポジトリに同名ブランチ</b>を作成（例: <code>bug/PDT-1107/fix_season_tab_filter</code>）。</li>
+    <li>実装順は<b>API提供側が先</b>。backend のスキーマ変更 → admin/アプリのクライアント再生成 → 画面側の修正。</li>
+    <li>最終レビューはリポジトリ横断で、APIの項目・型・後方互換性の食い違いを検出。</li>
+    <li>PRはリポジトリ毎に作成して相互リンク。各チームのルール（例: bump-mobile-app の <code>CLAUDE.md</code>・<code>docs/ai/</code>・<code>bump-*</code> スキル）を優先して守る。</li>
+  </ul>
+  <ul class="bul" data-l="en">
+    <li>Stage 1 finds the affected repos and creates <b>the same branch in each</b> (e.g. <code>bug/PDT-1107/fix_season_tab_filter</code>).</li>
+    <li><b>The API owner goes first</b>: backend schema change → regenerate the admin/app clients → screen changes.</li>
+    <li>The final review covers all repos and catches mismatched fields, types and backward-compatibility breaks.</li>
+    <li>One PR per repo, all linked to each other. Each team's own rules win for code, e.g. bump-mobile-app's <code>CLAUDE.md</code>, <code>docs/ai/</code> and <code>bump-*</code> skills.</li>
+  </ul>
+</section>
+
+<section id="setup">
+  <div class="eyebrow">Setup</div>
+  <h2 data-l="ja">はじめに（端末ごとに1回）</h2>
+  <h2 data-l="en">Getting started (once per machine)</h2>
+  <ol class="steps">
+    <li><div><h3 data-l="ja">フローと3リポジトリを取得</h3><h3 data-l="en">Get the flow and the 3 repos</h3>
+<pre>git clone https://gitlab.shiftasia.com/cong.nguyen.02/ai-flow-demo.git
+cd ai-flow-demo
+git clone https://github.com/emole-inc/bump-backend.git
+git clone https://github.com/emole-inc/bump-admin.git
+git clone https://github.com/emole-inc/bump-mobile-app.git</pre></div></li>
+    <li><div><h3 data-l="ja">ツールを確認</h3><h3 data-l="en">Check the tools</h3>
+      <p data-l="ja">Claude Code・<code>python3</code>・<code>graphify</code>・<code>gh</code>（<code>gh auth login</code> 済み）、各リポジトリの開発環境（Go / Node・yarn / FVM・Flutter）。</p>
+      <p data-l="en">Claude Code, <code>python3</code>, <code>graphify</code>, <code>gh</code> (after <code>gh auth login</code>), and each repo's toolchain (Go / Node·yarn / FVM·Flutter).</p></div></li>
+    <li><div><h3 data-l="ja">ai-flow-demo で Claude Code を起動し、グラフを作成</h3><h3 data-l="en">Start Claude Code in ai-flow-demo and build the graph</h3>
+<pre>claude
+<span class="cm"># Claude Code の中で / inside Claude Code</span>
+/aiflow analyze</pre></div></li>
+    <li><div><h3 data-l="ja">最初のチケットを開始</h3><h3 data-l="en">Start your first ticket</h3>
+<pre>/aiflow PDT-2350</pre></div></li>
+  </ol>
+</section>
+
+<section id="faq">
+  <div class="eyebrow">FAQ</div>
+  <h2 data-l="ja">困ったとき</h2>
+  <h2 data-l="en">When something's off</h2>
+  <details>
+    <summary><span data-l="ja">途中で止まった／別の人の作業を引き継ぎたい</span><span data-l="en">It stopped midway / I'm taking over someone's ticket</span></summary>
+    <div><p data-l="ja"><code>/aiflow PDT-XXXX</code> を実行するだけです。<code>docs/aiflow/PDT-XXXX/status.md</code> を読み、完了済みのステップを飛ばして続きから再開します。チャット履歴は不要です。</p>
+    <p data-l="en">Just run <code>/aiflow PDT-XXXX</code>. It reads <code>docs/aiflow/PDT-XXXX/status.md</code>, skips the finished stages, and continues. No chat history needed.</p></div>
+  </details>
+  <details>
+    <summary><span data-l="ja">仕様やプランを直したい</span><span data-l="en">I want to change the spec or plan</span></summary>
+    <div><p data-l="ja">承認前なら「修正あり」を選んで指示してください。承認後なら <code>/aiflow PDT-XXXX redo spec</code>（または <code>redo plan</code>）でやり直せます。</p>
+    <p data-l="en">Before approving, choose "needs changes" and say what to change. After approving, use <code>/aiflow PDT-XXXX redo spec</code> (or <code>redo plan</code>).</p></div>
+  </details>
+  <details>
+    <summary><span data-l="ja">動作確認で不具合が見つかった</span><span data-l="en">QA found a bug</span></summary>
+    <div><p data-l="ja">ステップ6の確認で「不具合あり」を選択します。内容は <code>reviews/qa-findings.md</code> に記録され、再現テストを先に書いてから修正します。直ったら再度 <code>/aiflow PDT-XXXX</code>。</p>
+    <p data-l="en">At the stage-6 check, choose "bug found". It's logged in <code>reviews/qa-findings.md</code>, and the AI writes a reproducing test before fixing. When it's fixed, run <code>/aiflow PDT-XXXX</code> again.</p></div>
+  </details>
+  <details>
+    <summary><span data-l="ja">「ナレッジグラフが未作成です」と出る</span><span data-l="en">It says the knowledge graph is missing</span></summary>
+    <div><p data-l="ja"><code>/aiflow analyze</code> を1回実行してください。最新のリポジトリは自動でスキップされるため、2回目以降は数秒で終わります。</p>
+    <p data-l="en">Run <code>/aiflow analyze</code> once. Repos that are already up to date are skipped, so later runs take seconds.</p></div>
+  </details>
+  <details>
+    <summary><span data-l="ja">AI利用料はどこで見られる？</span><span data-l="en">Where do I see AI usage cost?</span></summary>
+    <div><p data-l="ja"><code>/aiflow PDT-XXXX status</code> で、ステップ毎の所要時間・トークン数・概算料金（API換算）を表示します。記録は <code>docs/aiflow/PDT-XXXX/log.json</code>。難易度判断の閾値調整に使います。</p>
+    <p data-l="en"><code>/aiflow PDT-XXXX status</code> shows time, tokens and estimated cost (at API prices) per stage. The data is in <code>docs/aiflow/PDT-XXXX/log.json</code> and is used to tune the triage thresholds.</p></div>
+  </details>
+  <details>
+    <summary><span data-l="ja">設定を変えたい（テストコマンド・ブランチ・判定条件）</span><span data-l="en">I want to change settings (test commands, branches, triage)</span></summary>
+    <div><p data-l="ja">すべて <code>aiflow/workflow.yaml</code> にあります。スキルを編集する必要はありません。</p>
+    <p data-l="en">Everything is in <code>aiflow/workflow.yaml</code>. No need to edit the skills.</p></div>
+  </details>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <span data-l="ja">詳細: <code>README.md</code> · <code>aiflow/README.ja.md</code> · 設定: <code>aiflow/workflow.yaml</code></span>
+  <span data-l="en">More: <code>README.md</code> · <code>aiflow/README.en.md</code> · Config: <code>aiflow/workflow.yaml</code></span>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  function setLang(l){
+    root.classList.toggle('en',l==='en');
+    root.lang=l;
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.lang===l));});
+    try{localStorage.setItem('aiflow-guide-lang',l);}catch(e){}
+  }
+  var saved='ja';
+  try{saved=localStorage.getItem('aiflow-guide-lang')||'ja';}catch(e){}
+  setLang(saved);
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.lang);});});
+
+  var stages=document.getElementById('stages'), note=document.getElementById('route-note');
+  var notes={
+    full:'<span data-l="ja">完全版: 複数リポジトリ・API変更・新規開発など。全ステップを実行します。</span><span data-l="en">Full: multi-repo, API changes, new features. Every stage runs.</span>',
+    light:'<span data-l="ja">省略版: 1リポジトリの小さな不具合。ステップ3・5を省き、軽量モデルで実行します（ステップ2の仕様に実装タスクを含めます）。</span><span data-l="en">Light: a small bug in one repo. Stages 3 and 5 are skipped and a cheaper model runs; the stage-2 spec carries the implementation tasks.</span>'
+  };
+  document.querySelectorAll('.route button').forEach(function(b){
+    b.addEventListener('click',function(){
+      var r=b.dataset.r;
+      document.querySelectorAll('.route button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});
+      stages.classList.toggle('light-mode',r==='light');
+      note.innerHTML=notes[r];
+    });
+  });
+
+  document.querySelectorAll('[data-copy]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var text=b.dataset.copy, old=b.innerHTML;
+      function done(){b.textContent='✓';setTimeout(function(){b.innerHTML=old;},1200);}
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done,function(){b.textContent=text;});
+      }else{b.textContent=text;}
+    });
+  });
+})();
+</script>
