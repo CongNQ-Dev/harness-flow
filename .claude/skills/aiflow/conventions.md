@@ -52,6 +52,14 @@ ai-flow-demo/                      ← workspace repo (GitLab). Run Claude Code 
 
 ## 4. One stage per turn, then a hard stop
 
+**One exception:** on the light route, `aiflow-spec` §1.4 writes stage 1 and
+stage 2's output (`ticket.md` and `spec.md`) in the same run, behind one
+combined approval — a small bug's triage and fix-write-up are one step, not
+two, the same shape as a bugfix fast-track. That single run still ends with
+exactly one close per below (both stages' rows, both `aiflow_log.py end`
+calls, one stop). Every other stage, on either route, is one stage per turn
+as written here.
+
 Every stage ends with, **in this order, in the same turn, as real tool calls**:
 
 1. Update `status.md` with the Edit tool (frontmatter `stage_done` / `next` /

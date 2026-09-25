@@ -89,6 +89,14 @@ pr:
 # Stages — one folder, fixed filenames, a hard stop after every stage.
 # `cmd` is the skill that runs it; /aiflow <ID> always picks the right one.
 # gate: a human must approve before the next stage starts (recorded in status.md).
+#
+# Light-route exception: for a small bug, stages 1 and 2 are produced by ONE
+# run of aiflow-spec (§1.4 there) — triage + writing spec.md inline, one
+# combined approval, no separate dialogue stop. This mirrors a bugfix
+# fast-track (triage and the fix write-up as one step), not the full
+# investigate-then-dialogue process stage 2 runs for everyone else. See
+# .claude/skills/aiflow-spec/SKILL.md §1.4 for exactly where it applies and
+# where it falls back to the normal two-stop flow.
 # ---------------------------------------------------------------------------
 stages:
   - {n: 1, id: ticket,   name_ja: チケット正規化,          cmd: aiflow-spec,   writes: [ticket.md, status.md], gate: true}
@@ -99,9 +107,11 @@ stages:
   - {n: 6, id: deliver,  name_ja: 納品（PR作成）,          cmd: aiflow-review, writes: [PR per repo],           gate: true}
 
 # ---------------------------------------------------------------------------
-# Triage (難易度判断) — decided at the end of Stage 1, re-checked at the end of
-# Stage 2. light = stages 1,2,4,6 ; full = 1..6. Human always confirms unless
-# auto_light is true AND every check is clean.
+# Triage (難易度判断) — decided at the end of Stage 1 from symptom-level
+# evidence, then re-checked against real code during the light fast-track's
+# investigation (aiflow-spec §1.4) before anything is finalized. light =
+# stages 1,2,4,6 (1+2 as one run, small bug only) ; full = 1..6. Human always
+# confirms unless auto_light is true AND every check is clean.
 # ---------------------------------------------------------------------------
 triage:
   auto_light: false

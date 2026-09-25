@@ -7,7 +7,9 @@ argument-hint: "[<TICKET-ID> [feature | redo <stage> | status] | analyze]"
 # /aiflow — AI Flow entry point (router)
 
 The user only needs to remember this command. It figures out where a ticket
-is and runs **exactly one** stage, then stops. Read
+is and runs **the next stage**, then stops — one stage per turn, except the
+light route's small-bug fast-track, which does stage 1+2 together as one
+combined step (conventions §4's one documented exception). Read
 `.claude/skills/aiflow/conventions.md` once per session.
 
 ## Dispatch on the arguments
@@ -52,18 +54,31 @@ Ticket IDs are case-insensitive; normalize to upper case (`pdt-2350` → `PDT-23
 
 | # | Stage | Skill | light | full |
 |---|---|---|---|---|
-| 1 | チケット正規化 | aiflow-spec (§Stage 1) | ✅ | ✅ |
-| 2 | 仕様作成 | aiflow-spec (§Stage 2) | ✅ | ✅ |
+| 1 | チケット正規化 | aiflow-spec (§Stage 1 / §1.4) | ✅ | ✅ |
+| 2 | 仕様作成 | aiflow-spec (§1.4 light / §Stage 2 full) | ✅ | ✅ |
 | 3 | 修正プラン | aiflow-plan | — | ✅ |
 | 4 | 修正実装 | aiflow-impl | ✅ | ✅ |
 | 5 | レビュー・テストケース作成 | aiflow-review (§Stage 5) | — | ✅ |
 | 6 | 納品（PR作成） | aiflow-review (§Stage 6) | ✅ | ✅ |
 
-Stages 5 and 6 are both written inside the single `aiflow-review` skill file
+**Stages 1 and 2, on light route, are one run — not two.** For a small bug,
+`aiflow-spec` §1.4 investigates and writes `spec.md` inline right after
+triage, gets one combined approval, and closes both stages' rows in the same
+turn: no separate stop-and-wait for a dialogue. `/aiflow` doesn't need to
+know this — it just invokes `aiflow-spec` once and the skill decides
+internally, same as any other stage. This mirrors a bugfix fast-track
+(triage and the fix write-up as one step) rather than the full
+investigate-then-dialogue process full-route tickets get in Stage 2.
+
+**Stages 5 and 6 are both written inside the single `aiflow-review` skill file**
 as two separate sections — not two invocations of the same procedure. On the
 light route, stage 5's section never runs; stage 6's section always does.
 `/aiflow` picks the right section by reading `status.md`, same as any other
 stage; you never choose the section yourself.
 
-The route (light/full) is decided by triage at the end of stage 1, confirmed by
-the user, and can only be upgraded (light → full) automatically.
+The route (light/full) is decided by triage at the end of stage 1 from
+symptom-level evidence, then re-checked against real code during the light
+fast-track's investigation (§1.4) — a ticket that fails the deeper check
+falls back to full before anything commits. The user confirms the route
+either way; it can only be upgraded (light → full) automatically, never
+downgraded silently.

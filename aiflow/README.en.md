@@ -23,12 +23,21 @@ Every stage stops when it finishes. Read the output, then type `/aiflow PDT-2350
 
 | # | Stage | Run by | Output (`docs/aiflow/<ID>/`) | Human | light | full |
 |---|---|---|---|---|---|---|
-| 1 | Ticket normalize: affected repos, triage, branches | `/aiflow-spec` | `ticket.md`, `status.md` | approve | ✅ | ✅ |
-| 2 | Spec: root cause / design | `/aiflow-spec` | `spec.md` | approve | ✅ | ✅ |
+| 1 | Ticket normalize: affected repos, triage, branches | `/aiflow-spec` (§ Stage 1) | `ticket.md`, `status.md` | approve | ✅ | ✅ |
+| 2 | Spec: root cause / design | `/aiflow-spec` (light: § 1.4 / full: § Stage 2) | `spec.md` | approve | ✅ | ✅ |
 | 3 | Fix plan (tasks, one repo each) | `/aiflow-plan` | `plan.md` | approve | — | ✅ |
 | 4 | Implementation (TDD + 2 reviews per task) | `/aiflow-impl` | code, `reviews/task*.md` | — | ✅ | ✅ |
 | 5 | Final review across repos + test cases | `/aiflow-review` (§ Stage 5 section) | `reviews/final-review.md`, `test-cases.md` | — | — | ✅ |
 | 6 | Delivery: tests, manual QA gate, PR per repo | `/aiflow-review` (§ Stage 6 section) | PR URLs in `status.md` | QA / approve | ✅ | ✅ |
+
+**On light route, stages 1 and 2 run as one turn, not two.** For a small bug,
+`aiflow-spec` investigates and writes `spec.md` inline right after triage,
+behind one combined approval — no separate stop for a dialogue. This is a
+fast-track (triage and the fix write-up as one step), distinct from the real
+investigate-then-dialogue process full route (and every non-bug ticket)
+still gets in stage 2. If the investigation finds the ticket doesn't
+actually qualify as light, it falls back to full on the spot and runs the
+normal stage-2 dialogue later.
 
 Stages 5 and 6 are two separate sections inside the same `aiflow-review` skill file, not two runs of the same procedure. On the light route only stage 5's section is skipped; stage 6's always runs. You never pick the section yourself — `/aiflow` reads `status.md` and runs the right one.
 

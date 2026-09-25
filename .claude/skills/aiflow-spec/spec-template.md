@@ -1,9 +1,19 @@
-# spec.md template (output contract of stage 2)
+# spec.md template
 
-Written in Japanese. Code, identifiers, paths, commands stay literal. Stage 3
-(`/aiflow-plan`) — or, on the light route, stage 4 (`/aiflow-impl`) — reads
-this file, so every section below is required; write `該当なし` rather than
-dropping a section.
+Written in Japanese. Code, identifiers, paths, commands stay literal.
+Two producers, same file shape:
+
+- **Full route** — written by Stage 2 (`/aiflow-spec` §Stage 2) after the full
+  investigate-and-dialogue process. Stage 3 (`/aiflow-plan`) reads it next.
+- **Light fast-track** — written by Stage 1 (`/aiflow-spec` §1.4) inline,
+  right after triage, with no dialogue. Stage 4 (`/aiflow-impl`) reads it
+  directly (Stage 2 and 3 never run). Two sections differ from the full form:
+  no "検討して却下した案" (there was no dialogue to compare approaches in),
+  and 実装タスク is filled in here rather than by Stage 3.
+
+Every section below is required either way; write `該当なし` rather than
+dropping one — on the light fast-track, that includes the (empty)
+"検討して却下した案" heading, kept for a consistent file shape.
 
 ```markdown
 ---

@@ -224,30 +224,34 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
   <ol class="stages" id="stages">
     <li class="stage">
       <div class="n">1</div>
-      <h3><span data-l="ja">チケット正規化</span><span data-l="en">Ticket normalize</span> <span class="internal">aiflow-spec</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
+      <h3><span data-l="ja">チケット正規化</span><span data-l="en">Ticket normalize</span> <span class="internal">aiflow-spec · Stage 1</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
       <dl class="cols">
         <div><dt data-l="ja">AI</dt><dt data-l="en">AI</dt>
           <dd data-l="ja">Notionチケットを読み取り、テンプレートに正規化。ナレッジグラフで影響リポジトリを判定し、難易度判断で省略版/完全版を提案。各リポジトリに同名ブランチを作成。</dd>
           <dd data-l="en">Reads the Notion ticket and normalizes it. Finds the affected repos with the knowledge graph, proposes light/full, creates the same branch in each repo.</dd></div>
         <div><dt data-l="ja">あなた</dt><dt data-l="en">You</dt>
-          <dd data-l="ja">読み取り方法（Notion MCP / ブラウザ / 貼り付け）を選び、内容・対象リポジトリ・ルートを承認。</dd>
-          <dd data-l="en">Pick how to read the ticket (Notion MCP / browser / paste), then approve the content, repos and route.</dd></div>
+          <dd data-l="ja">読み取り方法（Notion MCP / ブラウザ / 貼り付け）を選び、内容・対象リポジトリ・ルートを承認。省略版の小さな不具合はこのまま同じ実行内でステージ2まで進み、下の内容も一緒に承認します。</dd>
+          <dd data-l="en">Pick how to read the ticket (Notion MCP / browser / paste), then approve the content, repos and route. For a small bug on light route, this same run continues into stage 2 below and you approve both together.</dd></div>
       </dl>
       <div class="out"><code>ticket.md</code><code>status.md</code></div>
     </li>
     <li class="stage">
       <div class="n">2</div>
-      <h3><span data-l="ja">仕様作成</span><span data-l="en">Spec</span> <span class="internal">aiflow-spec</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
+      <h3><span data-l="ja">仕様作成</span><span data-l="en">Spec</span> <span class="internal">aiflow-spec · §1.4 light / Stage 2 full</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
       <dl class="cols">
         <div><dt>AI</dt>
-          <dd data-l="ja">コードを読んで根本原因を特定（file:line の根拠付き）。2〜3案を比較し、リポジトリ別の変更とAPI契約を整理。コードはまだ書かない。</dd>
-          <dd data-l="en">Traces the root cause in the code, with file:line evidence. Compares 2–3 approaches and lists changes per repo and API contract. Writes no code yet.</dd></div>
+          <dd data-l="ja"><strong>完全版:</strong> コードを読んで根本原因を特定（file:line の根拠付き）。2〜3案を比較し、リポジトリ別の変更とAPI契約を整理。コードはまだ書かない。<br><strong>省略版（小さな不具合）:</strong> 対話なし。ステージ1のトリアージ直後にその場で根本原因を調査し、1案のまま spec.md まで直接書く（ファストトラック）。</dd>
+          <dd data-l="en"><strong>Full route:</strong> Traces the root cause in the code, with file:line evidence. Compares 2–3 approaches and lists changes per repo and API contract. Writes no code yet.<br><strong>Light route (small bug):</strong> No dialogue — investigates the root cause immediately after stage 1's triage and writes spec.md directly with the one approach taken (a fast-track).</dd></div>
         <div><dt data-l="ja">あなた</dt><dt data-l="en">You</dt>
-          <dd data-l="ja">AIの質問に1つずつ回答し、方針を選んで仕様を承認。</dd>
-          <dd data-l="en">Answer its questions one at a time, pick the approach, approve the spec.</dd></div>
+          <dd data-l="ja"><strong>完全版:</strong> AIの質問に1つずつ回答し、方針を選んで仕様を承認。<br><strong>省略版:</strong> 上のステージ1の承認と同時に済んでいる — 追加の対話はない。</dd>
+          <dd data-l="en"><strong>Full route:</strong> Answer its questions one at a time, pick the approach, approve the spec.<br><strong>Light route:</strong> Already covered by stage 1's approval above — no extra dialogue.</dd></div>
       </dl>
       <div class="out"><code>spec.md</code></div>
     </li>
+    <p class="route-note" style="margin:-4px 0 4px">
+      <span data-l="ja">※ 省略版ではステージ1・2は1回の実行でまとめて完了します（対話なし、承認は1回）。トリアージ直後にAIがその場で調査し spec.md まで書きます — これはトリアージと修正案作成を1ステップで行う「ファストトラック」であり、完全版が受ける複数ターンの対話とは別物です。調査の途中で省略版の条件を満たさないと分かった場合は、その場で完全版に切り替わります。</span>
+      <span data-l="en">Note: on light route, stages 1 and 2 finish together in one run (no dialogue, one approval). The AI investigates immediately after triage and writes spec.md then and there — a fast-track that does triage and the fix write-up as one step, distinct from the multi-turn dialogue full route gets. If the investigation finds the ticket doesn't actually qualify as light, it falls back to full on the spot.</span>
+    </p>
     <li class="stage fullonly">
       <div class="n">3</div>
       <h3><span data-l="ja">修正プラン</span><span data-l="en">Fix plan</span> <span class="internal">aiflow-plan</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span> <span class="skipbadge" data-l="ja">省略版ではスキップ</span><span class="skipbadge" data-l="en">skipped on light</span></h3>
@@ -342,11 +346,11 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
   <div class="eyebrow">Triage · 難易度判断</div>
   <h2 data-l="ja">省略版と完全版</h2>
   <h2 data-l="en">Light route and full route</h2>
-  <p class="lead" data-l="ja">ステップ1の最後にAIが根拠付きで判定し、あなたが確定します。簡単なチケットは軽量モデル＋省略版でAI利用料を抑えます。ステップ2で複雑さが判明したら自動で完全版に切り替わります。</p>
-  <p class="lead" data-l="en">At the end of stage 1 the AI proposes a route with evidence, and you confirm it. Simple tickets use a cheaper model and the light route to keep AI costs down. If stage 2 finds more complexity, the ticket switches to full automatically.</p>
+  <p class="lead" data-l="ja">ステップ1の最後にAIが根拠付きで判定し、あなたが確定します。簡単なチケットは軽量モデル＋省略版でAI利用料を抑えます。省略版が確定した小さな不具合は、その場（ステップ1の実行中）で根本原因を調査して仕様まで書いてしまいます — 対話は挟みません。調査中に複雑さが判明したら自動で完全版に切り替わります。</p>
+  <p class="lead" data-l="en">At the end of stage 1 the AI proposes a route with evidence, and you confirm it. Simple tickets use a cheaper model and the light route to keep AI costs down. A small bug confirmed as light gets its root cause investigated and its spec written right there, during stage 1's run — no dialogue. If that investigation finds more complexity, it switches to full automatically.</p>
   <div class="two">
     <div class="panel l">
-      <h3><span data-l="ja">省略版</span><span data-l="en">Light</span><small>1 → 2 → 4 → 6</small></h3>
+      <h3><span data-l="ja">省略版</span><span data-l="en">Light</span><small data-l="ja">1+2（1回で）→ 4 → 6</small><small data-l="en">1+2 (one run) → 4 → 6</small></h3>
       <ul data-l="ja">
         <li>1リポジトリのみ</li><li>変更ファイル3以下</li><li>API・GraphQL・DB・契約の変更なし</li>
         <li>原因箇所を特定済み（file:line）</li><li>不具合対応（新規開発ではない）</li><li>課金・認証・引継ぎ・DB に該当しない</li>

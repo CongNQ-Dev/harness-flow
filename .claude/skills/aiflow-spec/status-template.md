@@ -46,8 +46,21 @@ updated: 2026-09-25
 Status markers: `✅ 完了` · `⏳ 進行中（タスク2/4）` · `⬜ 未着手` · `⏭️ 省略（light）`
 
 For `route: light`, rows 3 and 5 are `⏭️ 省略（light）` from the moment the
-route is confirmed. If the route is upgraded light → full at the end of stage 2,
-change them back to `⬜ 未着手`.
+route is confirmed. If the route is upgraded light → full during stage 1's
+fast-track investigation (§1.4 of `aiflow-spec`), change them back to `⬜ 未着手`.
+
+**Light fast-track closes rows 1 and 2 together.** `aiflow-spec` §1.4 writes
+`spec.md` inline during stage 1 — there is no separate stage-2 run for a
+light ticket. When it does, write `stage_done: 2` directly (never a resting
+`stage_done: 1` for a light ticket that completed §1.4) and mark **both**
+rows `✅ 完了` with the same `updated` date, from the one combined approval:
+
+```markdown
+| 1. チケット正規化 (/aiflow-spec) | ✅ 完了 | ticket.md | sasaki 2026-09-25 |
+| 2. 仕様作成 (/aiflow-spec §1.4 省略版) | ✅ 完了 | spec.md | sasaki 2026-09-25 |
+```
 
 `approvals:` records who approved a gated stage (1 ticket, 2 spec, 3 plan,
 6 manual test). Use the name the user gives; if they give none, use `human`.
+On the light fast-track, `approvals.ticket` and `approvals.spec` both point
+at the same confirmation — that's expected, not a duplicate to clean up.

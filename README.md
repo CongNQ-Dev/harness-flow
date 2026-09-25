@@ -62,6 +62,15 @@ Run `/aiflow PDT-XXXX` again after checking each stage's output. That's the whol
 | 5 | Final review across repos + manual test cases | — | `reviews/final-review.md` `test-cases.md` | — | ✅ |
 | 6 | Delivery: tests, manual QA gate, one PR per repo | QA, approve | PR links | ✅ | ✅ |
 
+On light route (a small bug), stages 1 and 2 run as **one** turn, not two:
+`/aiflow-spec` triages, investigates, and writes `spec.md` inline right after,
+behind a single combined approval — no separate dialogue stop. That's a
+fast-track (triage + fix write-up as one step), not "the same dialogue, just
+also gated on stage 1." Full route, and any non-bug ticket, always gets the
+real stage-2 dialogue separately. Stages 5 and 6 are two sections of one
+`aiflow-review` skill file, not two runs of the same procedure — light skips
+only stage 5's section.
+
 **light** (1→2→4→6) is used only when the ticket touches one repo, 3 files or
 fewer, no API/schema/DB change, the root cause is located, it is a bug, and it
 is not in a sensitive area (billing, auth, migration). Everything else runs
