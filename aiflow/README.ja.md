@@ -78,8 +78,26 @@ Notion チケットは Notion MCP、ブラウザ、貼り付けのいずれか�
 | `aiflow/scripts/` | `aiflow_status.py`（進捗・次ステップ判定） · `aiflow_log.py`（処理ログ） · `kg_build.py`（ナレッジグラフ） |
 | `.claude/skills/aiflow*/` | 各ステップのスキルとテンプレート |
 | `.claude/skills/aiflow/conventions.md` | 全ステップ共通のルール（ステップ毎の停止・承認・git・言語） |
+| `.claude/skills/`（`aiflow-` が付かないもの） | 各ステージが内部的に読み込む汎用スキル（下記） |
 | `docs/aiflow/<ID>/` | チケット毎のフォルダ。再開時は `status.md` から読む |
 | `aiflow/selected-bugs/` | Notion のチケット一覧（チケットID → Notion URL） |
+
+**`aiflow-` が付いていないスキルについて。** `.claude/skills/` には
+`test-driven-development` `systematic-debugging` `verification-before-completion`
+`receiving-code-review` `requesting-code-review` `dispatching-parallel-agents`
+`graphify` の7つもあります。`aiflow-` プレフィックスが**あえて**付いていません
+— これらは AI Flow 専用ではなく、各ステージが状況に応じて内部的に読み込む汎用の
+開発規律スキルだからです。`/` メニューには出ません
+（`user-invocable: false`）。理由は2つ:
+
+1. `/aiflow-*` と名前が衝突しないようにするため。
+2. 各スキルの `description` が `Use when...` で始まる標準的なトリガー形式に
+   なっており、コマンドとして呼ぶのではなく、状況に合わせてAIが自動的に
+   読み込む仕組みだからです（例: バグに直面したら `systematic-debugging`、
+   実装前に `test-driven-development`）。
+
+自分で直接使うことはありません — `docs/aiflow/aiflow*/` の各ステージが
+必要なときに呼び出します。
 
 ## 他の人の作業を引き継ぐとき
 

@@ -96,6 +96,20 @@ FVM/Flutter). Notion is read through the Notion MCP, the browser, or pasted text
 | `.claude/skills/aiflow*/` | The stage skills and their templates (`ticket-template.md`, `spec-template.md`, `plan-template.md`, subagent prompts) |
 | `.claude/skills/aiflow/conventions.md` | Rules every stage follows: stop after each stage, gates, git, language |
 | `.claude/skills/{test-driven-development,systematic-debugging,…}` | Engineering disciplines the stages load internally (hidden from the `/` menu) |
+
+**Why these carry no `aiflow-` prefix.** Only skills prefixed `aiflow-` are
+stages themselves — what `/aiflow` invokes. The other seven
+(`test-driven-development`, `systematic-debugging`,
+`verification-before-completion`, `receiving-code-review`,
+`requesting-code-review`, `dispatching-parallel-agents`, `graphify`) are
+generic engineering-discipline skills each stage loads internally when the
+situation calls for it, not AI Flow-specific orchestration steps. They are
+deliberately unprefixed and `user-invocable: false`, for two reasons: it
+guarantees no name collides with `/aiflow-*`, and each one's `description`
+follows the standard "Use when…" trigger convention — the AI loads it
+automatically from that description (e.g. `systematic-debugging` on any bug,
+`test-driven-development` before writing code) rather than being invoked by
+name. You never call one directly; a stage does.
 | `docs/aiflow/<ID>/` | One folder per ticket; `status.md` is the resume point |
 | `aiflow/selected-bugs/` | Notion ticket lists (ticket ID → Notion URL) |
 

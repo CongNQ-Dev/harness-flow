@@ -473,6 +473,11 @@ git clone https://github.com/emole-inc/bump-mobile-app.git</pre></div></li>
     <div><p data-l="ja">すべて <code>aiflow/workflow.yaml</code> にあります。スキルを編集する必要はありません。</p>
     <p data-l="en">Everything is in <code>aiflow/workflow.yaml</code>. No need to edit the skills.</p></div>
   </details>
+  <details>
+    <summary><span data-l="ja"><code>.claude/skills/</code> に <code>aiflow-</code> が付かないスキルがあるのはなぜ？</span><span data-l="en">Why do some skills in <code>.claude/skills/</code> have no <code>aiflow-</code> prefix?</span></summary>
+    <div><p data-l="ja"><code>aiflow-</code> で始まるものだけがステージ本体で、<code>/aiflow</code> から呼ばれます。<code>test-driven-development</code>・<code>systematic-debugging</code>・<code>verification-before-completion</code>・<code>receiving-code-review</code>・<code>requesting-code-review</code>・<code>dispatching-parallel-agents</code>・<code>graphify</code> の7つは、各ステージが状況に応じて内部的に読み込む汎用スキルです。プレフィックスをあえて付けず、<code>/</code> メニューにも出しません（<code>user-invocable: false</code>）— <code>/aiflow-*</code> と名前が衝突しないのと、それぞれの説明文が「Use when…」で始まる標準形式で書かれていて、AIが状況を見て自動的に読み込む仕組みだからです。自分で直接呼ぶことはありません。</p>
+    <p data-l="en">Only skills prefixed <code>aiflow-</code> are the stages themselves — what <code>/aiflow</code> calls. The other seven (<code>test-driven-development</code>, <code>systematic-debugging</code>, <code>verification-before-completion</code>, <code>receiving-code-review</code>, <code>requesting-code-review</code>, <code>dispatching-parallel-agents</code>, <code>graphify</code>) are generic engineering-discipline skills each stage loads internally when the situation calls for it. They're deliberately unprefixed and hidden from the <code>/</code> menu (<code>user-invocable: false</code>) — that guarantees no collision with <code>/aiflow-*</code>, and each one's description follows the standard "Use when…" trigger format so the AI loads it automatically from context. You never call one directly.</p></div>
+  </details>
 </section>
 
 </main>

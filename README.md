@@ -75,6 +75,8 @@ is not in a sensitive area (billing, auth, migration). Everything else runs
 | `CLAUDE.md` | Workspace rules Claude Code loads on start |
 | `.claude/skills/aiflow*/` | The flow: router `aiflow` plus the stage skills, their templates and subagent prompts |
 | `.claude/skills/*` (others) | Engineering disciplines used internally (TDD, debugging, verification, code review), hidden from the `/` menu |
+
+Only `aiflow-` prefixed skills are stages (`/aiflow` invokes them). The rest are deliberately unprefixed, generic engineering-discipline skills each stage loads internally by situation (their `description` starts with "Use when…", the standard auto-trigger convention) — `user-invocable: false` keeps them out of the `/` menu and out of any collision with `/aiflow-*`. You never invoke one directly.
 | `.claude/settings.json` | Hooks: knowledge-graph reminder, usage logging |
 | `aiflow/workflow.yaml` | **The config**: repos, base branches, test commands, cross-repo contracts, triage rules, models |
 | `aiflow/scripts/` | `aiflow_status.py` (board and next stage) · `aiflow_log.py` (usage log) · `kg_build.py` (knowledge graph) |
