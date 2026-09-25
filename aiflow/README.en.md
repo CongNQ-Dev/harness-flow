@@ -57,6 +57,8 @@ downgraded without asking.
 gets a `feature/<ID>/<slug>` branch and a design-style spec (background and
 purpose instead of root cause). Stages 2–6 are the same.
 
+**How bug vs. feature is decided.** `/aiflow PDT-XXXX feature` overrides everything. Otherwise the primary signal is the Notion ticket's **種別 (type) property** — a defect-naming value (不具合 / Bug) → bug, a new/improved-behavior value (新機能 / Feature / new development) → feature — recorded in ticket.md's 種別 row as the evidence. If 種別 is empty or ambiguous, the AI reads the ticket body: broken current behavior with repro steps → bug; only a description of desired new behavior → feature. It asks you, once, only if that still doesn't resolve it — never a guess.
+
 ## Cross-repo tickets
 
 - Stage 1 decides which repos are affected, with evidence from the knowledge

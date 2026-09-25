@@ -483,6 +483,11 @@ git clone https://github.com/emole-inc/bump-mobile-app.git</pre></div></li>
     <p data-l="en">The two track different axes, so neither substitutes for the other. <code>status.md</code> is <strong>progress</strong> — which stage is done, who approved it — and it's the only thing <code>/aiflow</code> reads to route. <code>log.json</code> is <strong>usage</strong> — time, tokens, cost per stage — and never feeds routing. It answers what progress tracking can't: "is light route actually cheaper than full", "which stage costs the most" — the AI-cost-optimization requirement from the proposal.</p></div>
   </details>
   <details>
+    <summary><span data-l="ja">不具合と新規開発、どうやって見分ける？</span><span data-l="en">How does it tell a bug from a new feature?</span></summary>
+    <div><p data-l="ja"><code>/aiflow PDT-XXXX feature</code> と明示すれば最優先で feature になります。指定がなければ、まず Notion チケットの<strong>種別プロパティ</strong>を見ます — 「不具合」「Bug」系の値なら bug、「新機能」「Feature」「新規開発」系の値なら feature。これが主な判断材料で、<code>ticket.md</code> の「種別」欄にそのまま記録されるので、後から確認もできます。種別が空・曖昧な場合は本文を見て、既存の壊れた挙動＋再現手順があれば bug、新しい望ましい挙動の説明だけなら feature と判断します。それでも決められない場合だけ、AIが1回質問します — 推測はしません。</p>
+    <p data-l="en"><code>/aiflow PDT-XXXX feature</code> overrides everything. Otherwise the primary signal is the Notion ticket's <strong>種別 (type) property</strong> — a defect-naming value (不具合 / Bug) → bug, a new/improved-behavior value (新機能 / Feature / new development) → feature — recorded in <code>ticket.md</code>'s 種別 row as the evidence, so you can check it later. If 種別 is empty or ambiguous, the AI reads the ticket body: broken current behavior with repro steps → bug; only a description of desired new behavior → feature. It asks you, once, only if that still doesn't resolve it — never a guess.</p></div>
+  </details>
+  <details>
     <summary><span data-l="ja">設定を変えたい（テストコマンド・ブランチ・判定条件）</span><span data-l="en">I want to change settings (test commands, branches, triage)</span></summary>
     <div><p data-l="ja">すべて <code>aiflow/workflow.yaml</code> にあります。スキルを編集する必要はありません。</p>
     <p data-l="en">Everything is in <code>aiflow/workflow.yaml</code>. No need to edit the skills.</p></div>

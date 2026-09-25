@@ -47,6 +47,8 @@ bump-backend / bump-admin / bump-mobile-app の3プロジェクトを横断し�
 
 **不具合対応と新規開発:** 違うのは入口だけです。新規・保守開発では `feature/<ID>/<slug>` ブランチを作成し、仕様は「背景と目的」から書きます。ステップ2〜6は共通です。
 
+**bug/feature はどう決まる？** `/aiflow PDT-XXXX feature` と明示すればそれが最優先。指定がなければ、まず Notion チケットの**種別プロパティ**を見ます（不具合・Bug 系の値なら bug、新機能・Feature・新規開発系の値なら feature）—これが主な判断材料で、ticket.md の「種別」欄にもそのまま記録されます。種別が空・曖昧な場合は本文を見て、既存の壊れた挙動＋再現手順があれば bug、新しい望ましい挙動の説明だけなら feature と判断します。それでも判断できない場合だけ、AIが1回質問して確定します（推測はしません）。
+
 ## リポジトリ横断チケット
 
 - ステップ1で、ナレッジグラフと `workflow.yaml` の契約（backend swagger → admin、backend GraphQL → アプリ）を根拠に影響リポジトリを判定します。PDT-1107（admin＋backend）や PDT-1136（backend＋アプリ側ヘッダー）のように、片側だけでは解決しないケースを想定しています。

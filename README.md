@@ -51,6 +51,11 @@ Notion MCP, the browser, or by pasting the ticket text.
 
 Run `/aiflow PDT-XXXX` again after checking each stage's output. That's the whole loop.
 
+Without `feature`, bug vs. feature is decided from evidence — primarily the
+Notion ticket's 種別 property, then the ticket body if that's missing — not
+guessed; see [`aiflow/README.en.md`](aiflow/README.en.md) § "How bug vs.
+feature is decided".
+
 ## Stages
 
 | # | Stage | You | Output in `docs/aiflow/<ID>/` | light | full |

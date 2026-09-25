@@ -47,8 +47,25 @@ lists, one file per team) and ask which ticket to start with `AskUserQuestion`.
   everything including comments and screenshots.
 - **貼り付け** — the user pastes the ticket text.
 
-Kind: `bug` unless the argument says `feature` or the Notion ticket is a
-new/maintenance development item (新規・保守開発). Ask only if it is really unclear.
+### Kind: bug or feature — decide with evidence, in this order
+
+1. **Explicit argument.** `/aiflow <ID> feature` → `kind: feature`, decided,
+   skip the rest.
+2. **Notion's 種別 property**, if the ticket has one — this is the primary
+   signal, not a fallback. A value naming a defect (不具合 / Bug / バグ) →
+   `bug`. A value naming new or improved behavior (新機能 / Feature /
+   Enhancement / 新規開発 / 保守開発) → `feature`. Record which value decided
+   it in ticket.md's 基本情報 > 種別 row — that row is also the evidence for
+   this decision, not just display text.
+3. **No 種別, or it's ambiguous** (`Task`, `Chore`, `Improvement`, empty).
+   Read the ticket body: it names *broken* current behavior with repro steps
+   and an expected-vs-actual gap → `bug`. It only describes *desired* new
+   behavior, with no current behavior being wrong → `feature`.
+4. **Still unclear after step 3** — ask **one** `AskUserQuestion`
+   (バグ対応 / 新規・保守開発) before continuing. Never guess past this point;
+   `kind` decides the branch prefix, the ticket-template section headings,
+   and — via `triage.light_requires_all` — whether light route is even
+   possible for this ticket.
 
 ### 1.2 Normalize
 
