@@ -14,6 +14,13 @@ ai-flow-demo/                 ← this repo: the AI Flow (start Claude Code here
 **Visual guide:** open [`aiflow/guide.html`](aiflow/guide.html) in a browser (日本語 / English).
 Full reference: [`aiflow/README.ja.md`](aiflow/README.ja.md) · [`aiflow/README.en.md`](aiflow/README.en.md)
 
+**Want this flow on a different project?** It's not BUMP-specific — every
+skill reads repo facts from `aiflow/workflow.yaml`, nothing is hard-coded.
+Run [`install.sh`](install.sh) against that project; it clones this repo into
+a temp dir and copies only the skill bundle, so you never clone it directly.
+See "Adopting this in another project" in
+[`aiflow/README.en.md`](aiflow/README.en.md).
+
 ## Quick start
 
 ```bash

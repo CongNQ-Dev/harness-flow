@@ -1,6 +1,6 @@
 ---
 name: aiflow-analyze
-description: Build or refresh the workspace-wide knowledge graph (横断ナレッジグラフ) covering bump-backend, bump-admin and bump-mobile-app — updates each repo's graphify graph (AST, no LLM cost), merges them into graphify-out/graph.json with cross-repo links between shared symbols, and optionally adds design documents semantically. Run once at setup, after big merges, or when /aiflow says the graph is missing.
+description: Build or refresh the workspace-wide knowledge graph (横断ナレッジグラフ) covering every repo in aiflow/workflow.yaml — updates each repo's graphify graph (AST, no LLM cost), merges them into graphify-out/graph.json with cross-repo links between shared symbols, and optionally adds design documents semantically. Run once at setup, after big merges, or when /aiflow says the graph is missing.
 argument-hint: "[docs]"
 ---
 

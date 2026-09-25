@@ -21,6 +21,7 @@ repos:
     remote: https://github.com/emole-inc/bump-backend.git
     base_branch: develop
     stack: Go 1.23 / gqlgen (GraphQL) + REST admin API (swagger) / sqlc / MySQL
+    qa_surface: api                       # how a QA tester verifies this repo — see § QA surface below
     test: make test-usecase && make test-controller && make test-util   # host-side, no docker
     test_task: make test-package PKG=<pkg path under app/>               # per-task narrow run
     lint: golangci-lint run ./...
@@ -33,6 +34,7 @@ repos:
     remote: https://github.com/emole-inc/bump-admin.git
     base_branch: develop
     stack: Next.js / TypeScript / aspida + openapi-generator (client generated from backend swagger)
+    qa_surface: browser                   # how a QA tester verifies this repo — see § QA surface below
     test: yarn type-check && yarn lint
     lint: yarn lint
     notes: >-
@@ -43,6 +45,7 @@ repos:
     remote: https://github.com/emole-inc/bump-mobile-app.git
     base_branch: main
     stack: Flutter (FVM) / Dart / graphql_flutter + graphql_codegen / openapi (dio)
+    qa_surface: mobile-device              # how a QA tester verifies this repo — see § QA surface below
     test: bin/fvm flutter test --dart-define=flavor=prod
     lint: make lint-dart
     notes: >-
@@ -60,6 +63,13 @@ repos:
 # Every repo may define `guides:` (files to read before touching code) and
 # `repo_skills:` (the repo team's own skills, read from <repo>/.claude/skills/).
 # These are the repo owners' rules; AI Flow stages pass them to every subagent.
+
+# QA surface — how aiflow-testgen writes manual test steps for this repo.
+# One of: mobile-device (real iOS/Android device, app flavor + account state),
+# browser (URL + role), api (a request the tester can run: endpoint, headers,
+# body, expected fields). A repo with no qa_surface gets a generic
+# "verify the change" section instead of a tailored one — set it explicitly
+# rather than relying on that fallback.
 
 # Cross-repo contracts — when a spec touches one side, check the other side.
 contracts:

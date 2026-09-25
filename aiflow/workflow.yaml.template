@@ -1,0 +1,157 @@
+# AI Flow — workspace manifest TEMPLATE
+#
+# Copy this to aiflow/workflow.yaml and fill in the placeholders (<...>) for
+# YOUR project. Every aiflow-* skill reads workflow.yaml first — this file is
+# the single place project facts live; the skills read from it, never
+# hard-code a repo name, stack, or command. Lightweight version of the
+# harness-workflow builder's .harness/workflow.md: same idea (manifest +
+# gates + triage), sized for a bug-fix / small-feature flow across your
+# project's existing repo(s) — not a from-scratch SDLC generator.
+#
+# Works for 1 repo (monorepo/single-repo project — just list one under
+# `repos:`) or many (list each; a plan.md task belongs to exactly one repo).
+# Nothing here assumes a specific count.
+
+project: <short-project-name>           # e.g. acme
+project_code: <TICKET-PREFIX>           # e.g. ACME — prefixes ticket IDs (Notion or your tracker)
+language: <ja|en|...>                   # every artifact under docs/aiflow/ + PR text is written in this language
+artifacts_dir: docs/aiflow              # one folder per ticket: docs/aiflow/<TICKET-ID>/
+
+# ---------------------------------------------------------------------------
+# Repos this workspace wraps. Each is its own git repo, cloned as a sibling
+# folder here and gitignored by the workspace repo. A task in plan.md
+# belongs to exactly ONE repo — add or remove entries freely; every skill
+# derives its repo list from this block, never from a fixed count.
+# ---------------------------------------------------------------------------
+repos:
+  <repo-folder-name>:                   # must match the folder name after `git clone`
+    path: <repo-folder-name>            # usually the same as the key above
+    remote: <https://github.com/... .git>
+    base_branch: <develop|main|...>     # PRs from this repo target this branch
+    stack: <language / framework / DB / key libraries, one line>
+    qa_surface: <mobile-device|browser|api>   # how a QA tester verifies a change here —
+                                               # see § QA surface below. Omit if none fits;
+                                               # aiflow-testgen writes a generic section instead.
+    test: <shell command that runs this repo's automated tests>
+    test_task: <shell command for a narrower/per-task run, if one exists>  # optional
+    lint: <shell command that lints/type-checks this repo>
+    notes: >-
+      <anything a subagent must know before touching this repo: required
+      wrappers (e.g. always use bin/fvm, never plain flutter), what's
+      generated and must never be hand-edited, how to bring up test
+      infrastructure, or "no unit-test runner — verification is
+      type-check + lint + manual test cases" if that's genuinely true.>
+    # Optional — only if this repo's own team maintains its own AI guidance:
+    # guides: [CLAUDE.md, docs/ai/README.md]        # read before editing, never overridden
+    # repo_skills:                                   # <repo>/.claude/skills/<name>/SKILL.md
+    #   code_review: <repo-team's-review-skill-name>
+  # <add one entry per additional repo>
+
+# QA surface — how aiflow-testgen writes manual test steps for a repo.
+# One of: mobile-device (real iOS/Android device, app flavor + account
+# state), browser (URL + role), api (a request the tester can run:
+# endpoint, headers, body, expected fields). A repo with no qa_surface set
+# gets a generic "verify the change" section instead of a tailored one.
+
+# Cross-repo contracts — when a spec touches one side, check the other side.
+# Delete this whole block for a single-repo project; leave it empty
+# (`contracts: []`) for a multi-repo project with no generated-client
+# contracts between them.
+contracts: []
+# contracts:
+#   - name: <contract name, e.g. "Admin REST API">
+#     owner: <repo (path to its schema/spec file)>
+#     consumers: [<repo>, ...]
+#     regenerate: "<shell command run in the consumer repo to regenerate its client>"
+
+# ---------------------------------------------------------------------------
+# Branches & PRs
+# ---------------------------------------------------------------------------
+branch:
+  bug: bug/<TICKET-ID>/<slug>          # slug = short English snake_case
+  feature: feature/<TICKET-ID>/<slug>
+pr:
+  tool: gh                              # gh (GitHub) — adapt aiflow-review's PR steps if you're on GitLab/glab instead
+  title: "[<TICKET-ID>] <title, in the `language:` above>"
+  copy_artifacts_into_repo: true        # at delivery, docs/aiflow/<ID>/ is copied into each repo's
+                                        # branch so reviewers accept by reading md files in the PR
+  post_review_comment: true             # post final-review summary as a PR comment
+
+# ---------------------------------------------------------------------------
+# Stages — one folder, fixed filenames, a hard stop after every stage.
+# `cmd` is the skill that runs it; /aiflow <ID> always picks the right one.
+# gate: a human must approve before the next stage starts (recorded in status.md).
+# This block is the pipeline shape itself — leave it as-is unless you are
+# deliberately changing which stages exist.
+#
+# Light-route exception: for a small bug, stages 1 and 2 are produced by ONE
+# run of aiflow-spec (§1.4 there) — triage + writing spec.md inline, one
+# combined approval, no separate dialogue stop. This mirrors a bugfix
+# fast-track (triage and the fix write-up as one step), not the full
+# investigate-then-dialogue process stage 2 runs for everyone else. See
+# .claude/skills/aiflow-spec/SKILL.md §1.4 for exactly where it applies and
+# where it falls back to the normal two-stop flow.
+# ---------------------------------------------------------------------------
+stages:
+  - {n: 1, id: ticket,   name_ja: チケット正規化,          cmd: aiflow-spec,   writes: [ticket.md, status.md], gate: true}
+  - {n: 2, id: spec,     name_ja: 仕様作成,                cmd: aiflow-spec,   writes: [spec.md],               gate: true}
+  - {n: 3, id: plan,     name_ja: 修正プラン,              cmd: aiflow-plan,   writes: [plan.md],               gate: true,  routes: [full]}
+  - {n: 4, id: impl,     name_ja: 修正実装,                cmd: aiflow-impl,   writes: [code, reviews/task*.md], gate: false}
+  - {n: 5, id: review,   name_ja: レビュー・テストケース作成, cmd: aiflow-review, writes: [reviews/final-review.md, test-cases.md], gate: false, routes: [full]}
+  - {n: 6, id: deliver,  name_ja: 納品（PR作成）,          cmd: aiflow-review, writes: [PR per repo],           gate: true}
+
+# ---------------------------------------------------------------------------
+# Triage (難易度判断) — decided at the end of Stage 1 from symptom-level
+# evidence, then re-checked against real code during the light fast-track's
+# investigation (aiflow-spec §1.4) before anything is finalized. light =
+# stages 1,2,4,6 (1+2 as one run, small bug only) ; full = 1..6. Human always
+# confirms unless auto_light is true AND every check is clean.
+# Adjust the thresholds below (repo count, file count, sensitive areas) to
+# match what "small" and "risky" actually mean for your project.
+# ---------------------------------------------------------------------------
+triage:
+  auto_light: false
+  light_requires_all:
+    - one repo only
+    - "expected files changed <= 3"
+    - no API / schema / DB migration / contract change
+    - root cause located with evidence (file:line)
+    - not a new feature (kind: bug)
+    - no sensitive area touched
+  sensitive_areas:            # always full route — name your project's real high-risk areas
+    - <e.g. payments / billing>
+    - <e.g. authentication / account transfer>
+    - DB migration
+
+# Subagent models per route (Agent tool `model:` values). Adjust the model
+# names to whatever your Claude Code setup supports.
+models:
+  light: {implementer: sonnet, reviewer: sonnet}
+  full:  {implementer: sonnet, reviewer: opus, final_reviewer: opus, test_case_writer: sonnet}
+
+# Knowledge graph (ナレッジグラフ) — workspace-wide, built by /aiflow-analyze.
+# `include_docs` is optional extra context for `/aiflow-analyze docs`
+# (semantic, costs tokens) — list any design-doc folders worth ingesting.
+knowledge_graph:
+  graph: graphify-out/graph.json        # merged graph of all repos (+ docs)
+  per_repo: <repo>/graphify-out/graph.json
+  include_docs: [docs/aiflow]
+
+# Usage log (log.json per ticket) — tokens/time/cost per stage, for tuning triage.
+usage_log:
+  enabled: true
+  pricing: aiflow/pricing.json          # API-equivalent USD per MTok; edit when prices change
+
+# Project wiki (curated architecture knowledge, not auto-extracted like the
+# code graph above) — generated by /aiflow-wiki, an occasional utility run,
+# never by a git hook (an LLM pass over your repos costs real tokens; the
+# graph above is AST-only and free, which is why only IT is safe to
+# auto-refresh).
+wiki:
+  dir: wiki                             # workspace-relative; committed, not gitignored
+  topology: <single-repo|multi-repo>    # derived from how many entries repos: has above —
+                                         # /aiflow-wiki reads this, it does not re-ask
+  update_from_tickets: true             # aiflow-spec's Stage 2 (full) and §1.4 (light fast-track)
+                                         # may append a decisions/ entry when a spec records a real
+                                         # architecture decision — cheap, reuses that ticket's own
+                                         # investigation, never triggers a fresh repo-wide re-ingest

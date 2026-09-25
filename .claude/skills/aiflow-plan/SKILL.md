@@ -29,18 +29,24 @@ frequent commits. (This is the old `writing-plans` discipline, unchanged.)
 **Multi-repo rules (new):**
 1. **One repo per task.** A task's files all live in one repo. A change that
    needs two repos is two tasks. `/aiflow-impl` refuses a task whose files span repos.
-2. **Order = dependency order.** Contract owner first (bump-backend schema /
-   swagger / resolver), then a **regenerate task** in each consumer
-   (`workflow.yaml` `contracts[].regenerate`), then consumer tasks.
+2. **Order = dependency order.** Contract owner first — the repo named as
+   `owner` in `workflow.yaml`'s `contracts:` block (e.g. the backend schema /
+   swagger / resolver in this project) — then a **regenerate task** in each
+   consumer (`contracts[].regenerate`), then consumer tasks.
 3. **Backward compatibility.** If consumers ship later than the backend, say
    how old clients keep working (e.g. fallback when a header is missing).
 4. **Commands from `workflow.yaml`.** Use each repo's `test_task` / `test` /
-   `lint` exactly (mobile: always `bin/fvm ...`). Resolve third-party APIs now
-   (mobile: `.dart_tool/package_config.json` → read the package source; admin:
-   `node_modules/<pkg>`; backend: `go doc`), never leave "use library X" placeholders.
-5. **No unit-test runner (bump-admin).** Use `yarn type-check` + targeted
-   `yarn lint:eslint <file>` as the automated check and mark the task
-   `tdd: false` with a reason; manual steps go to test cases in stage 5.
+   `lint` exactly as written there — including any wrapper it names (this
+   project's mobile repo always uses `bin/fvm ...`, never plain
+   `flutter`/`dart`, per its own `notes`). Resolve third-party APIs now, from
+   that repo's real dependency lock/cache (Dart: `.dart_tool/package_config.json`;
+   Node: `node_modules/<pkg>`; Go: `go doc`) — never leave "use library X"
+   placeholders.
+5. **No unit-test runner.** If a repo's `workflow.yaml` entry has no real
+   `test:` command (its `notes` say so — in this project, bump-admin), use
+   its `lint`/type-check command as the automated check instead and mark
+   the task `tdd: false` with a reason; manual steps go to test cases in
+   stage 5.
 
 ## 2. Self-review
 

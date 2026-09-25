@@ -123,6 +123,30 @@ claude                   # then: /aiflow analyze
 Needs: `python3`, `graphify`, `gh`, and each repo's toolchain (Go, Node/yarn,
 FVM/Flutter). Notion is read through the Notion MCP, the browser, or pasted text.
 
+## Adopting this in another project
+
+This flow isn't BUMP-specific. Every skill under `.claude/skills/aiflow*/`
+reads `aiflow/workflow.yaml` for repo names, stacks and test commands — none
+of that is hard-coded in the skill bodies. **You don't need to clone this
+repo** — `install.sh` clones into a throwaway temp dir, copies only what's
+needed, and cleans up (same mechanism as harness-workflow builder's own
+`install.sh`):
+
+```bash
+curl -fsSL https://gitlab.shiftasia.com/cong.nguyen.02/ai-flow-demo/-/raw/main/install.sh | bash -s -- --dir /path/to/your-project
+# or, if you already have it downloaded:
+bash install.sh --dir /path/to/your-project
+```
+
+What it installs: the `/aiflow` router + its 8 stage skills, the 7 generic
+skills they use internally (TDD, debugging, code review, ...),
+`aiflow/scripts/`, `.claude/settings.json` (hooks), and
+`aiflow/workflow.yaml.template`. **What it doesn't fill in:**
+`workflow.yaml` itself (your project's repos, stacks and test commands are
+yours to know — copy the template and fill it in) or your source repos'
+clones. Works for a single-repo project too (list one entry under `repos:`,
+set `contracts: []`).
+
 ## Where things are
 
 | Path | What |

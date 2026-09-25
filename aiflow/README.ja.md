@@ -93,6 +93,28 @@ claude                   # 起動後: /aiflow analyze
 必要なもの: `python3`、`graphify`、`gh`、各リポジトリの開発環境（Go / Node・yarn / FVM・Flutter）。
 Notion チケットは Notion MCP、ブラウザ、貼り付けのいずれかで読み込みます。
 
+## 他のプロジェクトに導入する
+
+このフローは BUMP 専用ではありません。`.claude/skills/aiflow*/` のロジックはすべて
+`aiflow/workflow.yaml` を読んで動くよう作られています（リポジトリ名・スタック・
+テストコマンドをスキル本文に直接書いていません）。**このリポジトリを clone する
+必要はありません** — `install.sh` が一時フォルダに clone→必要な部分だけコピー→
+削除、を自動でやります（harness-workflow builder の `install.sh` と同じ仕組み）:
+
+```bash
+curl -fsSL https://gitlab.shiftasia.com/cong.nguyen.02/ai-flow-demo/-/raw/main/install.sh | bash -s -- --dir /path/to/your-project
+# または、既にダウンロード済みなら:
+bash install.sh --dir /path/to/your-project
+```
+
+導入されるもの: `/aiflow` 本体＋8つのステージスキル、内部で使う7つの汎用スキル
+（TDD・デバッグ・レビュー等）、`aiflow/scripts/`、`.claude/settings.json`（フック）、
+`aiflow/workflow.yaml.template`。**埋めてくれないもの:** `workflow.yaml` そのもの
+（あなたのプロジェクトのリポジトリ・スタック・テストコマンドはこちらが知りようが
+ないので、テンプレートをコピーして自分で埋める）、あなたのソースリポジトリの
+clone。単一リポジトリのプロジェクトでも動きます（`repos:` に1件だけ書けばよく、
+`contracts: []` にする）。
+
 ## ファイル構成
 
 | パス | 内容 |

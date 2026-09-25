@@ -13,7 +13,8 @@ ai-flow-demo/                      ← workspace repo (GitLab). Run Claude Code 
 ├── aiflow/workflow.yaml           ← repos, base branches, test commands, triage, models
 ├── docs/aiflow/<TICKET-ID>/       ← ticket artifacts (source of truth, Japanese)
 ├── graphify-out/graph.json        ← workspace knowledge graph (all repos, /aiflow-analyze)
-├── bump-backend/  bump-admin/  bump-mobile-app/   ← separate git repos (GitHub)
+├── <repo1>/  <repo2>/  ...                        ← separate git repos, one per aiflow/workflow.yaml repos: entry
+│                                                     (this project: bump-backend/ bump-admin/ bump-mobile-app/)
 ```
 
 - Artifacts live in the **workspace** folder `docs/aiflow/<TICKET-ID>/` — one

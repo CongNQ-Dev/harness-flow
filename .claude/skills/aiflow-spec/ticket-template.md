@@ -141,11 +141,11 @@ Notionから抽出できなかった情報。ブレインストーミングは�
 
 ナレッジグラフ（`graphify query`）と `aiflow/workflow.yaml` の `contracts:` を根拠に判定する。根拠のない推測は書かない。
 
+1行 = `aiflow/workflow.yaml` `repos:` の1リポジトリ（この表の行数・名前を固定しない — 増減したら表もそれに従う）:
+
 | リポジトリ | 判定 | 根拠（graphifyノード / file:line / 契約） |
 |---|---|---|
-| bump-mobile-app | 対象 / 対象外 / 要確認 | — |
-| bump-backend | 対象 / 対象外 / 要確認 | — |
-| bump-admin | 対象 / 対象外 / 要確認 | — |
+| <workflow.yaml repos: の各キー> | 対象 / 対象外 / 要確認 | — |
 
 #### 難易度判断（トリアージ）
 

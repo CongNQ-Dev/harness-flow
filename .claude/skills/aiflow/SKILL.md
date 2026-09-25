@@ -1,6 +1,6 @@
 ---
 name: aiflow
-description: The one AI Flow command. `/aiflow PDT-2350` runs the next stage of that ticket (normalize → spec → plan → implement → review/test cases → PR) across bump-backend, bump-admin and bump-mobile-app, then stops. `/aiflow` alone shows the board of all tickets. Also `/aiflow PDT-2350 feature`, `/aiflow PDT-2350 redo spec`, `/aiflow analyze`. Use whenever the user mentions a PDT ticket, a bug to fix, or continuing AI Flow work.
+description: The one AI Flow command. `/aiflow PDT-2350` runs the next stage of that ticket (normalize → spec → plan → implement → review/test cases → PR) across every repo declared in aiflow/workflow.yaml, then stops. `/aiflow` alone shows the board of all tickets. Also `/aiflow PDT-2350 feature`, `/aiflow PDT-2350 redo spec`, `/aiflow analyze`, `/aiflow wiki`. Use whenever the user mentions a ticket, a bug to fix, or continuing AI Flow work.
 argument-hint: "[<TICKET-ID> [feature | redo <stage> | status] | analyze]"
 ---
 

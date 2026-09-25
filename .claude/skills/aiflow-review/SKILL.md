@@ -71,8 +71,8 @@ Reviewers accept by reading these md files in the PR.
 
 ### 6.4 Push and open one PR per repo
 
-Order: contract owner first (bump-backend), then consumers, so consumer PRs can
-link to it.
+Order: the contract owner repo first (`workflow.yaml` contracts[].owner — e.g. this
+project's backend), then consumers, so consumer PRs can link to it.
 
 ```bash
 git -C <repo> push -u origin <branch>

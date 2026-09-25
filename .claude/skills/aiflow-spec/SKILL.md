@@ -83,9 +83,10 @@ Fill `.claude/skills/aiflow-spec/ticket-template.md` into
 1. **Affected repos.** Query the workspace graph with the symptom and screen
    names, e.g. `graphify query "deeplink player open"`,
    `graphify query "admin seasons projectId filter"`. Follow `workflow.yaml`
-   `contracts:` — a UI symptom whose data comes from the backend makes
-   bump-backend 要確認 at least. Record the evidence (node / file:line / contract)
-   for every row. The Notion 対象 column is a hint, not proof.
+   `contracts:` — a UI symptom whose data comes from a contract's owner repo
+   makes that repo 要確認 at least (in this project, a UI symptom backed by
+   the API makes bump-backend 要確認). Record the evidence (node / file:line
+   / contract) for every row. The Notion 対象 column is a hint, not proof.
 2. **Triage.** Run the `triage.light_requires_all` checklist from
    `workflow.yaml`, one row each, with evidence. Any ❌ or 不明 → `full`.
    Anything in `triage.sensitive_areas` → `full`.

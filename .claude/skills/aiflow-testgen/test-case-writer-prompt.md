@@ -11,15 +11,24 @@ Task tool (general-purpose):
     You are writing manual test steps for a human QA tester.
     The reader has NOT seen the code, the spec, or this conversation — write for them.
 
-    Test surface per repo changed (write one section per surface, in this order
-    when several apply: backend API → admin screen → app):
-    - bump-mobile-app → real device (iOS/Android), app flavor + account state
-    - bump-admin → browser, admin environment URL + admin role
-    - bump-backend → API check the tester can run (GraphQL query or REST call with
-      exact endpoint, headers, body, expected response fields) — plus, when the
-      change is visible in the app or admin, the end-to-end steps there
+    Test surface per repo changed — read `workflow.yaml` `repos.<repo>.qa_surface`
+    for each repo in scope and write one section per surface, in this order
+    when several apply: `api` first, then `browser`, then `mobile-device` (so
+    the tester verifies the data source before the screens that display it):
+    - `qa_surface: mobile-device` → real device (iOS/Android), app flavor + account state
+    - `qa_surface: browser` → browser, environment URL + role
+    - `qa_surface: api` → a request the tester can run (GraphQL query or REST
+      call with exact endpoint, headers, body, expected response fields) —
+      plus, when the change is visible on a browser/device surface too, the
+      end-to-end steps there
+    - no `qa_surface` set for that repo → a generic "verify the change"
+      section naming exactly what changed, not a tailored one
+    [FULL LIST of repos in scope with their qa_surface value, from workflow.yaml —
+    e.g. in this project: bump-mobile-app=mobile-device, bump-admin=browser,
+    bump-backend=api]
     Cross-repo tickets MUST include one end-to-end scenario that goes through
-    every changed repo (e.g. change a value in admin → see it in the app).
+    every changed repo (e.g. change a value on the browser surface → see it
+    on the mobile-device surface).
 
     **Write the entire file in Japanese.** Screen names, button labels, and expected
     text should match what actually appears in the app's Japanese UI — don't translate
