@@ -23,8 +23,10 @@ bump-backend / bump-admin / bump-mobile-app の3プロジェクトを横断し�
 | 2 | 仕様作成（根本原因 / 設計） | `/aiflow-spec` | `spec.md` | 承認 | ✅ | ✅ |
 | 3 | 修正プラン（タスクはリポジトリ単位） | `/aiflow-plan` | `plan.md` | 承認 | — | ✅ |
 | 4 | 修正実装（TDD＋タスク毎に2段階レビュー） | `/aiflow-impl` | コード, `reviews/task*.md` | — | ✅ | ✅ |
-| 5 | レビュー・テストケース作成（リポジトリ横断の最終レビュー） | `/aiflow-review` + `/aiflow-testgen` | `reviews/final-review.md`, `test-cases.md` | — | — | ✅ |
-| 6 | 納品（テスト実行・手動確認・リポジトリ毎にPR作成） | `/aiflow-review` | `status.md` にPRのURL | 動作確認・承認 | ✅ | ✅ |
+| 5 | レビュー・テストケース作成（リポジトリ横断の最終レビュー） | `/aiflow-review`（ステージ5部分） | `reviews/final-review.md`, `test-cases.md` | — | — | ✅ |
+| 6 | 納品（テスト実行・手動確認・リポジトリ毎にPR作成） | `/aiflow-review`（ステージ6部分） | `status.md` にPRのURL | 動作確認・承認 | ✅ | ✅ |
+
+※ ステージ5と6は同じ `aiflow-review` スキルファイルの中の別々の手順です。省略版ではステージ5の手順だけをスキップし、ステージ6は常に実行します（自分でどちらを実行するか選ぶ必要はありません — `/aiflow` が `status.md` を見て自動で判断します）。
 
 処理ログ `log.json`（ステップ毎の所要時間・トークン・概算料金）は自動で記録されます。
 

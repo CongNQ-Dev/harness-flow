@@ -27,8 +27,10 @@ Every stage stops when it finishes. Read the output, then type `/aiflow PDT-2350
 | 2 | Spec: root cause / design | `/aiflow-spec` | `spec.md` | approve | ✅ | ✅ |
 | 3 | Fix plan (tasks, one repo each) | `/aiflow-plan` | `plan.md` | approve | — | ✅ |
 | 4 | Implementation (TDD + 2 reviews per task) | `/aiflow-impl` | code, `reviews/task*.md` | — | ✅ | ✅ |
-| 5 | Final review across repos + test cases | `/aiflow-review` + `/aiflow-testgen` | `reviews/final-review.md`, `test-cases.md` | — | — | ✅ |
-| 6 | Delivery: tests, manual QA gate, PR per repo | `/aiflow-review` | PR URLs in `status.md` | QA / approve | ✅ | ✅ |
+| 5 | Final review across repos + test cases | `/aiflow-review` (§ Stage 5 section) | `reviews/final-review.md`, `test-cases.md` | — | — | ✅ |
+| 6 | Delivery: tests, manual QA gate, PR per repo | `/aiflow-review` (§ Stage 6 section) | PR URLs in `status.md` | QA / approve | ✅ | ✅ |
+
+Stages 5 and 6 are two separate sections inside the same `aiflow-review` skill file, not two runs of the same procedure. On the light route only stage 5's section is skipped; stage 6's always runs. You never pick the section yourself — `/aiflow` reads `status.md` and runs the right one.
 
 `log.json` (time, tokens and estimated cost per stage) is written automatically.
 

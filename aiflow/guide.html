@@ -277,7 +277,7 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
     </li>
     <li class="stage fullonly">
       <div class="n">5</div>
-      <h3><span data-l="ja">レビュー・テストケース作成</span><span data-l="en">Review & test cases</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-review</span> <span class="skipbadge" data-l="ja">省略版ではスキップ</span><span class="skipbadge" data-l="en">skipped on light</span></h3>
+      <h3><span data-l="ja">レビュー・テストケース作成</span><span data-l="en">Review & test cases</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-review · Stage 5</span> <span class="skipbadge" data-l="ja">省略版ではスキップ</span><span class="skipbadge" data-l="en">skipped on light</span></h3>
       <dl class="cols">
         <div><dt>AI</dt>
           <dd data-l="ja">全リポジトリの変更をまとめて最終レビュー（契約の整合性・後方互換性・影響範囲）。QA向けの手動テストケースを作成（アプリは実機、管理画面はブラウザ、APIは呼び出し手順）。</dd>
@@ -290,7 +290,7 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
     </li>
     <li class="stage">
       <div class="n">6</div>
-      <h3><span data-l="ja">納品（PR作成）</span><span data-l="en">Delivery (PRs)</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-review</span> <span class="gate" data-l="ja">動作確認</span><span class="gate" data-l="en">QA gate</span></h3>
+      <h3><span data-l="ja">納品（PR作成）</span><span data-l="en">Delivery (PRs)</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-review · Stage 6</span> <span class="gate" data-l="ja">動作確認</span><span class="gate" data-l="en">QA gate</span></h3>
       <dl class="cols">
         <div><dt>AI</dt>
           <dd data-l="ja">全テストを実行。確認OK後、リポジトリ毎にPRを作成（backend/admin→develop、mobile→main）してPR同士をリンク。md成果物もPRに同梱し、レビュー要約をPRコメントに投稿。</dd>
@@ -302,6 +302,10 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
       <div class="out"><code>status.md → PR URL</code><code>log.json</code></div>
     </li>
   </ol>
+  <p class="route-note" style="margin-top:14px">
+    <span data-l="ja">※ ステージ5・6の <code>aiflow-review</code> は同じスキルファイル内の別々の手順です。省略版はステージ5の手順だけを飛ばし、ステージ6は常に実行します — どちらを実行するかは <code>/aiflow</code> が自動で判断するので、選ぶ必要はありません。</span>
+    <span data-l="en">Note: stage 5 and stage 6's <code>aiflow-review</code> are two separate sections in one skill file, not the same procedure run twice. Light route skips only stage 5's section; stage 6's always runs — <code>/aiflow</code> picks the right one automatically, you never choose.</span>
+  </p>
 </section>
 
 <section id="commands">

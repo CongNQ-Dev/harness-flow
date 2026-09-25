@@ -52,12 +52,18 @@ Ticket IDs are case-insensitive; normalize to upper case (`pdt-2350` → `PDT-23
 
 | # | Stage | Skill | light | full |
 |---|---|---|---|---|
-| 1 | チケット正規化 | aiflow-spec | ✅ | ✅ |
-| 2 | 仕様作成 | aiflow-spec | ✅ | ✅ |
+| 1 | チケット正規化 | aiflow-spec (§Stage 1) | ✅ | ✅ |
+| 2 | 仕様作成 | aiflow-spec (§Stage 2) | ✅ | ✅ |
 | 3 | 修正プラン | aiflow-plan | — | ✅ |
 | 4 | 修正実装 | aiflow-impl | ✅ | ✅ |
-| 5 | レビュー・テストケース作成 | aiflow-review | — | ✅ |
-| 6 | 納品（PR作成） | aiflow-review | ✅ | ✅ |
+| 5 | レビュー・テストケース作成 | aiflow-review (§Stage 5) | — | ✅ |
+| 6 | 納品（PR作成） | aiflow-review (§Stage 6) | ✅ | ✅ |
+
+Stages 5 and 6 are both written inside the single `aiflow-review` skill file
+as two separate sections — not two invocations of the same procedure. On the
+light route, stage 5's section never runs; stage 6's section always does.
+`/aiflow` picks the right section by reading `status.md`, same as any other
+stage; you never choose the section yourself.
 
 The route (light/full) is decided by triage at the end of stage 1, confirmed by
 the user, and can only be upgraded (light → full) automatically.
