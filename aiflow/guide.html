@@ -90,7 +90,6 @@ section:last-of-type{border-bottom:0}
 .stage{display:grid;grid-template-columns:52px 1fr;gap:0 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;transition:opacity .2s}
 .stage .n{grid-row:1/4;font:900 1.7rem/1 var(--display);color:var(--accent);padding-top:2px}
 .stage h3{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.cmdtag{font:700 12.5px var(--mono);color:var(--accent);background:var(--accent-soft);padding:2px 9px;border-radius:5px;white-space:nowrap}
 .internal{font:500 11px var(--mono);color:var(--muted)}
 .internal::before{content:"→ ";color:var(--line)}
 .gate{font:700 11px var(--body);letter-spacing:.04em;color:var(--accent);border:1px solid currentColor;padding:1px 7px;border-radius:99px}
@@ -210,8 +209,8 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
   <div class="eyebrow">Pipeline</div>
   <h2 data-l="ja">チケット1件の流れ</h2>
   <h2 data-l="en">How one ticket flows</h2>
-  <p class="lead" data-l="ja">全6ステップ。各ステップの成果物は <code>docs/aiflow/&lt;チケットID&gt;/</code> に日本語で保存され、<code>status.md</code> を見れば誰でも続きから再開できます。<strong>どのステップも入力するコマンドは同じ <code>/aiflow PDT-XXXX</code> です</strong> — カード内の <span class="internal">aiflow-spec</span> のような表記は、その裏で自動的に呼ばれる内部スキル名の参考情報にすぎません。</p>
-  <p class="lead" data-l="en">Six stages. Every output is saved in Japanese under <code>docs/aiflow/&lt;ticket ID&gt;/</code>, and <code>status.md</code> lets anyone resume where it stopped. <strong>You type the same <code>/aiflow PDT-XXXX</code> for every stage</strong> — a label like <span class="internal">aiflow-spec</span> on a card is just the internal skill name it calls automatically, for reference only.</p>
+  <p class="lead" data-l="ja">全6ステップ。各ステップの成果物は <code>docs/aiflow/&lt;チケットID&gt;/</code> に日本語で保存され、<code>status.md</code> を見れば誰でも続きから再開できます。<strong>どのステップも上と同じ <code>/aiflow PDT-XXXX</code> を入力するだけです</strong>（繰り返しません）。各カードの <span class="internal">aiflow-spec</span> のような表記は、その裏で自動的に呼ばれる内部スキル名の参考情報です。</p>
+  <p class="lead" data-l="en">Six stages. Every output is saved in Japanese under <code>docs/aiflow/&lt;ticket ID&gt;/</code>, and <code>status.md</code> lets anyone resume where it stopped. <strong>Every stage below runs from the same <code>/aiflow PDT-XXXX</code> shown above</strong> (not repeated per card). A label like <span class="internal">aiflow-spec</span> on a card just names the internal skill it calls, for reference.</p>
 
   <div class="route" role="group" aria-label="route">
     <button type="button" id="route-full" data-r="full" aria-pressed="true"><span data-l="ja">完全版 1→6</span><span data-l="en">Full 1→6</span></button>
@@ -225,7 +224,7 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
   <ol class="stages" id="stages">
     <li class="stage">
       <div class="n">1</div>
-      <h3><span data-l="ja">チケット正規化</span><span data-l="en">Ticket normalize</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-spec</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
+      <h3><span data-l="ja">チケット正規化</span><span data-l="en">Ticket normalize</span> <span class="internal">aiflow-spec</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
       <dl class="cols">
         <div><dt data-l="ja">AI</dt><dt data-l="en">AI</dt>
           <dd data-l="ja">Notionチケットを読み取り、テンプレートに正規化。ナレッジグラフで影響リポジトリを判定し、難易度判断で省略版/完全版を提案。各リポジトリに同名ブランチを作成。</dd>
@@ -238,7 +237,7 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
     </li>
     <li class="stage">
       <div class="n">2</div>
-      <h3><span data-l="ja">仕様作成</span><span data-l="en">Spec</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-spec</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
+      <h3><span data-l="ja">仕様作成</span><span data-l="en">Spec</span> <span class="internal">aiflow-spec</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span></h3>
       <dl class="cols">
         <div><dt>AI</dt>
           <dd data-l="ja">コードを読んで根本原因を特定（file:line の根拠付き）。2〜3案を比較し、リポジトリ別の変更とAPI契約を整理。コードはまだ書かない。</dd>
@@ -251,7 +250,7 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
     </li>
     <li class="stage fullonly">
       <div class="n">3</div>
-      <h3><span data-l="ja">修正プラン</span><span data-l="en">Fix plan</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-plan</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span> <span class="skipbadge" data-l="ja">省略版ではスキップ</span><span class="skipbadge" data-l="en">skipped on light</span></h3>
+      <h3><span data-l="ja">修正プラン</span><span data-l="en">Fix plan</span> <span class="internal">aiflow-plan</span> <span class="gate" data-l="ja">承認</span><span class="gate" data-l="en">approve</span> <span class="skipbadge" data-l="ja">省略版ではスキップ</span><span class="skipbadge" data-l="en">skipped on light</span></h3>
       <dl class="cols">
         <div><dt>AI</dt>
           <dd data-l="ja">TDD前提の実装計画。1タスク＝1リポジトリで、API提供側（backend）を先に並べる。ファイル・コード・コマンド・期待結果まで具体的に書く。</dd>
@@ -264,7 +263,7 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
     </li>
     <li class="stage">
       <div class="n">4</div>
-      <h3><span data-l="ja">修正実装</span><span data-l="en">Implementation</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-impl</span></h3>
+      <h3><span data-l="ja">修正実装</span><span data-l="en">Implementation</span> <span class="internal">aiflow-impl</span></h3>
       <dl class="cols">
         <div><dt>AI</dt>
           <dd data-l="ja">タスク毎に実装担当エージェントが「失敗するテスト → 実装 → 成功」を実施。仕様準拠レビュー → 品質レビューを通過するまで修正。</dd>
@@ -277,7 +276,7 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
     </li>
     <li class="stage fullonly">
       <div class="n">5</div>
-      <h3><span data-l="ja">レビュー・テストケース作成</span><span data-l="en">Review & test cases</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-review · Stage 5</span> <span class="skipbadge" data-l="ja">省略版ではスキップ</span><span class="skipbadge" data-l="en">skipped on light</span></h3>
+      <h3><span data-l="ja">レビュー・テストケース作成</span><span data-l="en">Review & test cases</span> <span class="internal">aiflow-review · Stage 5</span> <span class="skipbadge" data-l="ja">省略版ではスキップ</span><span class="skipbadge" data-l="en">skipped on light</span></h3>
       <dl class="cols">
         <div><dt>AI</dt>
           <dd data-l="ja">全リポジトリの変更をまとめて最終レビュー（契約の整合性・後方互換性・影響範囲）。QA向けの手動テストケースを作成（アプリは実機、管理画面はブラウザ、APIは呼び出し手順）。</dd>
@@ -290,7 +289,7 @@ footer{padding-block:32px 48px;color:var(--muted);font-size:13px}
     </li>
     <li class="stage">
       <div class="n">6</div>
-      <h3><span data-l="ja">納品（PR作成）</span><span data-l="en">Delivery (PRs)</span> <span class="cmdtag">/aiflow PDT-XXXX</span><span class="internal">aiflow-review · Stage 6</span> <span class="gate" data-l="ja">動作確認</span><span class="gate" data-l="en">QA gate</span></h3>
+      <h3><span data-l="ja">納品（PR作成）</span><span data-l="en">Delivery (PRs)</span> <span class="internal">aiflow-review · Stage 6</span> <span class="gate" data-l="ja">動作確認</span><span class="gate" data-l="en">QA gate</span></h3>
       <dl class="cols">
         <div><dt>AI</dt>
           <dd data-l="ja">全テストを実行。確認OK後、リポジトリ毎にPRを作成（backend/admin→develop、mobile→main）してPR同士をリンク。md成果物もPRに同梱し、レビュー要約をPRコメントに投稿。</dd>
