@@ -476,9 +476,11 @@ git clone https://github.com/emole-inc/bump-mobile-app.git</pre></div></li>
     <p data-l="en">Run <code>/aiflow analyze</code> once. Repos that are already up to date are skipped, so later runs take seconds.</p></div>
   </details>
   <details>
-    <summary><span data-l="ja">AI利用料はどこで見られる？</span><span data-l="en">Where do I see AI usage cost?</span></summary>
+    <summary><span data-l="ja">AI利用料はどこで見られる？<code>status.md</code> があるのに <code>log.json</code> も必要？</span><span data-l="en">Where do I see AI usage cost? Why <code>log.json</code> when <code>status.md</code> already exists?</span></summary>
     <div><p data-l="ja"><code>/aiflow PDT-XXXX status</code> で、ステップ毎の所要時間・トークン数・概算料金（API換算）を表示します。記録は <code>docs/aiflow/PDT-XXXX/log.json</code>。難易度判断の閾値調整に使います。</p>
-    <p data-l="en"><code>/aiflow PDT-XXXX status</code> shows time, tokens and estimated cost (at API prices) per stage. The data is in <code>docs/aiflow/PDT-XXXX/log.json</code> and is used to tune the triage thresholds.</p></div>
+    <p data-l="ja">この2つは別の軸を記録しているので、片方がもう片方の代わりにはなりません。<code>status.md</code> は「どのステージまで終わったか・誰が承認したか」という<strong>進捗</strong>で、<code>/aiflow</code> が次に何を実行するかを判断するのはこれだけです。<code>log.json</code> は「そのステージにどれだけ時間・トークン・費用がかかったか」という<strong>利用量</strong>で、進捗判断には一切使いません。「省略版は本当に完全版より安いか」「どのステージが一番コストがかかっているか」に答えるためのもので、ご提案書の「AI利用料の最適化・低減の加速」に対応する記録です。</p>
+    <p data-l="en"><code>/aiflow PDT-XXXX status</code> shows time, tokens and estimated cost (at API prices) per stage. The data is in <code>docs/aiflow/PDT-XXXX/log.json</code> and is used to tune the triage thresholds.</p>
+    <p data-l="en">The two track different axes, so neither substitutes for the other. <code>status.md</code> is <strong>progress</strong> — which stage is done, who approved it — and it's the only thing <code>/aiflow</code> reads to route. <code>log.json</code> is <strong>usage</strong> — time, tokens, cost per stage — and never feeds routing. It answers what progress tracking can't: "is light route actually cheaper than full", "which stage costs the most" — the AI-cost-optimization requirement from the proposal.</p></div>
   </details>
   <details>
     <summary><span data-l="ja">設定を変えたい（テストコマンド・ブランチ・判定条件）</span><span data-l="en">I want to change settings (test commands, branches, triage)</span></summary>

@@ -84,14 +84,28 @@ is not in a sensitive area (billing, auth, migration). Everything else runs
 | `CLAUDE.md` | Workspace rules Claude Code loads on start |
 | `.claude/skills/aiflow*/` | The flow: router `aiflow` plus the stage skills, their templates and subagent prompts |
 | `.claude/skills/*` (others) | Engineering disciplines used internally (TDD, debugging, verification, code review), hidden from the `/` menu |
-
-Only `aiflow-` prefixed skills are stages (`/aiflow` invokes them). The rest are deliberately unprefixed, generic engineering-discipline skills each stage loads internally by situation (their `description` starts with "Use when…", the standard auto-trigger convention) — `user-invocable: false` keeps them out of the `/` menu and out of any collision with `/aiflow-*`. You never invoke one directly.
 | `.claude/settings.json` | Hooks: knowledge-graph reminder, usage logging |
 | `aiflow/workflow.yaml` | **The config**: repos, base branches, test commands, cross-repo contracts, triage rules, models |
 | `aiflow/scripts/` | `aiflow_status.py` (board and next stage) · `aiflow_log.py` (usage log) · `kg_build.py` (knowledge graph) |
 | `aiflow/pricing.json` | Prices used for cost estimates |
 | `aiflow/selected-bugs/` | Notion ticket lists |
-| `docs/aiflow/<ID>/` | One folder per ticket. `status.md` is where anyone resumes. |
+| `docs/aiflow/<ID>/status.md` | One per ticket. Resume point — the only file `/aiflow` reads to decide what runs next |
+| `docs/aiflow/<ID>/log.json` | One per ticket. Usage per stage — time, tokens, estimated cost |
+
+Only `aiflow-` prefixed skills are stages (`/aiflow` invokes them). The rest
+are deliberately unprefixed, generic engineering-discipline skills each stage
+loads internally by situation (their `description` starts with "Use when…",
+the standard auto-trigger convention) — `user-invocable: false` keeps them
+out of the `/` menu and out of any collision with `/aiflow-*`. You never
+invoke one directly.
+
+**`status.md` and `log.json` are not redundant — they track different axes.**
+`status.md` is *progress* (which stage is done, who approved it) and is the
+only thing `/aiflow` reads to route. `log.json` is *usage* (time, tokens,
+estimated cost per stage) and never feeds routing. Each answers a question
+the other can't: "is light route actually cheaper than full", "which stage
+costs the most" — the cost-optimization requirement from the proposal, not
+something progress tracking alone could answer.
 
 ## Rules the flow keeps
 

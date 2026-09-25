@@ -43,6 +43,8 @@ Stages 5 and 6 are two separate sections inside the same `aiflow-review` skill f
 
 `log.json` (time, tokens and estimated cost per stage) is written automatically.
 
+**`status.md` and `log.json` track different axes, not a duplicate.** `status.md` is *progress* — which stage is done, who approved it — and it's the only thing `/aiflow` reads to decide what runs next. `log.json` is *usage* — how much time, tokens and cost each stage took — and it never feeds routing decisions. Each answers a question the other can't: "is light route actually cheaper than full", "which stage costs the most" — the AI-cost-optimization requirement from the proposal, not something `status.md` could answer on its own.
+
 **Triage (難易度判断).** At the end of stage 1 the ticket is checked against
 `triage.light_requires_all` in `aiflow/workflow.yaml`: one repo, 3 files or
 fewer, no API/schema/DB/contract change, root cause located, a bug rather than
