@@ -36,3 +36,11 @@ any of the repos, use `/aiflow` rather than improvising a workflow.
   types across them. Refresh with `/aiflow analyze`.
 - Each repo still has its own `CLAUDE.md` with repo-specific notes; they apply
   when working on files in that repo.
+- **Docs travel with every skill change.** Any edit under `.claude/skills/aiflow*/`
+  (a stage's behavior, a command, a stage's skill/section, the router's
+  dispatch table) is committed together with the matching update to
+  `README.md`, `aiflow/README.ja.md`, `aiflow/README.en.md`, and
+  `aiflow/guide.html` — not as a separate follow-up commit. Check all four for
+  anything the change made stale (a renamed command, a changed stage list, a
+  new gate) before calling the change done. If a skill edit genuinely touches
+  none of them, say so explicitly rather than skipping the check silently.
