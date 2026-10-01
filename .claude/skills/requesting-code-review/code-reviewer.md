@@ -2,7 +2,7 @@
 
 You are reviewing code changes for production readiness.
 
-**Output language: Japanese.** Write your full report (Strengths, Issues, Recommendations, Assessment) in Japanese. File:line references, identifiers, and code stay as-is.
+**Output language: {LANGUAGE}** (from `aiflow/workflow.yaml` `language:`). Write your full report — headings included — in that language. File:line references, identifiers, and code stay as-is.
 
 **Your task:**
 1. Review {WHAT_WAS_IMPLEMENTED}
@@ -65,34 +65,34 @@ git -C {REPO} diff {BASE_SHA}..{HEAD_SHA}
 
 ## Output Format
 
-### 強み
-[何がうまくできているか？具体的に]
+### Strengths
+[What's well done? Be specific.]
 
-### 課題
+### Issues
 
-#### Critical（必須対応）
-[バグ、セキュリティ問題、データ消失リスク、機能不全]
+#### Critical (must fix)
+[Bugs, security issues, data loss risks, broken functionality]
 
-#### Important（対応推奨）
-[アーキテクチャ上の問題、不足している機能、不十分なエラーハンドリング、テストの抜け]
+#### Important (should fix)
+[Architecture problems, missing features, poor error handling, test gaps]
 
-#### Minor（あれば良い）
-[コードスタイル、最適化の余地、ドキュメントの改善点]
+#### Minor (nice to have)
+[Code style, optimization opportunities, documentation improvements]
 
-**各課題について:**
-- File:line 参照
-- 何が問題か
-- なぜ重要か
-- 修正方法（自明でない場合）
+**For each issue:**
+- File:line reference
+- What's wrong
+- Why it matters
+- How to fix (if not obvious)
 
-### 推奨事項
-[コード品質・アーキテクチャ・プロセスの改善案]
+### Recommendations
+[Improvements for code quality, architecture, or process]
 
-### 総合評価
+### Assessment
 
-**マージ可能か？** [Yes/No/要修正]
+**Ready to merge?** [Yes/No/With fixes]
 
-**理由:** [技術的な評価を1〜2文で]
+**Reasoning:** [Technical assessment in 1-2 sentences]
 
 ## Critical Rules
 
@@ -113,37 +113,37 @@ git -C {REPO} diff {BASE_SHA}..{HEAD_SHA}
 ## Example Output
 
 ```
-### 強み
-- 適切なマイグレーションを伴う、クリーンなデータベーススキーマ (db.ts:15-42)
-- 包括的なテストカバレッジ（18テスト、全エッジケース網羅）
-- フォールバックを備えた適切なエラーハンドリング (summarizer.ts:85-92)
+### Strengths
+- Clean database schema with proper migrations (db.ts:15-42)
+- Comprehensive test coverage (18 tests, all edge cases)
+- Good error handling with fallbacks (summarizer.ts:85-92)
 
-### 課題
+### Issues
 
 #### Important
-1. **CLIラッパーにヘルプテキストがない**
+1. **Missing help text in CLI wrapper**
    - File: index-conversations:1-31
-   - 問題: --help フラグがなく、ユーザーが --concurrency に気づけない
-   - 修正方法: 使用例付きの --help ケースを追加する
+   - Issue: No --help flag, users won't discover --concurrency
+   - Fix: Add --help case with usage examples
 
-2. **日付のバリデーションが不足している**
+2. **Date validation missing**
    - File: search.ts:25-27
-   - 問題: 不正な日付が渡されても、無言で結果が空になる
-   - 修正方法: ISO形式を検証し、例を添えてエラーを投げる
+   - Issue: Invalid dates silently return no results
+   - Fix: Validate ISO format, throw error with example
 
 #### Minor
-1. **進捗表示がない**
+1. **Progress indicators**
    - File: indexer.ts:130
-   - 問題: 長時間の処理で「X件中Y件」のようなカウンターがない
-   - 影響: ユーザーがどれくらい待てばよいか分からない
+   - Issue: No "X of Y" counter for long operations
+   - Impact: Users don't know how long to wait
 
-### 推奨事項
-- ユーザー体験向上のため進捗表示を追加する
-- 除外プロジェクトの設定ファイル対応を検討する（可搬性の向上）
+### Recommendations
+- Add progress reporting for user experience
+- Consider config file for excluded projects (portability)
 
-### 総合評価
+### Assessment
 
-**マージ可能か: 要修正**
+**Ready to merge: With fixes**
 
-**理由:** コアの実装はアーキテクチャ・テストともに堅実。Important の課題（ヘルプテキスト、日付バリデーション）は修正が容易で、コア機能には影響しない。
+**Reasoning:** Core implementation is solid with good architecture and tests. Important issues (help text, date validation) are easily fixed and don't affect core functionality.
 ```

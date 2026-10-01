@@ -1,167 +1,172 @@
-# AI Flow — workspace manifest (the control surface)
+# AI Flow — project manifest
 #
-# Every aiflow-* skill reads this file first. It is the single place to change
-# repo facts, branch rules, triage thresholds, and models — edit here, not in
-# the skills. Lightweight version of the harness-workflow builder's
-# .harness/workflow.md: same idea (manifest + I/O contracts + gates), sized for
-# a bug-fix / small-feature flow across 3 repos.
+# Every aiflow-* skill reads this file first. It is the ONLY place project
+# facts live: component names, paths, stacks, test commands, branches, ticket
+# source, PR tool. The skills never hard-code any of that.
+#
+# Easiest way to fill it in: run `/aiflow setup` in Claude Code — it detects
+# most values from your repo(s) and asks only what it can't detect.
+# Or copy this file to aiflow/workflow.yaml and edit by hand.
 
 project: bump
-project_code: PDT                 # ticket id prefix (Notion)
-language: ja                      # every artifact under docs/aiflow/ + PR text is Japanese
-artifacts_dir: docs/aiflow        # one folder per ticket: docs/aiflow/<TICKET-ID>/
+project_code: PDT                       # ticket-ID prefix, e.g. PDT-1234
+language: en                            # every artifact under docs/aiflow/, PR title/body and PR
+                                        # comments is written in this language (en, ja, vi, ...).
+                                        # Skill templates are written in English — the AI
+                                        # translates their headings when language isn't en.
+artifacts_dir: docs/aiflow              # one folder per ticket: docs/aiflow/<TICKET-ID>/
 
 # ---------------------------------------------------------------------------
-# Repos this workspace wraps. Each is its own git repo (ignored by the
-# workspace repo). A task in plan.md belongs to exactly ONE repo.
+# Layout
+#   workspace — a separate wrapper repo holds AI Flow; your component repos are
+#               cloned beside it (and gitignored by it). The wrapper is a git
+#               root too: it gets the same ticket branch as the component
+#               repos, ticket docs are committed there, and at delivery it gets
+#               its own docs PR/MR (plus a copy in each component repo's PR).
 # ---------------------------------------------------------------------------
-repos:
-  bump-backend:
-    path: bump-backend
-    remote: https://github.com/emole-inc/bump-backend.git
-    base_branch: develop
-    stack: Go 1.23 / gqlgen (GraphQL) + REST admin API (swagger) / sqlc / MySQL
-    qa_surface: api                       # how a QA tester verifies this repo — see § QA surface below
-    test: make test-usecase && make test-controller && make test-util   # host-side, no docker
-    test_task: make test-package PKG=<pkg path under app/>               # per-task narrow run
-    lint: golangci-lint run ./...
-    notes: >-
-      `make test` runs inside docker-compose (needs the stack up); prefer the host-side targets above.
-      Generated code: `make gen` (mock/swagger/sqlc/wire/api). Never hand-edit generated files.
-      Integration tests need `make test-db-up`.
+layout: workspace
+
+# The wrapper repo itself (this folder).
+workspace_repo:
+  base_branch: main                     # ticket branches start here; never committed to directly
+  pr: true                              # at delivery, push the wrapper's ticket branch and open a
+                                        # docs-only PR/MR (uses pr.tool, or pr_tool: here)
+
+# ---------------------------------------------------------------------------
+# Components — three separate git repos cloned beside this wrapper.
+# Each component has its own branch and PR.
+# ---------------------------------------------------------------------------
+components:
   bump-admin:
     path: bump-admin
     remote: https://github.com/emole-inc/bump-admin.git
     base_branch: develop
-    stack: Next.js / TypeScript / aspida + openapi-generator (client generated from backend swagger)
-    qa_surface: browser                   # how a QA tester verifies this repo — see § QA surface below
-    test: yarn type-check && yarn lint
-    lint: yarn lint
+    stack: Next.js 14 · TypeScript · React · Ant Design · SWR · aspida (OpenAPI client) · yarn
+    qa_surface: browser                 # URL + role + clicks
+    test: ""                            # no automated unit test runner
+    lint: yarn lint && yarn type-check
     notes: >-
-      No unit test runner is configured — verification = type-check + lint + manual test cases.
-      API client is generated from ../bump-backend/docs/swagger.yaml (`yarn openapi:build`).
+      No automated unit test runner — verify with type-check + lint + manual test cases.
+      OpenAPI TypeScript client is generated from bump-backend/docs/swagger.yaml;
+      run `yarn openapi:build` after backend schema changes. Never hand-edit files
+      under src/openapi/generated/ or src/api/. Both yarn.lock and package-lock.json
+      are present — use yarn.
+    # guides: []
+
+  bump-backend:
+    path: bump-backend
+    remote: https://github.com/emole-inc/bump-backend.git
+    base_branch: develop
+    stack: Go 1.23 · GraphQL (gqlgen) · REST admin API · MySQL (sqlx) · AWS SDK · Firebase · dbmate · Docker
+    qa_surface: api                     # request the tester sends + expected response
+    test: make test                     # runs inside docker-compose; bring up DB first with `make test-db-up`
+    test_task: docker-compose exec backend go test -v /backend/app/test/...
+    lint: go vet ./...
+    notes: >-
+      Tests require Docker: run `make test-db-up` first, then `make test`.
+      GraphQL server code is generated by gqlgen — never edit
+      app/presentation/api/graph/generated/generated.go by hand; run
+      `go generate ./...` after changing .graphqls schema files.
+      DB migrations managed by dbmate.
+    # guides: []
+
   bump-mobile-app:
     path: bump-mobile-app
     remote: https://github.com/emole-inc/bump-mobile-app.git
     base_branch: main
-    stack: Flutter (FVM) / Dart / graphql_flutter + graphql_codegen / openapi (dio)
-    qa_surface: mobile-device              # how a QA tester verifies this repo — see § QA surface below
-    test: bin/fvm flutter test --dart-define=flavor=prod
-    lint: make lint-dart
+    stack: Flutter/Dart · build_runner (codegen) · fastlane (CI/CD) · fvm
+    qa_surface: mobile-device           # real iOS/Android device, build flavor + account
+    test: make test-unit                # wraps ./scripts/unit_test.sh via bin/fvm
+    test_task: bin/fvm flutter test <path>
+    lint: make lint                     # lint-dart (flutter analyze) + lint-ios (swiftlint) + lint-android (ktlint)
     notes: >-
-      ALWAYS use the bin/fvm wrapper (never plain flutter/dart).
-      Resolve package APIs from .dart_tool/package_config.json, never `find /`.
-      GraphQL operations live in lib/graphql/*.graphql (schema owned by bump-backend).
-    # The mobile team's own AI guidance — the flow follows it, never overrides it.
-    guides: [CLAUDE.md, docs/ai/README.md, docs/ai/IMPLEMENTATION_GUIDE.md, test/README.md]
-    repo_skills:                    # read <repo>/.claude/skills/<name>/SKILL.md and follow it
-      tests_usecase: bump-usecase-testing
-      tests_viewmodel: bump-viewmodel-testing
-      code_review: bump-code-review
-      e2e: bump-patrol-e2e
+      Always use bin/fvm instead of flutter directly.
+      Generated files from build_runner must not be hand-edited; run
+      `bin/fvm flutter pub run build_runner build` after model changes.
+    guides: [CLAUDE.md, AGENTS.md]
 
-# Every repo may define `guides:` (files to read before touching code) and
-# `repo_skills:` (the repo team's own skills, read from <repo>/.claude/skills/).
-# These are the repo owners' rules; AI Flow stages pass them to every subagent.
-
-# QA surface — how aiflow-testgen writes manual test steps for this repo.
-# One of: mobile-device (real iOS/Android device, app flavor + account state),
-# browser (URL + role), api (a request the tester can run: endpoint, headers,
-# body, expected fields). A repo with no qa_surface gets a generic
-# "verify the change" section instead of a tailored one — set it explicitly
-# rather than relying on that fallback.
-
-# Cross-repo contracts — when a spec touches one side, check the other side.
+# Cross-component contracts — when a spec touches one side, check the other.
 contracts:
-  - name: Admin REST API
+  - name: REST API (Swagger/OpenAPI)
     owner: bump-backend (docs/swagger.yaml)
     consumers: [bump-admin]
-    regenerate: "cd bump-admin && yarn openapi:build"
-  - name: App GraphQL API
-    owner: bump-backend (gqlgen schema, see gqlgen.yml)
-    consumers: [bump-mobile-app]
-    regenerate: "cd bump-mobile-app && bin/fvm dart run build_runner build"
+    regenerate: "yarn openapi:build"
+
+# ---------------------------------------------------------------------------
+# Tickets — where a ticket's content comes from.
+#   paste   — always ask the user to paste the ticket text.
+# ---------------------------------------------------------------------------
+tickets:
+  source: paste
+  lists_dir: aiflow/ticket-lists        # optional: .md files listing ticket IDs + links;
+                                        # offered when /aiflow is run without an ID
 
 # ---------------------------------------------------------------------------
 # Branches & PRs
 # ---------------------------------------------------------------------------
 branch:
-  bug: bug/<TICKET-ID>/<slug>          # slug = short English snake_case
+  bug: bug/<TICKET-ID>/<slug>           # slug = short English snake_case
   feature: feature/<TICKET-ID>/<slug>
+
 pr:
-  tool: gh                              # all repos are on GitHub
-  title: "[<TICKET-ID>] <Japanese title>"
-  copy_artifacts_into_repo: true        # at delivery, docs/aiflow/<ID>/ is copied into each repo's
-                                        # branch so reviewers accept by reading md files in the PR
-  post_review_comment: true             # post final-review summary as a PR comment
+  tool: gh                              # GitHub CLI (authenticated as sa-kongnguyen)
+  title: "[<TICKET-ID>] <title in `language`>"
+  copy_artifacts_into_repo: true        # copy docs/aiflow/<ID>/ into each component repo's PR branch
+  post_review_comment: true             # post the final-review summary as a PR comment
 
 # ---------------------------------------------------------------------------
-# Stages — one folder, fixed filenames, a hard stop after every stage.
-# `cmd` is the skill that runs it; /aiflow <ID> always picks the right one.
-# gate: a human must approve before the next stage starts (recorded in status.md).
+# Stages — the pipeline itself. Leave as-is unless you're deliberately
+# changing which stages exist. `gate: true` = a human approves before moving on.
 #
-# Light-route exception: for a small bug, stages 1 and 2 are produced by ONE
-# run of aiflow-spec (§1.4 there) — triage + writing spec.md inline, one
-# combined approval, no separate dialogue stop. This mirrors a bugfix
-# fast-track (triage and the fix write-up as one step), not the full
-# investigate-then-dialogue process stage 2 runs for everyone else. See
-# .claude/skills/aiflow-spec/SKILL.md §1.4 for exactly where it applies and
-# where it falls back to the normal two-stop flow.
+# Light route: for a small bug, stages 1 and 2 run as ONE step (triage +
+# spec written inline, one approval), then 4 and 6. Full route runs 1–6.
 # ---------------------------------------------------------------------------
 stages:
-  - {n: 1, id: ticket,   name_ja: チケット正規化,          cmd: aiflow-spec,   writes: [ticket.md, status.md], gate: true}
-  - {n: 2, id: spec,     name_ja: 仕様作成,                cmd: aiflow-spec,   writes: [spec.md],               gate: true}
-  - {n: 3, id: plan,     name_ja: 修正プラン,              cmd: aiflow-plan,   writes: [plan.md],               gate: true,  routes: [full]}
-  - {n: 4, id: impl,     name_ja: 修正実装,                cmd: aiflow-impl,   writes: [code, reviews/task*.md], gate: false}
-  - {n: 5, id: review,   name_ja: レビュー・テストケース作成, cmd: aiflow-review, writes: [reviews/final-review.md, test-cases.md], gate: false, routes: [full]}
-  - {n: 6, id: deliver,  name_ja: 納品（PR作成）,          cmd: aiflow-review, writes: [PR per repo],           gate: true}
+  - {n: 1, id: ticket,  name: Ticket intake,          cmd: aiflow-spec,   writes: [ticket.md, status.md], gate: true}
+  - {n: 2, id: spec,    name: Spec,                   cmd: aiflow-spec,   writes: [spec.md],               gate: true}
+  - {n: 3, id: plan,    name: Plan,                   cmd: aiflow-plan,   writes: [plan.md],               gate: true,  routes: [full]}
+  - {n: 4, id: impl,    name: Implementation,         cmd: aiflow-impl,   writes: [code, reviews/task*.md], gate: false}
+  - {n: 5, id: review,  name: Review & test cases,    cmd: aiflow-review, writes: [reviews/final-review.md, test-cases.md], gate: false, routes: [full]}
+  - {n: 6, id: deliver, name: Delivery (PR),          cmd: aiflow-review, writes: [PR per git root],       gate: true}
 
 # ---------------------------------------------------------------------------
-# Triage (難易度判断) — decided at the end of Stage 1 from symptom-level
-# evidence, then re-checked against real code during the light fast-track's
-# investigation (aiflow-spec §1.4) before anything is finalized. light =
-# stages 1,2,4,6 (1+2 as one run, small bug only) ; full = 1..6. Human always
-# confirms unless auto_light is true AND every check is clean.
+# Triage — light (small bug, 1→2→4→6) vs full (1→6). Decided at the end of
+# stage 1, re-checked against real code before anything is written. The
+# human confirms unless auto_light is true AND every check passes.
 # ---------------------------------------------------------------------------
 triage:
   auto_light: false
   light_requires_all:
-    - one repo only
+    - one component only
     - "expected files changed <= 3"
-    - no API / GraphQL schema / DB migration / contract change
+    - no API / schema / DB migration / contract change
     - root cause located with evidence (file:line)
-    - not a new feature (kind: bug)
+    - kind is bug (not a feature)
     - no sensitive area touched
-  sensitive_areas:            # always full route
-    - 課金 / purchase / coin / subscription
-    - 認証 / login / account transfer (引継ぎ)
+  sensitive_areas:                      # always full route
+    - payments / billing
+    - authentication / permissions
     - DB migration
 
-# Subagent models per route (Agent tool `model:` values).
+# Subagent models per route (the Agent tool's `model:` values).
 models:
   light: {implementer: sonnet, reviewer: sonnet}
   full:  {implementer: sonnet, reviewer: opus, final_reviewer: opus, test_case_writer: sonnet}
 
-# Knowledge graph (ナレッジグラフ) — workspace-wide, built by /aiflow-analyze.
+# Knowledge graph — optional. Needs the `graphify` CLI. Without it every
+# skill falls back to normal code search; nothing breaks.
 knowledge_graph:
-  graph: graphify-out/graph.json        # merged graph of all repos (+ docs)
-  per_repo: <repo>/graphify-out/graph.json
-  include_docs: [bump-backend/docs, bump-mobile-app/docs, docs/aiflow]
+  enabled: true
+  graph: graphify-out/graph.json        # built by /aiflow analyze
+  include_docs: []                      # extra doc folders for `/aiflow analyze docs` (costs tokens)
 
-# Usage log (log.json per ticket) — tokens/time/cost per stage, for tuning triage.
+# Usage log — time / tokens / estimated cost per stage, in docs/aiflow/<ID>/log.json.
 usage_log:
   enabled: true
-  pricing: aiflow/pricing.json          # API-equivalent USD per MTok; edit when prices change
+  pricing: aiflow/pricing.json
 
-# Project wiki (curated architecture knowledge, not auto-extracted like the
-# code graph above) — generated by /aiflow-wiki, an occasional utility run,
-# never by a git hook (an LLM pass over 3 repos costs real tokens; the graph
-# above is AST-only and free, which is why only IT is safe to auto-refresh).
+# Project wiki — curated architecture docs written by /aiflow wiki (costs
+# tokens, never auto-run). Tickets may append small decision entries.
 wiki:
-  dir: wiki                             # workspace-relative; committed, not gitignored
-  topology: multi-repo                  # derived from repos: above (3 distinct repos) — /aiflow-wiki
-                                         # does not re-ask this; it reads it from here
-  update_from_tickets: true             # aiflow-spec's Stage 2 (full) and §1.4 (light fast-track)
-                                         # may append a decisions/ entry when a spec records a real
-                                         # architecture decision — cheap, reuses that ticket's own
-                                         # investigation, never triggers a fresh repo-wide re-ingest
+  dir: wiki                             # committed, never gitignored
+  update_from_tickets: true

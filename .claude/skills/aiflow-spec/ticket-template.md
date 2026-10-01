@@ -1,203 +1,152 @@
-# BUMPチケット — 正規化テンプレート（不具合 / 新規・保守開発 共通）
+# ticket.md template (output of stage 1)
 
-Notionページの内容をこの構成にマッピングしてください。
-**「AI判定」セクション以外は分析しないこと。Notionページに記載されている内容のみを書くこと。見つからない項目は `—` とする。**
+Map the ticket's content into this structure. **Outside the "AI assessment"
+section, don't analyze — write only what the ticket says; anything not found
+is `—`.** Write it in `workflow.yaml` `language:`, translating the headings
+below when that isn't `en` (conventions §7).
 
-このテンプレートで生成される `ticket.md` は日本語で記述する。
-ファイル先頭には必ず次のフロントマターを付ける（キーは英語のまま、値のみ記入）:
+For `kind: feature`, "Steps to reproduce" and "Expected / actual" become
+"Requirements" and "Current / desired"; rows that don't apply are `—`.
 
-```yaml
+````markdown
 ---
 type: Ticket
-ticket: PDT-XXXX
-kind: bug                  # bug（不具合対応） | feature（新規・保守開発）
-title: <Notionの正確なタイトル>
-repos: [bump-mobile-app]   # 影響リポジトリ（AI判定の結果。確認後に確定）
-source: <Notion URL | paste>
+ticket: <TICKET-ID>
+kind: bug                      # bug | feature
+title: <exact ticket title>
+components: [<component>]      # from the AI assessment, confirmed at the gate
+source: <URL | paste>
 generated: {by: aiflow-spec, at: YYYY-MM-DD}
-status: draft              # draft → approved（ステージ1のゲート通過時）
----
-```
-
-`kind: feature` の場合: 「再現手順」「期待される動作 / 実際の動作」は「要件」「現状と変更後」として記入し、該当しない行は `—` とする。
-
+status: draft                  # draft → approved at the stage 1 gate
 ---
 
-## 📋 正規化チケット: [ID]
+# <TICKET-ID> — <exact title>
 
-### 基本情報
+## Basic info
 
-| 項目 | 値 |
-|-------|-------|
-| **ID** | PDT-XXXX |
-| **NotionのURL** | https://app.notion.com/... |
-| **プラットフォーム** | iOS / Android / iOS & Android |
-| **対象（Notion記載）** | Mobile / Backend / Admin |
-| **ステータス** | — |
-| **優先度** | — |
-| **重要度** | — |
-| **種別** | — |
-| **担当者** | — |
+| Field | Value |
+|---|---|
+| ID | <TICKET-ID> |
+| Link | <URL or —> |
+| Type (from the ticket) | <e.g. Bug / Story / label — this is the evidence for `kind`> |
+| Status | — |
+| Priority / severity | — |
+| Assignee | — |
+| Platform / environment | <e.g. iOS & Android / staging / Chrome — or —> |
+| Component (as the ticket states it) | — |
 
----
+## Summary
 
-### タイトル
+<1–2 sentences from the user's point of view. No guessing at the cause.>
 
-> [Notionの正確なタイトル。要約や書き換えをしないこと。]
+## Conditions
 
----
+| Condition | Value |
+|---|---|
+| Who is affected | <all users / a segment / a role — or —> |
+| Environment | <prod / staging / local — or —> |
+| Version / build | — |
+| Device / OS / browser | — |
+| Frequency | <always / sometimes / under a condition — or —> |
+| Feature flag / experiment | — |
 
-### 問題の概要
+## Steps to reproduce          <!-- feature: "Requirements" -->
 
-[1〜2文。ユーザー視点で症状を説明する。原因を推測しないこと。]
+Preconditions:
+- <state needed before step 1>
 
----
+Steps:
+1.
+2.
 
-### 発生条件
+If the ticket has none: `— (not in the ticket)`.
 
-| 項目 | 値 |
-|-------|-------|
-| **ユーザーセグメント** | 全ユーザー / 課金済み / 無料 / 特定条件 / — |
-| **課金状態** | 有効 / 無料 / 未課金 / 該当なし / — |
-| **プラットフォーム詳細** | iOS XX / Android XX / 両方 / — |
-| **アプリバージョン** | — |
-| **端末モデル** | — |
-| **OSバージョン** | — |
-| **環境** | ステージング / 本番 / 開発 / — |
-| **発生頻度** | 常に / 時々 / 条件付き / — |
-| **A/Bテスト・機能フラグ** | あり（[バリアント名]） / なし / — |
+## Expected / actual           <!-- feature: "Current / desired" -->
 
----
+| | |
+|---|---|
+| **Expected** | <how it should behave> |
+| **Actual** | <what happens now> |
 
-### 再現手順
+## Acceptance criteria
 
-前提条件:
-- [再現に必要な状態やセグメント]
+- [ ] <a verifiable condition that proves the fix/feature is right>
+- [ ] <an edge case or variation to check too>
+- [ ] <a regression check — existing behavior still works>
 
-手順:
-1. 
-2. 
-3. 
+If the ticket gives none, derive them from "Expected".
 
-Notionに手順が記載されていない場合は `— (Notionに記載なし)` と記載する。
+## Impact
 
----
+| | |
+|---|---|
+| Screens / features / endpoints | — |
+| Users affected | — |
+| Data / money / security impact | <yes / no / —> |
 
-### 期待される動作 / 実際の動作
+## Related
 
-| | 内容 |
-|---|-------------|
-| **期待される動作** | [本来あるべき挙動] |
-| **実際の動作** | [現在発生している挙動] |
+| | |
+|---|---|
+| Designs | — |
+| Related tickets | — |
+| Related PRs/MRs | — |
+| Screenshots / recordings | <yes / no> |
+| Notable comments | — |
 
----
+## Open questions
 
-### 受け入れ基準
-
-- [ ] [修正が正しいことを確認できる検証可能な条件]
-- [ ] [併せて確認すべきエッジケースやバリエーション]
-- [ ] [リグレッションチェック — 既存の挙動が壊れていないことを確認]
-
-Notionに指定がない場合は、期待される動作から導出する。
-
----
-
-### 影響範囲
-
-| 項目 | 値 |
-|-------|-------|
-| **画面 / 機能** | — |
-| **影響を受けるユーザー** | — |
-| **分析への影響** | あり / なし / — |
-| **売上・課金への影響** | あり / なし / — |
-
----
-
-### 関連リソース
-
-| 種別 | 値 |
-|------|-------|
-| Figma | — |
-| 関連チケット | — |
-| 関連PR | — |
-| スクリーンショット | あり / なし |
-| コメント備考 | — |
-
----
-
-### 🔍 不明点（ブレインストーミング用）
-
-Notionから抽出できなかった情報。ブレインストーミングはここから開始する。
+What the ticket doesn't say and the fix needs. Stage 2 (or the light
+fast-track) starts here. `none` if there are none.
 
 - [ ] —
 
-なければ: `なし`
+## AI assessment (outside the ticket — analysis is allowed here)
 
----
+### Affected components
 
-### 🤖 AI判定（Notion外の分析 — ここだけは分析してよい）
+One row per `workflow.yaml` `components:` entry — never a fixed list.
 
-#### 影響リポジトリ
-
-ナレッジグラフ（`graphify query`）と `aiflow/workflow.yaml` の `contracts:` を根拠に判定する。根拠のない推測は書かない。
-
-1行 = `aiflow/workflow.yaml` `repos:` の1リポジトリ（この表の行数・名前を固定しない — 増減したら表もそれに従う）:
-
-| リポジトリ | 判定 | 根拠（graphifyノード / file:line / 契約） |
+| Component | Verdict | Evidence (graph node / file:line / contract) |
 |---|---|---|
-| <workflow.yaml repos: の各キー> | 対象 / 対象外 / 要確認 | — |
+| <each component> | affected / not affected / needs checking | — |
 
-#### 難易度判断（トリアージ）
+### Triage
 
-`aiflow/workflow.yaml` の `triage.light_requires_all` を1項目ずつ確認する。1つでも満たさなければ `full`。
+Check `triage.light_requires_all` one row at a time. Any ❌ or unknown → `full`.
 
-| チェック | 結果 | 根拠 |
+| Check | Result | Evidence |
 |---|---|---|
-| 1リポジトリのみ | ✅ / ❌ | — |
-| 変更ファイル見込み 3以下 | ✅ / ❌ / 不明 | — |
-| API / GraphQLスキーマ / DBマイグレーション / 契約の変更なし | ✅ / ❌ / 不明 | — |
-| 根本原因の箇所を特定済み（file:line） | ✅ / ❌ | — |
-| 新規開発ではない（kind: bug） | ✅ / ❌ | — |
-| センシティブ領域（課金・認証・引継ぎ・DB）に非該当 | ✅ / ❌ | — |
+| One component only | ✅ / ❌ | — |
+| Expected files changed ≤ 3 | ✅ / ❌ / unknown | — |
+| No API / schema / migration / contract change | ✅ / ❌ / unknown | — |
+| Root cause located (file:line) | ✅ / ❌ | — |
+| Kind is bug | ✅ / ❌ | — |
+| No sensitive area touched | ✅ / ❌ | — |
 
-**推奨ルート:** `light`（省略版: 1→2→4→6） / `full`（完全版: 1→2→3→4→5→6）
-**確定ルート:** （ユーザー確認後に記入）
+**Recommended route:** `light` (1→2→4→6) / `full` (1→6)
+**Confirmed route:** (filled in after the user confirms)
 
-「不明」は ❌ として扱う（判断できないこと自体が複雑さのシグナル）。
+## Possible duplicates
 
----
+Only if an existing `docs/aiflow/*/ticket.md` is a close match; otherwise
+omit this section.
 
-### 🔁 重複の可能性
-
-既存の `docs/aiflow/*/ticket.md` と近い内容が見つかった場合にのみ記載する。
-
-| チケットID | 理由 |
+| Ticket | Why |
 |---|---|
-| — | — |
+````
 
-なければこのセクション自体を省略する。
+## Mapping guide
 
----
-
-## マッピングガイド
-
-| Notionの内容 | テンプレート項目 |
-|----------------|---------------|
-| ページタイトル | タイトル |
-| タイトル内の【iOS】【Android】 | プラットフォーム |
-| ステータス / 優先度プロパティ | 基本情報 |
-| 重要度プロパティ | 重要度（優先度とは別） |
-| 種別プロパティ | 基本情報 > 種別、かつ frontmatter `kind:`（bug/feature）の主判断材料。SKILL.md §1.1 参照 |
-| 担当者プロパティ | 基本情報 > 担当者 |
-| 対象列（Mobile/Backend/Admin） | 対象 |
-| 本文中の条件 / 環境 | 発生条件 |
-| アプリバージョン / 端末 / OSの記載 | 発生条件 > アプリバージョン / 端末モデル / OSバージョン |
-| 本文中の再現手順 | 再現手順 |
-| 本文中の期待される動作 | 期待される動作 + 受け入れ基準を導出 |
-| 本文中の実際の動作 | 実際の動作 |
-| 本文中の修正依頼内容 | 受け入れ基準 |
-| 課金・プラン状態の記載 | 発生条件 > 課金状態 |
-| A/Bテストや機能フラグの記載 | 発生条件 > A/Bテスト・機能フラグ |
-| 分析・コイン・決済の記載 | 影響範囲 |
-| コメント欄の内容 | 関連リソース > コメント備考 |
-| 添付スクリーンショット / 動画 | 関連リソース > スクリーンショット |
+| In the ticket | Goes to |
+|---|---|
+| Title | title (verbatim) |
+| Issue type / labels / "Type" property | Basic info > Type — and the evidence for `kind` |
+| Platform tags in the title (`[iOS]`, `[Web]`) | Basic info > Platform |
+| Status / priority / severity / assignee | Basic info |
+| Environment, version, device, frequency in the body | Conditions |
+| Repro steps in the body | Steps to reproduce |
+| Expected / actual in the body | Expected / actual (+ derive acceptance criteria) |
+| "What should be fixed" / requirements | Acceptance criteria |
+| Comments | Related > Notable comments (+ Open questions if they raise one) |
+| Attachments | Related > Screenshots |

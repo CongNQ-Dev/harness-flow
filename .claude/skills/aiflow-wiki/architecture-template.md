@@ -1,36 +1,41 @@
-# architecture/<repo>.md template
+# architecture/<component>.md template
+
+Written in `workflow.yaml` `language:` (translate the headings when that
+isn't `en`).
 
 ```markdown
 ---
 type: Architecture Overview
-title: <repo name> アーキテクチャ概要
-repos: [<repo>]
-sources: [<repo>/README.md, <repo>/go.mod|package.json|pubspec.yaml, graphify:<community ids>]
+title: <component> — architecture overview
+components: [<component>]
+sources: [<path>/README.md, <path>/<manifest file>, graphify:<community ids>]
 generated: {by: aiflow-wiki, at: YYYY-MM-DD}
 status: draft
 ---
 
-# <repo> — アーキテクチャ概要
+# <component> — architecture overview
 
-## スタック
-<言語・フレームワーク・DB・主要ライブラリ。workflow.yaml の stack: と一致させ、
-実際の設定ファイルで確認したものだけ書く>
+## Stack
+<language, framework, DB, key libraries — matching workflow.yaml `stack`,
+confirmed against the real config files. Only what you verified.>
 
-## レイヤー / モジュール構成
-<グラフのコミュニティ構造から導いたレイヤー図。箇条書きまたは簡単な図>
+## Layers / modules
+<the layer or module map, derived from the graph's communities and the
+folder layout — bullets or a small diagram>
 
-## 主要モジュール（god nodes）
-| モジュール | 役割 | 主な依存先 |
+## Central modules
+| Module | Responsibility | Main dependencies |
 |---|---|---|
-<graphify の中心性が高いノード3〜6個>
+<the 3–6 most-connected modules>
 
-## 境界づけられたコンテキスト
-<コードのディレクトリ構成から見える責務の境界。他リポジトリとの境界は
-contracts.md 側で扱う>
+## Boundaries
+<responsibility boundaries visible in the code layout. Boundaries with other
+components belong in contracts.md.>
 
-## このリポジトリ固有の注意点
-<workflow.yaml の repos.<repo>.notes と重複せず、アーキテクチャ理解に必要な補足のみ>
+## Things to know before changing this component
+<only what helps understanding the architecture and isn't already in
+workflow.yaml `notes`>
 ```
 
-Every factual line needs a source: `repo/path:line` or a graphify node id in
-`sources:`. No source → don't write the claim.
+Every factual line needs a source: `component/path:line` or a graph node id
+in `sources:`. No source → don't write the claim.

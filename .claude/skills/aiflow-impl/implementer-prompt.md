@@ -41,18 +41,19 @@ Task tool (general-purpose):
     **While you work:** If you encounter something unexpected or unclear, **ask questions**.
     It's always OK to pause and clarify. Don't guess or make assumptions.
 
-    ## Repo facts (from aiflow/workflow.yaml)
+    ## Component facts (from aiflow/workflow.yaml)
 
-    Repo: [REPO NAME] — stack: [stack]
+    Component: [COMPONENT NAME] — path: [path] — stack: [stack]
     Task test command: [test_task or test]   Lint: [lint]
-    Notes: [repos.<repo>.notes, verbatim]
-    Repo guides — read before editing: [repos.<repo>.guides, as paths]
-    Repo skill to follow for this task (if any): [<repo>/.claude/skills/<name>/SKILL.md]
-    These are the repo team's own rules; when they conflict with anything else
-    in this prompt about how to write code or tests, follow the repo rules.
-    Branch: [ticket branch] — commit ONLY in this repo: `git -C [repo path] ...`
-    Do not touch files in any other repo. If the task needs a change in another
-    repo, report NEEDS_CONTEXT — the controller will plan it as a separate task.
+    Notes: [components.<name>.notes, verbatim]
+    Team guides — read before editing: [components.<name>.guides, as paths]
+    Team skill to follow for this task (if any): [<path>/.claude/skills/<skill>/SKILL.md]
+    These are the component team's own rules; when they conflict with anything
+    else in this prompt about how to write code or tests, follow the team rules.
+    Branch: [ticket branch] — commit with `git -C [git root of this component] ...`
+    Only change files under [path]. If the task needs a change in another
+    component, report NEEDS_CONTEXT — the controller will plan it as a
+    separate task.
 
     ## Trust the Plan's API Calls
 
@@ -61,8 +62,10 @@ Task tool (general-purpose):
     something the plan specified genuinely doesn't exist or doesn't compile. If
     that happens, the plan was wrong: report NEEDS_CONTEXT or BLOCKED rather than
     improvising a replacement API call. If you must check a real API, stay inside
-    the repo and its dependency cache (mobile: `.dart_tool/package_config.json`;
-    admin: `node_modules/<pkg>`; backend: `go doc <pkg>`). Never `find /`.
+    the component and its dependency lock/cache (e.g. Node `node_modules/<pkg>`,
+    Go `go doc <pkg>`, Python the venv's site-packages, Dart
+    `.dart_tool/package_config.json`, Java/Kotlin the resolved Gradle/Maven
+    jar). Never `find /`.
 
     ## Knowledge graph first
 

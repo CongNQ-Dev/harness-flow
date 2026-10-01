@@ -1,120 +1,157 @@
 ---
 name: aiflow-review
-description: AI Flow stages 5–6 — stage 5 runs a whole-change final review across every repo the ticket touched (contracts, regressions) and generates test-cases.md; stage 6 runs each repo's tests, gates on manual QA, copies the ticket docs into each repo, pushes, and opens one PR per repo (cross-linked) with the review summary as a PR comment. Also reviews an existing PR URL. Usually reached via /aiflow.
-argument-hint: <TICKET-ID> | <PR-URL>
+description: AI Flow stages 5–6 — stage 5 runs a whole-change final review across every component the ticket touched (contracts, regressions) and generates test-cases.md; stage 6 runs each component's tests, gates on manual QA, pushes, and opens one PR (GitHub, via gh) or MR (GitLab, via glab) per git root, cross-linked, with the review summary as a comment. Also reviews an existing PR/MR URL. Usually reached via /aiflow.
+argument-hint: <TICKET-ID> | <PR/MR URL>
 ---
 
-# /aiflow-review — レビュー・テストケース作成（ステージ5）+ 納品（ステージ6）
+# /aiflow-review — Review & test cases (stage 5) + Delivery (stage 6)
 
 First read `.claude/skills/aiflow/conventions.md` and `aiflow/workflow.yaml`.
 
 ## 0. Which stage?
 
-Argument is a GitHub PR URL → **PR mode** (bottom of this file).
+Argument is a PR/MR URL → **Review mode** (bottom of this file).
 
 Otherwise `python3 aiflow/scripts/aiflow_status.py <ID>`:
-- `stage_done < 4` → refuse: implementation is not done (`/aiflow <ID>`).
+- `stage_done < 4` → refuse: implementation isn't done (`/aiflow <ID>`).
 - `stage_done: 4`, route `full` → **Stage 5**
 - `stage_done: 4`, route `light` → **Stage 6** (stage 5 is skipped on light)
 - `stage_done: 5` → **Stage 6**
-- `stage_done: 6` → done; print the PR URLs from `prs:`.
+- `stage_done: 6` → done; print the URLs from `prs:`.
+
+## PR tool per git root
+
+For each git root, the tool is its component's `pr_tool` if set, else
+`pr.tool` (`gh` = GitHub, `glab` = GitLab). If components in one git root
+disagree, that's a config error — stop and say so. The repo identifier comes
+from `git -C <root> remote get-url origin`:
+
+- **gh:** `[HOST/]OWNER/REPO` — drop the host for github.com, keep it for
+  GitHub Enterprise (`https://ghe.acme.io/team/api.git` → `ghe.acme.io/team/api`).
+- **glab:** the full https URL without `.git` works for gitlab.com and
+  self-hosted GitLab alike (`git@gitlab.acme.io:grp/sub/api.git` →
+  `https://gitlab.acme.io/grp/sub/api`).
+
+| Action | gh (GitHub) | glab (GitLab) |
+|---|---|---|
+| auth check | `gh auth status` | `glab auth status` |
+| create | `gh pr create -R <repo> --base <base> --head <branch> --title "<t>" --body-file <f>` | `glab mr create -R <repo> --target-branch <base> --source-branch <branch> --title "<t>" --description "$(cat <f>)" --yes` |
+| view | `gh pr view <url> --json title,body,baseRefName,headRefName,files` | `glab mr view <iid> -R <repo> -F json` |
+| diff | `gh pr diff <url>` | `glab mr diff <iid> -R <repo>` |
+| comment | `gh pr comment <url> --body-file <f>` | `glab mr note create <iid> -R <repo> -m "$(cat <f>)"` (glab older than ~1.60: `glab mr note <iid> -m ...`) |
+| edit body | `gh pr edit <url> --body-file <f>` | `glab mr update <iid> -R <repo> --description "$(cat <f>)"` |
+
+Flags above were checked against gh 2.x and glab 1.103; if a command errors on
+an older CLI, read its `--help` and adapt rather than guessing.
+
+Auth failing → stop and tell the user the login command (`gh auth login` /
+`glab auth login`). Never try to log in for them.
 
 ---
 
-## Stage 5 — レビュー・テストケース作成 (full route)
+## Stage 5 — Review & test cases (full route)
 
 `python3 aiflow/scripts/aiflow_log.py start <ID> review`
 
-1. **Final review** — dispatch `final-reviewer-prompt.md` for all repos in
-   `repos`. It writes `reviews/final-review.md`.
+1. **Final review** — dispatch `final-reviewer-prompt.md` for every affected
+   component (model `models.full.final_reviewer`, output `language`). It
+   writes `reviews/final-review.md`.
    - `verdict: issues` with Critical/Important findings → dispatch an
      implementer (`.claude/skills/aiflow-impl/implementer-prompt.md`) per
-     finding in the owning repo, re-run that repo's `test`, then re-run the
-     final review. Repeat until approved. Minor findings stay listed for the PR.
+     finding in the owning component, re-run that component's `test`, then
+     re-run the final review, until approved. Minor findings stay listed for
+     the PR.
 2. **Test cases** — run the `/aiflow-testgen` procedure
    (`.claude/skills/aiflow-testgen/SKILL.md` § Procedure) → `test-cases.md`.
-3. **Close** — status.md `stage_done: 5`, `next: aiflow-review`; conventions §4:
-   > 「ステージ5/6（レビュー・テストケース作成）完了。最終レビュー: ✅。テストケース N件: `docs/aiflow/<ID>/test-cases.md`。次: ステージ6（納品・PR作成）— `/aiflow <ID>`」
+3. **Close** — `status.md` `stage_done: 5`, `next: aiflow-review`; conventions
+   §5: "Stage 5/6 (Review & test cases) done. Final review: ✅. N test cases in
+   `docs/aiflow/<ID>/test-cases.md`. Next: stage 6 (Delivery) — `/aiflow <ID>`."
 
 ---
 
-## Stage 6 — 納品（PR作成）
+## Stage 6 — Delivery (PR / MR)
 
 `python3 aiflow/scripts/aiflow_log.py start <ID> deliver`
 
 ### 6.1 Automated tests (fresh)
 
-For each repo in `repos`, run its `test` command from `workflow.yaml` (and
-`lint`). Any failure → stop, show the failures, do not continue. (Light route:
-this is the only automated gate, so read the output fully.)
+For each affected component run its `test` (and `lint`). Any failure → stop,
+show it, don't continue. (On the light route this is the only automated
+gate — read the output fully.)
 
 ### 6.2 Manual QA gate
 
-Point the user at the checks to run: `test-cases.md` (full route) or the
-受け入れ基準 in spec.md (light route). Then `AskUserQuestion`:
+Point the user at what to check: `test-cases.md` (full route) or the spec's
+acceptance criteria (light route). Then `AskUserQuestion`:
 
-- **確認OK — PRを作成する（推奨）** → 6.3. This answer is the approval to push
-  and open PRs.
-- **不具合あり — テストで検出できていない** → stop. Write down what the user
-  found in `reviews/qa-findings.md`; the fix goes back through TDD: a failing
-  test reproducing it (`test-driven-development`, root cause with
-  `systematic-debugging`), fix in the owning repo, full test run, then re-run
-  `/aiflow <ID>` (still stage 6). Set status.md row 6 to `⏳ QA指摘対応中`.
-- **スキップ — 自動テストで十分** → 6.3 (record `approvals.deliver: human:<name> <date> (manual QA skipped)`).
+- **Checked — create the PR(s) (recommended)** → 6.3. This answer is the
+  approval to push and open PRs/MRs.
+- **Found a bug the tests missed** → stop. Record it in
+  `reviews/qa-findings.md`; the fix goes back through TDD — a failing test
+  that reproduces it (`test-driven-development`; `systematic-debugging` for
+  the cause), the fix in the owning component, a full test run — then
+  `/aiflow <ID>` again (still stage 6). status.md row 6: "⏳ fixing QA findings".
+- **Skip — automated tests are enough** → 6.3, recording
+  `approvals.deliver: human:<name> <date> (manual QA skipped)`.
 
-### 6.3 Put the docs into each repo branch
+### 6.3 Ticket docs in the PR
 
-When `pr.copy_artifacts_into_repo: true`: for each repo, copy the ticket folder
-(minus `log.json`) to `<repo>/docs/aiflow/<ID>/` and commit it on the ticket
-branch: `git -C <repo> add docs/aiflow/<ID> && git -C <repo> commit -m "docs(<ID>): AI Flow 成果物"`.
-Reviewers accept by reading these md files in the PR.
+- **in-repo:** the docs are already on the ticket branch (committed each
+  stage). Nothing to copy.
+- **workspace**, when `pr.copy_artifacts_into_repo: true`: for each affected
+  git root, copy the ticket folder (minus `log.json`) to
+  `<root>/docs/aiflow/<ID>/` and commit it on the ticket branch
+  (`docs(<ID>): AI Flow artifacts`).
 
-### 6.4 Push and open one PR per repo
+### 6.4 Push and open one PR/MR per git root
 
-Order: the contract owner repo first (`workflow.yaml` contracts[].owner — e.g. this
-project's backend), then consumers, so consumer PRs can link to it.
+Order: the git root of a contract **owner** first, then consumers, so
+consumers' PRs can link to it. **workspace** with `workspace_repo.pr: true`:
+the wrapper is one more git root — push its ticket branch last and open a
+docs-only PR/MR into `workspace_repo.base_branch` (Changes = "AI Flow
+ticket docs only"), linked with the others under Related.
 
 ```bash
-git -C <repo> push -u origin <branch>
-gh pr create -R emole-inc/<repo> --base <base_branch> --head <branch> \
-  --title "[<ID>] <日本語タイトル>" --body-file <tmp body file>
+git -C <root> push -u origin <branch>
+# then the "create" command for that root's tool (table above)
 ```
 
-Body (Japanese), in this order: `## 概要` (2–3 bullets from spec) ·
-`## 変更内容`（このリポジトリ分） · `## 関連PR`（the other repos' PRs for this
-ticket, or 「なし」） · `## 成果物`（links to `docs/aiflow/<ID>/spec.md`, `plan.md`,
-`reviews/final-review.md` in this branch） · `## テスト計画` (the TC list from
-test-cases.md, or the acceptance criteria on light). After all PRs exist, edit
-the earlier PRs' `## 関連PR` with `gh pr edit` so every PR links to every other.
+Title: `pr.title` with `<TICKET-ID>` and a title in `language`. Body (in
+`language`), in this order: **Summary** (2–3 bullets from the spec) ·
+**Changes** (this git root's components only) · **Related PRs/MRs** (the
+other roots' links for this ticket, or "none") · **Artifacts** (links to
+spec.md, plan.md, reviews/final-review.md — in this branch for in-repo /
+copied docs, or the wrapper's PR/MR for workspace without copying) ·
+**Test plan** (the TC list from test-cases.md, or the acceptance criteria on
+light). Once every PR/MR exists, edit the earlier ones' "Related" section so
+each links to all the others.
 
 If `pr.post_review_comment: true` and a final review exists, post its
-「PRレビュアー向け要約」 plus Minor findings as one comment per PR
-(`gh pr comment <url> --body-file ...`).
+"Summary for PR reviewers" plus the Minor findings as one comment per PR/MR.
 
-### 6.5 Close — terminal stage
+### 6.5 Close — last stage
 
-status.md: `stage_done: 6`, `next: done`, `prs:` one line per repo
-(`bump-backend: https://...`), `approvals.deliver`, row 6 `✅ 完了` with the
-URLs. Commit the workspace ticket folder, then
-`python3 aiflow/scripts/aiflow_log.py end <ID> deliver` and announce:
+`status.md`: `stage_done: 6`, `next: done`, `prs:` one line per git root
+(`<component or root name>: <url>`), `approvals.deliver`, row 6 done with the
+URLs. Commit the ticket folder (conventions §3), then
+`python3 aiflow/scripts/aiflow_log.py end <ID> deliver`, and announce:
+"Stage 6/6 (Delivery) done. PRs: <urls>. This ticket's pipeline is complete."
 
-> 「ステージ6/6（納品・PR作成）完了。PR: <urls>。このチケットのパイプラインは完了です。」
-
-Also show `python3 aiflow/scripts/aiflow_log.py summary <ID>` (time / tokens /
-estimated cost per stage) — this is the data used to tune the triage thresholds.
+Also show `python3 aiflow/scripts/aiflow_log.py summary <ID>` (time / tokens
+/ estimated cost per stage) — the data for tuning the triage thresholds.
 
 ---
 
-## PR mode — `/aiflow-review <PR-URL>`
+## Review mode — `/aiflow <PR/MR URL>`
 
-For a PR that did not come through this flow (or to re-review one that did):
+For a PR/MR that didn't come through this flow (or to re-review one that did):
 
-1. `gh pr view <url> --json title,body,baseRefName,headRefName,files` and
-   `gh pr diff <url>`. Find the ticket ID in the title (`[PDT-XXXX]`); if
-   `docs/aiflow/<ID>/spec.md` exists, use it as the requirements, otherwise the
-   PR description.
-2. Dispatch `final-reviewer-prompt.md` with the PR diff as "the change".
-   Write to `docs/aiflow/<ID>/reviews/pr-review-<repo>-<number>.md` (or show
-   it in chat when there is no ticket ID).
-3. Show the summary and ask with `AskUserQuestion` whether to post it as a PR
+1. Pick the tool from the URL's host (the table above), then `view` and
+   `diff` it. Find a ticket ID in the title (`[ABC-123]`); if
+   `docs/aiflow/<ID>/spec.md` exists, use it as the requirements, otherwise
+   the PR/MR description.
+2. Dispatch `final-reviewer-prompt.md` with that diff as "the change". Write
+   to `docs/aiflow/<ID>/reviews/pr-review-<component>-<number>.md`, or show
+   it in chat when there's no ticket ID.
+3. Show the summary and ask with `AskUserQuestion` whether to post it as a
    comment. Post only on yes. Never approve, request changes, or merge.

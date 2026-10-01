@@ -1,72 +1,70 @@
 # spec.md template
 
-Written in Japanese. Code, identifiers, paths, commands stay literal.
-Two producers, same file shape:
+Written in `workflow.yaml` `language:` (translate the headings below when
+that isn't `en`). Code, identifiers, paths and commands stay literal.
 
-- **Full route** — written by Stage 2 (`/aiflow-spec` §Stage 2) after the full
+Two producers, one file shape:
+
+- **Full route** — written by stage 2 (`aiflow-spec` §Stage 2) after the
   investigate-and-dialogue process. Stage 3 (`/aiflow-plan`) reads it next.
-- **Light fast-track** — written by Stage 1 (`/aiflow-spec` §1.4) inline,
-  right after triage, with no dialogue. Stage 4 (`/aiflow-impl`) reads it
-  directly (Stage 2 and 3 never run). Two sections differ from the full form:
-  no "検討して却下した案" (there was no dialogue to compare approaches in),
-  and 実装タスク is filled in here rather than by Stage 3.
+- **Light fast-track** — written by stage 1 (`aiflow-spec` §1.5) right after
+  triage, no dialogue. Stage 4 (`/aiflow-impl`) reads it directly. Two
+  sections differ: "Alternatives considered" is `n/a`, and "Implementation
+  tasks" is filled in here instead of by stage 3.
 
-Every section below is required either way; write `該当なし` rather than
-dropping one — on the light fast-track, that includes the (empty)
-"検討して却下した案" heading, kept for a consistent file shape.
+Every section is required either way — write `n/a` rather than dropping one.
 
-```markdown
+````markdown
 ---
 type: Spec
-ticket: PDT-XXXX
+ticket: <TICKET-ID>
 kind: bug | feature
 route: light | full
-repos: [bump-backend, bump-mobile-app]
-sources: [ticket.md]                 # + graphify nodes / docs you relied on
+components: [<component>, ...]
+sources: [ticket.md]               # + graph nodes / docs you relied on
 generated: {by: aiflow-spec, at: YYYY-MM-DD}
-status: draft                        # draft → approved (stage 2 gate)
+status: draft                      # draft → approved at the gate
 ---
 
-# 仕様: PDT-XXXX — <タイトル>
+# Spec: <TICKET-ID> — <title>
 
-## 根本原因                     <!-- bug: 必須 / feature: 「背景と目的」に置き換え -->
-- 問題A: `repo/path/file.ext:123` — 何が起きているか（根拠付き）
-- 問題B: ...
+## Root cause                      <!-- feature: "Background and goal" -->
+- Problem A: `component/path/file.ext:123` — what happens and why (with evidence)
+- Problem B: ...
 
-## 修正方針
-採用したアプローチと理由（1〜3段落）。
+## Approach
+The approach taken and why (1–3 paragraphs).
 
-### 検討して却下した案
-| 案 | 却下理由 |
+### Alternatives considered
+| Option | Why not |
 |---|---|
 
-## リポジトリ別の変更                <!-- 対象リポジトリごとに1節。順序 = 実装順 -->
-### bump-backend
-- 変更ファイル: `app/...`
-- 変更内容: ...
-### bump-mobile-app
-- ...
+## Changes per component           <!-- one subsection per affected component, in implementation order -->
+### <component>
+- Files: `path/...`
+- Change: ...
 
-## リポジトリ間の契約              <!-- API / GraphQL / swagger / ヘッダー等。なければ「該当なし」 -->
-| 契約 | 提供側 | 利用側 | 変更内容 | 後方互換性 | 再生成コマンド |
+## Contracts between components   <!-- API / schema / generated client / header... or "n/a" -->
+| Contract | Owner | Consumers | Change | Backward compatible? | Regenerate command |
 |---|---|---|---|---|---|
 
-## 振る舞い表
-| 条件 | 変更前 | 変更後 |
+## Behavior
+| Condition | Before | After |
 |---|---|---|
 
-## 受け入れ基準
-- [ ] ticket.md の受け入れ基準をすべて含める（検証可能な文で）
+## Acceptance criteria
+- [ ] every acceptance criterion from ticket.md, as a verifiable statement
 
-## スコープ外
-- 今回やらないこと（別チケット化するものはIDを記載）
+## Out of scope
+- what this change deliberately does not do (link follow-up tickets)
 
-## 実装タスク（light ルートのみ）       <!-- full ルートでは「/aiflow-plan で作成」と書く -->
-### タスク1: <名前>（リポジトリ: bump-mobile-app）
-- ファイル: `lib/...`
-- テスト: 失敗するテストの内容 → 実装 → 実行コマンド（workflow.yaml の test_task / test）
-```
+## Implementation tasks            <!-- light route only; full route: "written by /aiflow-plan" -->
+### Task 1: <name> (component: <component>)
+- Files: `path/...`
+- Test: the failing test to write → implement → run (`test_task` / `test` from workflow.yaml)
+````
 
-Self-check before asking for approval: no TBD/TODO; every acceptance criterion
-in ticket.md appears; every repo in `repos:` has a section; every contract row
-names its regenerate command; file:line evidence for each root cause.
+Self-check before asking for approval: no TBD/TODO; every acceptance
+criterion in ticket.md appears; every affected component has a section;
+every contract row names its regenerate command; file:line evidence for each
+root cause.

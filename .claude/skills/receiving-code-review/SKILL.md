@@ -203,7 +203,7 @@ You understand 1,2,3,6. Unclear on 4,5.
 
 ## GitHub Thread Replies
 
-When replying to inline review comments on GitHub, reply in the comment thread (`gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`), not as a top-level PR comment.
+When replying to inline review comments, reply in the comment thread, not as a top-level comment (GitHub: `gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies`; GitLab: reply to the MR discussion with `glab api projects/:id/merge_requests/:iid/discussions/:discussion_id/notes`).
 
 ## The Bottom Line
 

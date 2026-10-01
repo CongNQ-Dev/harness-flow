@@ -127,6 +127,12 @@ something progress tracking alone could answer.
 - Everything under `docs/aiflow/`, plus PR text, is written in Japanese.
 - Git always runs as `git -C <repo>`. It never commits to `develop`/`main` and never force-pushes.
   PRs go to each repo's own base branch (backend/admin `develop`, mobile `main`).
+- While a ticket is open, **this wrapper repo and every affected repo are on
+  the same ticket branch** (`bug/PDT-XXXX/…` / `feature/PDT-XXXX/…`). Ticket
+  docs are committed on the wrapper's ticket branch, never on `main`; at
+  delivery the wrapper gets its own docs-only PR alongside the repos' PRs.
+  `/aiflow PDT-XXXX` switches back to a ticket's branches by itself; the
+  `/aiflow` board shows the tickets visible on the wrapper's current branch.
 - Each repo team's own guidance wins for code, e.g. bump-mobile-app's
   `CLAUDE.md`, `docs/ai/` and `bump-*` skills.
 - The knowledge graph is queried before any source file is read.

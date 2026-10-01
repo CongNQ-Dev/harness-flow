@@ -1,86 +1,83 @@
 ---
 name: aiflow
-description: The one AI Flow command. `/aiflow PDT-2350` runs the next stage of that ticket (normalize → spec → plan → implement → review/test cases → PR) across every repo declared in aiflow/workflow.yaml, then stops. `/aiflow` alone shows the board of all tickets. Also `/aiflow PDT-2350 feature`, `/aiflow PDT-2350 redo spec`, `/aiflow analyze`, `/aiflow wiki`. Use whenever the user mentions a ticket, a bug to fix, or continuing AI Flow work.
-argument-hint: "[<TICKET-ID> [feature | redo <stage> | status] | analyze]"
+description: The one AI Flow command. `/aiflow <TICKET-ID>` runs the next stage of that ticket (intake → spec → plan → implement → review/test cases → PR) across the components declared in aiflow/workflow.yaml, then stops. `/aiflow` alone shows the board of all tickets. Also `/aiflow setup` (first-time configuration), `/aiflow <ID> feature`, `/aiflow <ID> status`, `/aiflow <ID> redo <stage>`, `/aiflow analyze`, `/aiflow wiki`, `/aiflow <PR/MR URL>`. Use whenever the user mentions a ticket or issue ID, a bug to fix, a feature to build, or continuing AI Flow work.
+argument-hint: "[setup | <TICKET-ID> [feature | status | redo <stage> | testcases] | analyze | wiki [refresh] | <PR/MR URL>]"
 ---
 
 # /aiflow — AI Flow entry point (router)
 
 The user only needs to remember this command. It figures out where a ticket
 is and runs **the next stage**, then stops — one stage per turn, except the
-light route's small-bug fast-track, which does stage 1+2 together as one
-combined step (conventions §4's one documented exception). Read
-`.claude/skills/aiflow/conventions.md` once per session.
+light route's small-bug fast-track, which does stages 1+2 together
+(conventions §5). Read `.claude/skills/aiflow/conventions.md` once per session.
+
+## 0. Configured yet?
+
+If `aiflow/workflow.yaml` doesn't exist, the only thing that can run is
+setup. Say so in one line and invoke the `aiflow-setup` skill — unless the
+user only asked for help, in which case show the help text below.
 
 ## Dispatch on the arguments
 
 | Input | Action |
 |---|---|
-| *(nothing)* | Board: run `python3 aiflow/scripts/aiflow_status.py` and show it, then the 3-line help below. |
-| `analyze` | Invoke the `aiflow-analyze` skill. |
-| `wiki` or `wiki refresh` | Invoke the `aiflow-wiki` skill (passing `refresh` through if given). |
-| `<ID>` or `<ID> feature` | **Run next stage** (below). `feature` marks a new ticket as 新規・保守開発. |
+| *(nothing)* | Board: `python3 aiflow/scripts/aiflow_status.py`, then the help text below. If `tickets.lists_dir` has files, mention that `/aiflow` can pick a ticket from them. |
+| `setup` | Invoke `aiflow-setup` (re-running it on an existing `workflow.yaml` updates it). |
+| `analyze` / `analyze docs` | Invoke `aiflow-analyze` (pass `docs` through). |
+| `wiki` / `wiki refresh` | Invoke `aiflow-wiki` (pass `refresh` through). |
+| `<ID>` or `<ID> feature` | **Run next stage** (below). `feature` marks a new ticket as new development instead of a bug fix. |
 | `<ID> status` | Show `docs/aiflow/<ID>/status.md` + `python3 aiflow/scripts/aiflow_log.py summary <ID>`. Run nothing. |
 | `<ID> redo <stage>` | Stage = `ticket`/`spec`/`plan`/`impl`/`review`/`deliver` (or its number). Confirm with `AskUserQuestion` that later artifacts will be regenerated, set `stage_done` to the stage before it, then invoke that stage's skill. |
 | `<ID> testcases` | Invoke `aiflow-testgen` for that ticket (standalone). |
-| a PR URL | Invoke `aiflow-review` with the URL (PR review mode). |
-| free text ("continue 2350", "PDT-2350の続き") | Map it to one of the rows above; ask only if it's truly ambiguous. |
+| a PR / MR URL | Invoke `aiflow-review` with the URL (review mode). |
+| free text ("continue 12", "keep going on SHOP-12") | Map it to one of the rows above; ask only if it's truly ambiguous. |
 
-Ticket IDs are case-insensitive; normalize to upper case (`pdt-2350` → `PDT-2350`).
+Normalize ticket IDs per conventions §2.
 
 ## Run next stage
 
+0. Get onto the ticket's branch if it already has one (conventions §4,
+   first paragraph) — otherwise an existing ticket looks brand new.
 1. `python3 aiflow/scripts/aiflow_status.py <ID>` → JSON with `stage_done`,
    `route`, `next_stage`, `next_cmd`, `next_name`.
 2. If `next_cmd` is null → the ticket is done; print its PR URLs and stop.
-3. **Knowledge-graph check (once per session):** if `graphify-out/graph.json`
-   is missing at the workspace root, say one line:
-   「ナレッジグラフが未作成です。精度向上のため `/aiflow analyze` を推奨します（続行は可能）。」
-   Do not block.
-4. Announce as a statement (never a question), e.g.
-   > 「PDT-2350 はステージ2（仕様作成）まで完了。ステージ4（修正実装）を実行します（light ルートのためステージ3は省略）。」
-   New ticket: 「PDT-2350 を新規チケットとして開始します（ステージ1: チケット正規化）。」
-5. Invoke the skill named by `next_cmd` with the Skill tool, args `<ID>` (plus
-   `feature` if given). Follow it; it ends the turn with a stop.
+3. **Knowledge graph check (once per session):** if `knowledge_graph.enabled`
+   and `graphify-out/graph.json` is missing, say one line recommending
+   `/aiflow analyze` (optional — continue either way).
+4. Announce as a statement, e.g. "SHOP-12 is done through stage 2 (Spec).
+   Running stage 4 (Implementation) — stage 3 is skipped on the light route."
+   New ticket: "Starting SHOP-12 (stage 1: ticket intake)."
+5. Invoke the skill named by `next_cmd` with the Skill tool, args `<ID>`
+   (plus `feature` if given). Follow it; it ends the turn with a stop.
 
-## Help text (for the board view)
+## Help text (for the board view — translate to the user's language)
 
 ```
-/aiflow PDT-XXXX            次のステージを実行（新規チケットもこれで開始）
-/aiflow PDT-XXXX status     進捗・処理ログを表示        /aiflow analyze   ナレッジグラフ更新
-/aiflow PDT-XXXX redo spec  ステージをやり直す          /aiflow wiki      プロジェクトwiki生成・更新
-/aiflow <PR URL>             既存PRをレビュー
+/aiflow <ID>              run the next stage (a new ticket starts here too)
+/aiflow <ID> feature      start a new ticket as a feature, not a bug fix
+/aiflow <ID> status       progress + time/tokens/cost per stage
+/aiflow <ID> redo spec    redo a stage
+/aiflow analyze           refresh the knowledge graph
+/aiflow wiki              generate / refresh the project wiki (costs tokens)
+/aiflow <PR/MR URL>       review an existing PR or MR
+/aiflow setup             (re)configure aiflow/workflow.yaml
 ```
 
 ## Stages (for reference)
 
-| # | Stage | Skill | light | full |
+| # | Stage | Skill (section) | light | full |
 |---|---|---|---|---|
-| 1 | チケット正規化 | aiflow-spec (§Stage 1 / §1.4) | ✅ | ✅ |
-| 2 | 仕様作成 | aiflow-spec (§1.4 light / §Stage 2 full) | ✅ | ✅ |
-| 3 | 修正プラン | aiflow-plan | — | ✅ |
-| 4 | 修正実装 | aiflow-impl | ✅ | ✅ |
-| 5 | レビュー・テストケース作成 | aiflow-review (§Stage 5) | — | ✅ |
-| 6 | 納品（PR作成） | aiflow-review (§Stage 6) | ✅ | ✅ |
+| 1 | Ticket intake | aiflow-spec (§Stage 1) | ✅ | ✅ |
+| 2 | Spec | aiflow-spec (§1.4 on light / §Stage 2 on full) | ✅ | ✅ |
+| 3 | Plan | aiflow-plan | — | ✅ |
+| 4 | Implementation | aiflow-impl | ✅ | ✅ |
+| 5 | Review & test cases | aiflow-review (§Stage 5) | — | ✅ |
+| 6 | Delivery (PR/MR) | aiflow-review (§Stage 6) | ✅ | ✅ |
 
-**Stages 1 and 2, on light route, are one run — not two.** For a small bug,
-`aiflow-spec` §1.4 investigates and writes `spec.md` inline right after
-triage, gets one combined approval, and closes both stages' rows in the same
-turn: no separate stop-and-wait for a dialogue. `/aiflow` doesn't need to
-know this — it just invokes `aiflow-spec` once and the skill decides
-internally, same as any other stage. This mirrors a bugfix fast-track
-(triage and the fix write-up as one step) rather than the full
-investigate-then-dialogue process full-route tickets get in Stage 2.
+On the light route, stages 1 and 2 are one run of `aiflow-spec`, not two —
+the router doesn't need to know; the skill decides internally. Stages 5 and 6
+are two sections of one `aiflow-review` file; `status.md` picks the section.
 
-**Stages 5 and 6 are both written inside the single `aiflow-review` skill file**
-as two separate sections — not two invocations of the same procedure. On the
-light route, stage 5's section never runs; stage 6's section always does.
-`/aiflow` picks the right section by reading `status.md`, same as any other
-stage; you never choose the section yourself.
-
-The route (light/full) is decided by triage at the end of stage 1 from
-symptom-level evidence, then re-checked against real code during the light
-fast-track's investigation (§1.4) — a ticket that fails the deeper check
-falls back to full before anything commits. The user confirms the route
-either way; it can only be upgraded (light → full) automatically, never
-downgraded silently.
+The route is decided by triage at the end of stage 1 and re-checked against
+real code before anything is written. The user confirms it. It can be
+upgraded light → full automatically, never downgraded silently.

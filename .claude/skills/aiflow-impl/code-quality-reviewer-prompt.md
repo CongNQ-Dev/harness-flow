@@ -12,7 +12,9 @@ Task tool (general-purpose):
 
   WHAT_WAS_IMPLEMENTED: [from implementer's report]
   PLAN_OR_REQUIREMENTS: Task N from [plan-file]
-  REPO: [repo path — run all git commands with git -C <repo>]
+  REPO: [git root of the task's component — run all git commands with git -C <root>]
+  LANGUAGE: [workflow.yaml language:]
+  TEAM_CHECKLIST: [the component's team_skills.code_review SKILL.md path, if any — apply it too]
   BASE_SHA: [commit before task]
   HEAD_SHA: [current commit]
   DESCRIPTION: [task summary]
@@ -24,4 +26,4 @@ Task tool (general-purpose):
 - Is the implementation following the file structure from the plan?
 - Did this implementation create new files that are already large, or significantly grow existing files? (Don't flag pre-existing file sizes — focus on what this change contributed.)
 
-**Code reviewer returns (in Japanese — file:line references and identifiers stay as-is):** Strengths, Issues (Critical/Important/Minor), Assessment
+**Code reviewer returns (in `workflow.yaml` `language:` — file:line references and identifiers stay as-is):** Strengths, Issues (Critical/Important/Minor), Assessment

@@ -1,51 +1,53 @@
 ---
 name: aiflow-analyze
-description: Build or refresh the workspace-wide knowledge graph (横断ナレッジグラフ) covering every repo in aiflow/workflow.yaml — updates each repo's graphify graph (AST, no LLM cost), merges them into graphify-out/graph.json with cross-repo links between shared symbols, and optionally adds design documents semantically. Run once at setup, after big merges, or when /aiflow says the graph is missing.
+description: Build or refresh the knowledge graph for every component in aiflow/workflow.yaml — runs graphify once per distinct git root (AST only, no LLM cost, skipping roots already at HEAD), and for multi-repo workspaces merges the graphs into graphify-out/graph.json with cross-repo links between shared symbols. Optionally adds design documents semantically (costs tokens). Run at setup, after big merges, or when /aiflow says the graph is missing.
 argument-hint: "[docs]"
 ---
 
-# /aiflow-analyze — ナレッジグラフ構築・更新
+# /aiflow-analyze — Knowledge graph
 
-Not a ticket stage; it prepares the knowledge every stage queries. No status.md
-changes, no stop rule.
+Not a ticket stage: no status.md, no stop rule. Needs the `graphify` CLI; if
+it isn't installed, say so (install with `pip install graphifyy` or your
+team's method) and stop — every other skill works without a graph.
 
-## 1. Code graph (always, cheap)
+## 1. Code graph (always; cheap)
 
 ```bash
 python3 aiflow/scripts/kg_build.py
 ```
 
-It runs `graphify update .` in each repo listed in `aiflow/workflow.yaml`,
-then merges into `graphify-out/graph.json` at the workspace root: node ids
-become `<repo>::<id>`, every node has `repo`, and `cross_repo_same_symbol`
-edges link distinctive type names that exist in several repos (a backend
-GraphQL/swagger type and its generated client in the app or admin). It prints
-counts and writes `graphify-out/WORKSPACE_REPORT.md`.
+It resolves each component's git root and runs `graphify update .` once per
+distinct root (roots already built at HEAD with a clean tree are skipped;
+`--force` rebuilds). Then:
 
-If `graphify` is not installed, tell the user to install it
-(`pip install graphifyy` or the team's install method) and stop.
+- **One git root** (single repo or monorepo — `layout: in-repo`): that
+  root's own `graphify-out/graph.json` *is* the graph. Nothing to merge.
+- **Several git roots** (multi-repo workspace): it merges them into the
+  workspace's `graphify-out/graph.json` — node ids become `<root>::<id>`,
+  every node gets `repo`, and `cross_repo_same_symbol` edges link
+  distinctive type names defined in more than one root (a schema type and
+  its generated client, say). It also writes `graphify-out/WORKSPACE_REPORT.md`.
 
-Use `--no-update` to only re-merge when the per-repo graphs are already fresh.
+`--no-update` only re-merges.
 
-## 2. Design documents (only with `docs`, uses LLM tokens)
+## 2. Design documents (only with `docs`; uses LLM tokens)
 
-`/aiflow-analyze docs` additionally runs the `graphify` skill's semantic
-extraction on the folders in `workflow.yaml` `knowledge_graph.include_docs`
-(API specs, architecture docs, past ticket specs), each into its own
-`<folder>/graphify-out/`, then re-merges everything:
-`python3 aiflow/scripts/kg_build.py --no-update --extra docs-backend=bump-backend/docs/graphify-out/graph.json ...`
-(one `--extra name=path` per doc graph). Tell the user the approximate size (number of files) and ask with
-`AskUserQuestion` before starting — this step costs tokens.
+`/aiflow analyze docs` adds the folders in `knowledge_graph.include_docs`
+through the `graphify` skill's semantic extraction:
+
+- **in-repo:** run it on the repo itself — the docs live in the repo, so
+  they go into the root graph directly (no merge step).
+- **workspace:** run it on each folder into its own `<folder>/graphify-out/`,
+  then re-merge:
+  `python3 aiflow/scripts/kg_build.py --no-update --extra <name>=<folder>/graphify-out/graph.json ...`.
+Tell the user roughly how many files that is and ask with `AskUserQuestion`
+before starting.
 
 ## 3. Report
 
-Show the per-repo node counts, the cross-repo link count with 5 example shared
-symbols, and one example query the team can try, e.g.
+Node counts per git root, the cross-repo link count with a few example
+shared symbols (multi-repo only), and one query to try:
 
 ```bash
-graphify query "which screens call the admin seasons API"
-graphify path "bump-admin::..." "bump-backend::..."
+graphify query "where is the order total calculated"
 ```
-
-Remind: re-run after large merges; `/aiflow-impl` already refreshes touched
-repos' graphs (`graphify update .`) after implementation.

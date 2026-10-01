@@ -55,7 +55,7 @@ Task tool (general-purpose):
 
     **Verify by reading code, not by trusting report.**
 
-    Report (write this report in Japanese — file:line references and identifiers stay as-is):
+    Report (write this report in [LANGUAGE from workflow.yaml] — file:line references and identifiers stay as-is):
     - ✅ Spec compliant (if everything matches after code inspection)
     - ❌ Issues found: [list specifically what's missing or extra, with file:line references]
 ```

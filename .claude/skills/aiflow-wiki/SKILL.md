@@ -1,129 +1,105 @@
 ---
 name: aiflow-wiki
-description: Generate or refresh the workspace's project wiki — curated architecture knowledge (per-repo overview, bounded contexts, cross-repo contracts with rationale) written by the AI from real code and the knowledge graph, not auto-extracted. Inspired by harness-workflow's ingest-repo/OKF wiki, trimmed to what a bug-fix-and-small-feature flow across 3 existing repos actually needs. Uses real tokens (an LLM pass over 3 repos) — run it on demand, never automatically. Individual tickets may append small decisions/ entries later via aiflow-spec; this skill does the initial full write and any later full re-scan.
+description: Generate or refresh the project wiki — curated architecture knowledge (one overview page per component, the contracts between components with their rationale, and real architecture decisions) written by the AI from the real code, each component team's own docs, and the knowledge graph. Costs real tokens (an LLM pass over the codebase), so it's run on demand, never automatically; individual tickets may append small decision entries later via aiflow-spec.
 argument-hint: "[refresh]"
 ---
 
-# /aiflow-wiki — プロジェクトwiki生成・更新
+# /aiflow-wiki — Project wiki
 
 First read `.claude/skills/aiflow/conventions.md` and `aiflow/workflow.yaml`
-(§ `wiki:`). Not a ticket stage — no `status.md` interaction, no stop rule,
-no gate. Costs real tokens (this is an LLM writing prose from real code, not
-`graphify update` — see `wiki: update_from_tickets` in `workflow.yaml` for
-why this is never run from a hook).
+(`wiki:`). Not a ticket stage — no status.md, no stop rule, no gate.
 
 ## 0. Confirm before spending tokens
 
-Tell the user in one line what this will read (which repos, roughly how
-many files/graph nodes) and ask with `AskUserQuestion`:
-**実行** / **キャンセル**. This mirrors `/aiflow-analyze docs`'s same courtesy
-for the same reason — a repo-wide LLM pass is not free.
+Say in one line what this will read (which components, roughly how many
+files / graph nodes) and ask with `AskUserQuestion`: **Run** / **Cancel**.
+Unlike `graphify update` (AST only, free), this is an LLM writing prose from
+code — that's why it's never run from a hook.
 
-## 1. Topology — read, don't ask
+## 1. Shape — read it, don't ask
 
-`workflow.yaml`'s `wiki.topology` and `repos:` already say this is
-**multi-repo** (3 distinct repos, not a monorepo) — do not re-interview for
-it the way `harness-workflow build` would for a brand-new project. If a
-future repo is added to `workflow.yaml`, it's automatically in scope here
-too; nothing in this skill hard-codes the repo count.
+`workflow.yaml` already says it: `layout`, and how many components share
+which git root (conventions §1). Don't re-interview for single vs. mono vs.
+multi-repo — `/aiflow setup` already did.
 
-## 2. What gets written (trimmed OKF — no SDLC-phase sections)
+## 2. What gets written
 
-harness-workflow's full wiki has `stories/`, `gui/`, `designs/`, `tasks/`,
-`tests/` because it drives a full greenfield SDLC. This workspace has no
-`stories-write`/`gui-design`/`plan-tasks` stages — those sections would sit
-empty forever. Write only what a brownfield, bug-fix-and-small-feature flow
-actually uses:
+Only what a bug-fix and feature flow on an existing codebase actually uses —
+no user-story, GUI-design or task sections (there are no stages producing
+them):
 
 ```
 wiki/
-  index.md                       ← entry point, links everything below
-  log.md                         ← append-only: what changed, when, why
+  index.md                      ← entry point, links everything below
+  log.md                        ← append-only: what changed, when, why
   architecture/
-    bump-backend.md              ← one page per repo
-    bump-admin.md
-    bump-mobile-app.md
-    contracts.md                 ← cross-repo contracts, WITH rationale
+    <component>.md              ← one page per workflow.yaml component
+    contracts.md                ← contracts between components, WITH rationale
+                                   (omit for a single component)
     decisions/
-      <slug>.md                  ← one ADR-style entry per real decision
+      <slug>.md                 ← one ADR-style entry per real decision
 ```
 
-Every concept file's frontmatter (see `architecture-template.md` /
-`decision-template.md`):
+Every page's frontmatter (see `architecture-template.md` / `decision-template.md`):
 
 ```yaml
 ---
-type: Architecture Overview | Cross-Repo Contract | Decision
+type: Architecture Overview | Cross-Component Contract | Decision
 title: <short, specific>
-repos: [bump-backend]            # which repo(s) this concerns
-sources: [repo/path/file.ext:123, graphify:<node-id>]   # never write a claim without one
+components: [<component>]
+sources: [<component>/path/file.ext:123, graphify:<node-id>]   # no claim without one
 generated: {by: aiflow-wiki, at: YYYY-MM-DD}
 status: draft
 ---
 ```
 
-## 3. Per-repo architecture page (`architecture/<repo>.md`)
+Write it in `language` (conventions §7).
 
-For each repo in `workflow.yaml` `repos:`:
+## 3. One page per component (`architecture/<component>.md`)
 
-1. Read that repo's **own** guides first if `workflow.yaml`
-   `repos.<repo>.guides` lists any (e.g. bump-mobile-app's `docs/ai/README.md`)
-   — a repo's own stated architecture beats re-deriving it from scratch.
-2. Query the merged graph: `graphify query "<repo> architecture overview"`,
-   then look at that repo's community structure in
-   `graphify-out/WORKSPACE_REPORT.md` (already computed — god nodes, biggest
-   communities). This is the cheap, high-signal pass — read raw source only
-   to confirm or fill a gap the graph and the repo's own docs leave open.
-3. Write: stack (from `workflow.yaml` `repos.<repo>.stack`, confirmed
-   against real config files), layer/module map (from the graph's
-   communities, named in plain language), the 3–6 most-connected modules
-   (god nodes) and what they own, and any bounded-context boundary visible
-   in the code layout. Every claim: `repo/path:line` or a graphify node id.
+1. Read the component's **own** docs first (`guides:` in workflow.yaml, its
+   README) — the team's stated architecture beats re-deriving it.
+2. If a graph exists: `graphify query "<component> architecture overview"`
+   and the component's biggest communities / most-connected nodes (in
+   `graphify-out/GRAPH_REPORT.md`, or `WORKSPACE_REPORT.md` for a
+   workspace). The cheap, high-signal pass — read raw source only to
+   confirm or fill a gap.
+3. Write: stack (`workflow.yaml` `stack`, confirmed against real config),
+   the layer/module map (named in plain language), the 3–6 most central
+   modules and what they own, and visible bounded-context boundaries.
+   Every claim cites a `component/path:line` or a graph node.
 
-## 4. Cross-repo contracts (`architecture/contracts.md`)
+## 4. Contracts (`architecture/contracts.md`, several components only)
 
-Start from `workflow.yaml`'s `contracts:` block (already names owner,
-consumers, regenerate command) — this file adds the **rationale** that
-block doesn't carry: why the contract exists, backward-compatibility rules
-observed in the code (e.g. a header with a fallback default), and links to
-any past ticket that touched it. Check `docs/aiflow/*/spec.md` for a
-リポジトリ間の契約 section — PDT-1136 is a real example already in this
-workspace (backend season-ID header, migrated as `legacy: true`) — cite it
-as a source if it's still accurate.
+Start from `workflow.yaml` `contracts:` (owner, consumers, regenerate
+command) and add what it doesn't carry: why the contract exists, the
+backward-compatibility rules visible in the code, and links to past tickets
+that changed it (look for a "Contracts between components" section in
+`docs/aiflow/*/spec.md`).
 
 ## 5. Decisions (`architecture/decisions/`)
 
-Only real, consequential decisions found in code or past specs — not a
-restatement of the architecture pages. One file per decision, named
-`<slug>.md`. If none are evident yet, it's fine for this directory to start
-with just `.gitkeep` — don't invent decisions to fill it.
+Only real, consequential decisions found in the code or past specs. One file
+each, `<slug>.md`. None evident yet → the folder starts with just
+`.gitkeep`; never invent decisions to fill it.
 
-## 6. Self-review before writing anything final
+## 6. Self-review
 
-Same discipline as `spec-document-reviewer-prompt.md`: no claim without a
-`sources:` entry, no placeholder/TBD, no invented rationale. Everything
-starts `status: draft` — there is no approval gate blocking anything else in
-the flow on this, so leave it there; a human flips it to `stable` by editing
-the file whenever they've actually reviewed it, at their own pace.
+No claim without a `sources:` entry, no placeholder/TBD, no invented
+rationale. Everything stays `status: draft`; nothing in the flow is gated
+on it — a human sets `stable` after actually reviewing a page.
 
-## 7. Write `index.md` and `log.md`
+## 7. `index.md`, `log.md`, commit, report
 
-`index.md`: one line per page above, links relative to `wiki/`.
-`log.md`: append (never rewrite) one entry — date, what was generated or
-refreshed, by which run.
+`index.md`: one line per page, links relative to `wiki/`. `log.md`: append
+(never rewrite) one entry — date, what was generated or refreshed. Commit
+(`docs(wiki): generate/refresh project wiki` — in-repo: not on a base
+branch; if you're on one, leave it uncommitted and say so). Report what was
+written and remind that tickets may append small `decisions/` entries; a
+full re-scan is `/aiflow wiki refresh`.
 
-## 8. Commit and report
+## `refresh`
 
-`git add wiki && git commit -m "docs(wiki): generate/refresh project wiki"`
-on the workspace repo. Report what was written, per-repo page sizes, and
-remind: `docs/aiflow/<ID>/spec.md` may append small `decisions/` entries
-going forward (see `aiflow-spec`) — this skill is for the initial write and
-any later full re-scan (`/aiflow-wiki refresh`), not for keeping it current
-automatically.
-
-## `refresh` argument
-
-Same procedure, but treat existing pages as a draft to update rather than
-start from blank — keep anything still accurate, add anything new the code
-now shows, and flag (don't silently delete) anything that looks stale so a
-human confirms before it's removed.
+Same procedure, treating existing pages as a draft to update: keep what's
+still accurate, add what the code now shows, and **flag** (don't silently
+delete) anything that looks stale so a human confirms before it goes.

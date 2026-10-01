@@ -44,3 +44,5 @@ any of the repos, use `/aiflow` rather than improvising a workflow.
   anything the change made stale (a renamed command, a changed stage list, a
   new gate) before calling the change done. If a skill edit genuinely touches
   none of them, say so explicitly rather than skipping the check silently.
+
+@aiflow/AIFLOW.md

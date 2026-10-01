@@ -1,0 +1,58 @@
+{
+  "ticket": "PDT-2541",
+  "runs": [
+    {
+      "stage": "ticket",
+      "started_at": "2026-10-01T03:24:51.103338Z",
+      "ended_at": "2026-10-01T03:33:59.539374Z",
+      "wall_clock_sec": 553,
+      "session_id": "49e54146-5192-4f4d-b0bb-4ed69b228d5b",
+      "models": {
+        "claude-sonnet-4-6": {
+          "calls": 21,
+          "input": 33,
+          "output": 14263,
+          "cache_write_5m": 0,
+          "cache_write_1h": 29797,
+          "cache_read": 1763692
+        }
+      },
+      "totals": {
+        "calls": 21,
+        "input": 33,
+        "output": 14263,
+        "cache_write_5m": 0,
+        "cache_write_1h": 29797,
+        "cache_read": 1763692
+      },
+      "cost_usd_estimate": null
+    },
+    {
+      "stage": "impl",
+      "started_at": "2026-10-01T03:34:45.117808Z",
+      "ended_at": "2026-10-01T03:43:00.586472Z",
+      "wall_clock_sec": 499,
+      "session_id": "49e54146-5192-4f4d-b0bb-4ed69b228d5b",
+      "models": {
+        "claude-sonnet-4-6": {
+          "calls": 31,
+          "input": 45,
+          "output": 9928,
+          "cache_write_5m": 45523,
+          "cache_write_1h": 13417,
+          "cache_read": 1998337
+        }
+      },
+      "totals": {
+        "calls": 31,
+        "input": 45,
+        "output": 9928,
+        "cache_write_5m": 45523,
+        "cache_write_1h": 13417,
+        "cache_read": 1998337
+      },
+      "cost_usd_estimate": null
+    }
+  ],
+  "total_cost_usd_estimate": 0
+}

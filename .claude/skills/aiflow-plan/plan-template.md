@@ -1,71 +1,79 @@
-# plan.md template (output contract of stage 3)
+# plan.md template (output of stage 3)
 
-Labels in Japanese; code, commands, paths, identifiers exactly as typed.
-`/aiflow-impl` parses the `### タスクN:` headings and each task's
-`**リポジトリ:**` line — keep them exactly in this shape.
+Written in `workflow.yaml` `language:` (translate the labels when that isn't
+`en`); code, commands, paths and identifiers exactly as typed.
+`/aiflow-impl` parses each `### Task N:` heading and its `**Component:**` /
+`**TDD:**` lines — keep those two labels' positions and values machine-plain
+(the label word may be translated; the value is a component name / `true` /
+`false`).
+
+The example below is illustrative (an API + web project); use your own
+components, paths and commands from `workflow.yaml`.
 
 ````markdown
 ---
 type: Plan
-ticket: PDT-XXXX
-repos: [bump-backend, bump-mobile-app]
-branch: bug/PDT-XXXX/<slug>
+ticket: <TICKET-ID>
+components: [api, web]
+branch: bug/<TICKET-ID>/<slug>
 sources: [spec.md]
 generated: {by: aiflow-plan, at: YYYY-MM-DD}
-status: draft                  # draft → approved (stage 3 gate)
+status: draft                  # draft → approved at the stage 3 gate
 ---
 
-# PDT-XXXX 実装計画 — <機能名>
+# <TICKET-ID> implementation plan — <feature/fix name>
 
-> **エージェント向け:** `/aiflow-impl` がタスクごとに実装者サブエージェントを起動し、仕様レビュー → 品質レビューを行う。各ステップはチェックボックス（`- [ ]`）で進捗を管理する。
+> **For agents:** `/aiflow-impl` runs one implementer subagent per task,
+> then a spec-compliance review, then a quality review. Track progress with
+> the checkboxes (`- [ ]`).
 
-**ゴール:** <1文>
-**ブランチ:** `bug/PDT-XXXX/<slug>`（ステージ1で各リポジトリに作成済み）
-**アーキテクチャ:** <2〜3文>
-**実装順序:** bump-backend（タスク1–2）→ bump-mobile-app（タスク3–4）
+**Goal:** <one sentence>
+**Branch:** `bug/<TICKET-ID>/<slug>` (created in stage 1)
+**Architecture:** <2–3 sentences>
+**Order:** api (task 1) → web (tasks 2–3: regenerate the client, then the UI change)
 
 ---
 
-### タスク1: <コンポーネント名>
+### Task 1: <unit name>
 
-**リポジトリ:** bump-backend
-**TDD:** true            <!-- false の場合は理由を1行で -->
-**ファイル:**
-- 変更: `app/presentation/api/graph/schema.resolvers.go:185-200`
-- テスト: `app/presentation/api/graph/schema_resolvers_test.go`
+**Component:** api
+**TDD:** true            <!-- false → one line saying why -->
+**Files:**
+- Modify: `src/orders/total.ts:40-58`
+- Test: `src/orders/total.test.ts`
 
-- [ ] **ステップ1: 失敗するテストを書く**
+- [ ] **Step 1: write the failing test**
 
-```go
-func TestWork_SearchAccess_UsesHeaderSeason(t *testing.T) { ... 実際のコード ... }
+```ts
+it("applies every coupon to the total", () => { /* real code */ });
 ```
 
-- [ ] **ステップ2: テストを実行し、失敗することを確認する**
+- [ ] **Step 2: run it and watch it fail**
 
-実行: `make test-package PKG=presentation/api/graph`
-期待結果: `TestWork_SearchAccess_UsesHeaderSeason` が FAIL（理由: ...）
+Run: `pnpm test -- src/orders/total.test.ts`
+Expected: FAIL — "expected 80, received 90"
 
-- [ ] **ステップ3: 最小限の実装を書く**
+- [ ] **Step 3: write the minimal implementation**
 
-```go
-... 実際のコード ...
+```ts
+/* real code */
 ```
 
-- [ ] **ステップ4: テストを実行し、成功することを確認する**
+- [ ] **Step 4: run it and watch it pass**
 
-実行: `make test-package PKG=presentation/api/graph`
-期待結果: PASS
+Run: `pnpm test -- src/orders/total.test.ts`
+Expected: PASS
 
-- [ ] **ステップ5: コミットする**
+- [ ] **Step 5: commit**
 
 ```bash
-git -C bump-backend add app/presentation/api/graph/...
-git -C bump-backend commit -m "fix(PDT-XXXX): <内容>"
+git -C <git root> add src/orders/total.ts src/orders/total.test.ts
+git -C <git root> commit -m "fix(<TICKET-ID>): apply all coupons to the order total"
 ```
 
-### タスク2: GraphQLクライアント再生成
+### Task 2: regenerate the web client
 
-**リポジトリ:** bump-mobile-app
-**TDD:** false（生成コードのみ。検証は `bin/fvm flutter analyze` と既存テスト）
+**Component:** web
+**TDD:** false (generated code only — verified by type-check and the existing tests)
 ...
 ````

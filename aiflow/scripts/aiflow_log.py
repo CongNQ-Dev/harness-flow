@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Per-stage usage log (処理ログ) -> docs/aiflow/<ID>/log.json. Standard library only.
+"""Per-stage usage log -> docs/aiflow/<ID>/log.json. Standard library only.
 
   aiflow_log.py start <ID> <stage>     # called by a stage skill when it begins
   aiflow_log.py end   <ID> <stage>     # called by a stage skill right before it stops
@@ -18,11 +18,24 @@ import datetime as dt
 import glob
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 STATE = os.path.join(ROOT, "aiflow", ".state")
-ARTIFACTS = os.path.join(ROOT, "docs", "aiflow")
+def _artifacts_dir():
+    try:
+        with open(os.path.join(ROOT, "aiflow", "workflow.yaml"), encoding="utf-8") as f:
+            for line in f:
+                m = re.match(r"^artifacts_dir:\s*([^#\s]+)", line)
+                if m:
+                    return m.group(1).strip("'\"")
+    except OSError:
+        pass
+    return "docs/aiflow"
+
+
+ARTIFACTS = os.path.join(ROOT, _artifacts_dir())
 PRICING = os.path.join(ROOT, "aiflow", "pricing.json")
 
 

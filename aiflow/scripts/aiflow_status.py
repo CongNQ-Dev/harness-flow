@@ -2,10 +2,9 @@
 """AI Flow status board / next-stage resolver. Standard library only.
 
   python3 aiflow/scripts/aiflow_status.py            # board of every ticket
-  python3 aiflow/scripts/aiflow_status.py PDT-2350   # one ticket as JSON (used by /aiflow)
+  python3 aiflow/scripts/aiflow_status.py SHOP-12    # one ticket as JSON (used by /aiflow)
 
-Reads the YAML frontmatter of docs/aiflow/<ID>/status.md (see the template in
-.claude/skills/aiflow-spec/status-template.md). Never writes anything.
+Reads the YAML frontmatter of docs/aiflow/<ID>/status.md (see .claude/skills/aiflow-spec/status-template.md). Never writes anything.
 """
 import json
 import os
@@ -13,16 +12,37 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ARTIFACTS = os.path.join(ROOT, "docs", "aiflow")
+def manifest_value(key, default):
+    """Read a top-level scalar from aiflow/workflow.yaml (no YAML dependency)."""
+    try:
+        with open(os.path.join(ROOT, "aiflow", "workflow.yaml"), encoding="utf-8") as f:
+            for line in f:
+                m = re.match(r"^%s:\s*([^#\s][^#]*?)\s*(#.*)?$" % re.escape(key), line)
+                if m:
+                    return m.group(1).strip("'\"")
+    except OSError:
+        pass
+    return default
+
+
+ARTIFACTS = os.path.join(ROOT, manifest_value("artifacts_dir", "docs/aiflow"))
+
+
+def normalize_id(raw):
+    """SHOP-12 / shop-12 -> SHOP-12; '#123' or '123' -> <project_code>-123."""
+    raw = raw.strip().lstrip("#")
+    if raw.isdigit():
+        return f"{manifest_value('project_code', 'TICKET').upper()}-{raw}"
+    return raw.upper()
 
 # n -> (id, Japanese name, skill that runs it, routes it belongs to)
 STAGES = {
-    1: ("ticket", "チケット正規化", "aiflow-spec", ("light", "full")),
-    2: ("spec", "仕様作成", "aiflow-spec", ("light", "full")),
-    3: ("plan", "修正プラン", "aiflow-plan", ("full",)),
-    4: ("impl", "修正実装", "aiflow-impl", ("light", "full")),
-    5: ("review", "レビュー・テストケース作成", "aiflow-review", ("full",)),
-    6: ("deliver", "納品（PR作成）", "aiflow-review", ("light", "full")),
+    1: ("ticket", "Ticket intake", "aiflow-spec", ("light", "full")),
+    2: ("spec", "Spec", "aiflow-spec", ("light", "full")),
+    3: ("plan", "Plan", "aiflow-plan", ("full",)),
+    4: ("impl", "Implementation", "aiflow-impl", ("light", "full")),
+    5: ("review", "Review & test cases", "aiflow-review", ("full",)),
+    6: ("deliver", "Delivery (PR)", "aiflow-review", ("light", "full")),
 }
 
 
@@ -81,7 +101,7 @@ def ticket_info(tid):
         "stage_done": done,
         "next_stage": n,
         "next_cmd": STAGES[n][2] if n else None,
-        "next_name": STAGES[n][1] if n else "完了",
+        "next_name": STAGES[n][1] if n else "done",
     })
     return info
 
@@ -94,15 +114,15 @@ def board():
     for tid in sorted(os.listdir(ARTIFACTS)):
         if os.path.exists(os.path.join(ARTIFACTS, tid, "status.md")):
             i = ticket_info(tid)
-            repos = i.get("repos") or []
+            comps = i.get("components") or i.get("repos") or []
             rows.append((tid, i.get("kind", "?"), i.get("route", "?"),
-                         ",".join(r.replace("bump-", "") for r in repos) or "?",
+                         ",".join(comps) or "?",
                          f"{i['stage_done']}/6", i["next_name"],
                          f"/{i['next_cmd']}" if i["next_cmd"] else "-"))
     if not rows:
         print("No tickets yet (docs/aiflow/ is empty).")
         return
-    head = ("ticket", "kind", "route", "repos", "done", "next", "command")
+    head = ("ticket", "kind", "route", "components", "done", "next", "command")
     widths = [max(len(str(r[c])) for r in rows + [head]) for c in range(len(head))]
     fmt = "  ".join("{:<%d}" % w for w in widths)
     print(fmt.format(*head))
@@ -113,6 +133,6 @@ def board():
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        print(json.dumps(ticket_info(sys.argv[1].upper()), ensure_ascii=False, indent=2))
+        print(json.dumps(ticket_info(normalize_id(sys.argv[1])), ensure_ascii=False, indent=2))
     else:
         board()

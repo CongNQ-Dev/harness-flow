@@ -1,217 +1,204 @@
 ---
 name: aiflow-spec
-description: AI Flow stages 1–2 for a Notion ticket (e.g. PDT-2350) — stage 1 normalizes the ticket into ticket.md, detects affected repos (backend/admin/mobile) from the workspace knowledge graph, and triages light/full route. For a small bug that triages light, stage 1 also writes spec.md inline in the same run (root cause + task, no dialogue — one combined approval, mirroring a bugfix fast-track) and creates the branch; full route stops after stage 1, and stage 2 runs separately with a full investigate-and-dialogue spec. Usually reached via /aiflow.
-argument-hint: <TICKET-ID> [bug|feature]
+description: AI Flow stages 1–2 for a ticket — stage 1 reads the ticket (from a connected ticket-system MCP such as Notion, Jira, Linear, GitHub or GitLab, the gh/glab CLI, or pasted text), normalizes it into ticket.md, decides bug vs feature, detects which components it affects, triages light vs full route, and creates the ticket branch. For a small bug on the light route, stage 1 also writes spec.md inline (root cause + task, no dialogue, one combined approval). Full route stops after stage 1; stage 2 then writes spec.md through an investigate-and-dialogue process. Usually reached via /aiflow.
+argument-hint: <TICKET-ID> [feature]
 ---
 
-# /aiflow-spec — チケット正規化（ステージ1）+ 仕様作成（ステージ2）
+# /aiflow-spec — Ticket intake (stage 1) + Spec (stage 2)
 
 First read `.claude/skills/aiflow/conventions.md` and `aiflow/workflow.yaml`.
 
-**Light route is a fast-track, not just "fewer stages later."** For a small
-bug, Stage 1 itself writes `spec.md` inline — no separate dialogue stage, one
-combined approval — the same shape as a bugfix triage-and-fix-write step:
-decide fast-track vs. escalate with cited evidence, then either write the fix
-directly or hand off to the full process. Full route, and any ticket that
-isn't `kind: bug`, always stops after Stage 1 and gets the real Stage 2
-dialogue on the next run. See §1.4 for exactly where the split happens.
+**The light route is a fast-track, not just "fewer stages later."** For a
+small bug, stage 1 itself writes `spec.md` inline — no separate dialogue, one
+combined approval: triage, then either write the fix directly or hand off to
+the full process. The full route, and every `kind: feature` ticket, stops
+after stage 1 and gets the real stage 2 dialogue on the next run. §1.5 is
+where the split happens.
 
 ## 0. Which stage?
 
-Run `python3 aiflow/scripts/aiflow_status.py <ID>`.
+`python3 aiflow/scripts/aiflow_status.py <ID>`:
 
 - no `status.md` → **Stage 1**
-- `stage_done: 1` → **Stage 2** (only reachable when route is `full` — a
-  light ticket never rests at `stage_done: 1`; §1.7 either finishes both
-  stages in one run or falls back to `full` before stopping)
-- `stage_done >= 2` → already done: announce it (statement, not question) and
-  run the stage `next_cmd` names instead — unless the user explicitly asked to
-  redo the spec, in which case run Stage 2 (full route) or re-run Stage 1's
-  §1.4 fast-track (light route) again.
+- `stage_done: 1` → **Stage 2** (only reachable on the full route — a light
+  ticket never rests at `stage_done: 1`)
+- `stage_done >= 2` → already done: say so (a statement) and run `next_cmd`
+  instead — unless the user explicitly asked to redo the spec: then Stage 2
+  (full) or §1.5 (light) again.
 
-If no ID was given: show the rows of `aiflow/selected-bugs/*.md` (Notion ticket
-lists, one file per team) and ask which ticket to start with `AskUserQuestion`.
+No ID given: if `tickets.lists_dir` has `.md` files, show their rows and ask
+which ticket to start (`AskUserQuestion`); otherwise ask for the ID.
 
 ---
 
-## Stage 1 — チケット正規化（省略版は仕様まで一括）
+## Stage 1 — Ticket intake (on the light route, spec too)
 
 `python3 aiflow/scripts/aiflow_log.py start <ID> ticket`
 
 ### 1.1 Read the ticket
 
-`AskUserQuestion` — how to read it:
-- **Notion MCP** — search/fetch the page matching the ID (properties, body, comments, links).
-- **ブラウザ（Side Peek）** — URL from `aiflow/selected-bugs/*.md`, append `?pm=s`,
-  open it with the browser tool, ask the user to log in if needed, read
-  everything including comments and screenshots.
-- **貼り付け** — the user pastes the ticket text.
+Use `workflow.yaml` `tickets.source`. If it names a specific source, use it
+without asking. If it's `ask`, build the options from **what is actually
+available in this session** and ask with `AskUserQuestion` (max 4 options,
+"Other" is added automatically):
 
-### Kind: bug or feature — decide with evidence, in this order
+1. Ticket-system MCP servers that are connected — look at the loaded or
+   deferred tool names: `notion`, `jira` / `atlassian`, `linear`, `github`,
+   `gitlab`, `asana`, `clickup`, `youtrack`, `shortcut`. List up to 3,
+   preferring the one the ID's format suggests (`#123` → GitHub/GitLab;
+   `ABC-123` → Jira/Linear).
+2. If there's room and no matching MCP: the issue tracker of a component's
+   own host through its CLI — `gh issue view <n> -R <owner/repo> --comments`
+   or `glab issue view <n> -R <group/project> --comments`.
+3. **Always last: "Paste the ticket text"** — the user pastes title, body,
+   repro steps, comments.
 
-1. **Explicit argument.** `/aiflow <ID> feature` → `kind: feature`, decided,
-   skip the rest.
-2. **Notion's 種別 property**, if the ticket has one — this is the primary
-   signal, not a fallback. A value naming a defect (不具合 / Bug / バグ) →
-   `bug`. A value naming new or improved behavior (新機能 / Feature /
-   Enhancement / 新規開発 / 保守開発) → `feature`. Record which value decided
-   it in ticket.md's 基本情報 > 種別 row — that row is also the evidence for
-   this decision, not just display text.
-3. **No 種別, or it's ambiguous** (`Task`, `Chore`, `Improvement`, empty).
-   Read the ticket body: it names *broken* current behavior with repro steps
-   and an expected-vs-actual gap → `bug`. It only describes *desired* new
-   behavior, with no current behavior being wrong → `feature`.
-4. **Still unclear after step 3** — ask **one** `AskUserQuestion`
-   (バグ対応 / 新規・保守開発) before continuing. Never guess past this point;
-   `kind` decides the branch prefix, the ticket-template section headings,
-   and — via `triage.light_requires_all` — whether light route is even
-   possible for this ticket.
+Whatever the source, read everything: title, type/labels, status, priority,
+body, repro steps, expected vs actual, attachments/screenshots, comments,
+links. If the source needs a login, tell the user and wait.
 
-### 1.2 Normalize
+### 1.2 Kind: bug or feature — decide with evidence, in this order
+
+1. `/aiflow <ID> feature` → `feature`. Decided.
+2. The ticket system's own **type field** (Jira issue type, Linear/GitHub/GitLab
+   labels, a Notion "Type" property, ...): a defect value (Bug, Defect,
+   Incident, 不具合, ...) → `bug`; a new/changed-behavior value (Feature,
+   Story, Enhancement, Improvement, ...) → `feature`. Record which value
+   decided it in ticket.md — it's the evidence.
+3. No type field, or it's ambiguous (Task, Chore, empty): the body describes
+   *broken current behavior* with repro steps / expected-vs-actual → `bug`;
+   it only describes *desired new behavior* → `feature`.
+4. Still unclear → one `AskUserQuestion` (bug fix / new feature). Never
+   guess: `kind` sets the branch prefix, the template sections, and whether
+   the light route is possible at all.
+
+### 1.3 Normalize
 
 Fill `.claude/skills/aiflow-spec/ticket-template.md` into
-`docs/aiflow/<ID>/ticket.md`. Rules from the old flow, unchanged:
+`docs/aiflow/<ID>/ticket.md`, in `language` (conventions §7):
+
 - only what the ticket says; missing → `—`; never guess;
-- no clarifying questions here — unclear items go to 🔍 不明点 (resolved in
-  §1.4 for the fast-track, or in Stage 2's dialogue for full route);
+- no clarifying questions here — unclear items go to "Open questions"
+  (resolved in §1.5 on the fast-track, or in stage 2's dialogue);
 - duplicate check: compare title/summary/repro with every existing
-  `docs/aiflow/*/ticket.md` (trial-period tickets were migrated there, marked
-  `legacy: true`); list only real matches in 🔁 重複の可能性.
+  `docs/aiflow/*/ticket.md`; list only real matches under "Possible duplicates".
 
-### 1.3 AI判定 — affected repos + triage (symptom-level evidence)
+### 1.4 AI assessment — affected components + triage (symptom-level)
 
-1. **Affected repos.** Query the workspace graph with the symptom and screen
-   names, e.g. `graphify query "deeplink player open"`,
-   `graphify query "admin seasons projectId filter"`. Follow `workflow.yaml`
-   `contracts:` — a UI symptom whose data comes from a contract's owner repo
-   makes that repo 要確認 at least (in this project, a UI symptom backed by
-   the API makes bump-backend 要確認). Record the evidence (node / file:line
-   / contract) for every row. The Notion 対象 column is a hint, not proof.
-2. **Triage.** Run the `triage.light_requires_all` checklist from
-   `workflow.yaml`, one row each, with evidence. Any ❌ or 不明 → `full`.
-   Anything in `triage.sensitive_areas` → `full`.
+1. **Affected components.** One row per entry in `workflow.yaml`
+   `components:` (never a fixed list). Query the knowledge graph with the
+   symptom and screen/endpoint names if it exists; follow `contracts:` — a
+   symptom whose data comes from a contract's owner makes that owner at
+   least "needs checking". Evidence for every row (graph node / file:line /
+   contract). What the ticket itself says is a hint, not proof.
+2. **Triage.** Run `triage.light_requires_all`, one row each, with evidence.
+   Any ❌ or unknown → `full`. Anything in `triage.sensitive_areas` → `full`.
 
-This is a **preliminary** recommendation — cheap, symptom-level evidence
-only. §1.4 re-checks it against real code before anything is finalized.
+This is a **preliminary** recommendation. §1.5 re-checks it against real
+code before anything is finalized.
 
-### 1.4 Light fast-track (small bug only) — investigate + write spec.md inline
+### 1.5 Light fast-track (small bug only) — investigate + write spec.md inline
 
-**Only when 1.3's recommendation is `light` and `kind: bug`.** Otherwise skip
-straight to §1.5 with the recommended route as-is (full route, and every
-`kind: feature` ticket, always gets the real dialogue in Stage 2 — a feature
-is never "small" in the sense this fast-track means).
+**Only when §1.4 recommends `light` and `kind: bug`.** Otherwise go to §1.6
+with the recommended route (full route and every feature always get the real
+stage 2 dialogue).
 
-Do this now, in the same run, instead of stopping — the whole point is one
-gate, not two:
+Do this now, in the same run — one gate, not two:
 
-1. **Investigate (read-only).** `systematic-debugging` Phase 1–2: trace the
-   symptom to the root cause across repos with `graphify query/path`, then
-   read the exact lines. Every claim needs `repo/path:line`. No code edits,
-   no tests yet.
-2. **Re-check the triage checklist against what you found.** File count,
-   whether a contract/schema actually changed, whether a second repo is
-   really involved — the things symptom-level evidence in §1.3 couldn't see.
-   - **Still passes** → continue to step 3.
-   - **Fails now** → this was not actually a small bug. Stop the fast-track:
-     set the route to `full`, go to §1.5 with the full-route gate (ticket +
-     repos + route only — no spec work happened, nothing to show for it
-     yet), and say what you found in the announcement, e.g. 「調査の結果、
-     backend の契約変更も必要なため完全版に切り替えます」. Stage 2 runs the
-     real dialogue on the next invocation, same as any full-route ticket.
-3. **Resolve blocking unknowns minimally.** If 🔍 不明点 has something the
-   fix genuinely cannot be written without, ask it as **one**
-   `AskUserQuestion` — not a back-and-forth. If answering it would require
-   comparing 2–3 real design approaches, that need is itself evidence this
-   ticket needs the full dialogue: treat it as a triage failure and escalate
-   per step 2 instead of guessing an approach.
-4. **Write `docs/aiflow/<ID>/spec.md`** from
-   `.claude/skills/aiflow-spec/spec-template.md`, its **light-fast-track
-   form**: root cause (with evidence) + the one approach taken +
-   "検討して却下した案" written as `該当なし` (no dialogue to compare
-   approaches in — keep the heading, per the template's own rule) +
-   実装タスク. Self-review inline against
-   `spec-document-reviewer-prompt.md`'s checklist (no subagent — one repo,
-   small enough to just re-read) and fix issues before the gate.
-5. **Optional: append a wiki decision, only if this is a real one.** A small
-   bug's fast-track spec is almost never one — skip this unless 修正方針
-   genuinely records an architectural choice (a new contract, a pattern
-   change). If `wiki/` doesn't exist yet (`/aiflow-wiki` never ran), skip
-   silently — this is never a reason to block or suggest running it now.
-   Otherwise write one file from
-   `.claude/skills/aiflow-wiki/decision-template.md` into
-   `wiki/architecture/decisions/`, sourced from this spec.
-
-### 1.5 Gate — confirm with the user
-
-**Full route** (recommended from the start, or escalated back to it in
-§1.4.2): show a short summary — title, kind, repos with evidence, recommended
-route with the failing checks — `AskUserQuestion`:
-- **承認** — ticket, repos and route are correct
-- **修正あり** — the user corrects something (then update ticket.md and ask again)
-
-**Light fast-track** (§1.4 completed): one combined confirmation covering
-ticket **and** spec **and** the task(s) together — show title, root cause
-(with evidence), the fix, repos, and the task list in the same message, then
-`AskUserQuestion`:
-- **承認** — ticket・仕様・タスクすべて正しい → both files approved in this
-  same turn
-- **修正あり** — the user corrects something; fix inline (`ticket.md` and/or
-  `spec.md`) and ask again, still in this run
-
-If duplicates were found in §1.2, say so before either gate. Set
-`ticket.md` frontmatter `status: approved` (both paths); on the fast-track
-also set `spec.md`'s `status: approved`.
+1. **Investigate (read-only).** `systematic-debugging` phases 1–2: trace the
+   symptom to the root cause with the graph (if any), then read the exact
+   lines. Every claim needs `component/path:line`. No edits, no tests yet.
+2. **Re-check triage against what you found** (real file count, whether a
+   contract/schema actually changes, whether a second component is involved).
+   - Still passes → step 3.
+   - Fails → not a small bug after all. Set route `full`, go to §1.6 with the
+     full-route gate, and say why ("the fix also needs an API contract change
+     — switching to the full route"). Stage 2 runs the dialogue next time.
+3. **Resolve blocking unknowns minimally.** If an open question truly blocks
+   writing the fix, ask it as **one** `AskUserQuestion`. If answering needs a
+   comparison of 2–3 real approaches, that's evidence for the full route:
+   escalate per step 2 instead of guessing.
+4. **Write `docs/aiflow/<ID>/spec.md`** from `spec-template.md`, light form:
+   root cause (with evidence) + the one approach taken + "Alternatives
+   considered" as `n/a` (no dialogue to compare in — keep the heading) +
+   "Implementation tasks". Self-review against
+   `spec-document-reviewer-prompt.md`'s checklist inline and fix issues.
+5. **Optional wiki entry.** Only if the approach is a real architectural
+   choice (rare for a small bug) and `wiki/` exists: add one file from
+   `.claude/skills/aiflow-wiki/decision-template.md` to
+   `wiki/architecture/decisions/`. Otherwise skip silently.
 
 ### 1.6 Branches
 
-Slug: short English snake_case from the problem (e.g. `fix_duplicate_player_deeplink`).
-Branch: `workflow.yaml` `branch.<kind>`. For **each** repo in `repos`:
+Slug: short English snake_case from the problem (`fix_duplicate_player_on_deeplink`).
+Branch: `workflow.yaml` `branch.<kind>`. For **each distinct git root** among
+the affected components (conventions §1):
 
 ```bash
-git -C <repo> status --short            # dirty with unrelated files → stop and ask
-git -C <repo> fetch origin <base_branch>
-git -C <repo> checkout -b <branch> origin/<base_branch>   # exists already → git -C <repo> checkout <branch>
+git -C <root> status --short            # unrelated changes → stop and ask
+git -C <root> fetch origin <base_branch>
+git -C <root> checkout -b <branch> origin/<base_branch>   # exists → git -C <root> checkout <branch>
 ```
 
-### 1.7 Close
+**workspace:** also do it in the **wrapper repo** (`.`), from
+`workspace_repo.base_branch` (no remote → branch from the local base
+branch). The wrapper and every affected component repo end up on the same
+branch name.
 
-**Full route (or escalated in §1.4.2):** write `docs/aiflow/<ID>/status.md`
-from `status-template.md` (`stage_done: 1`, `next: aiflow-spec`, `route`,
-`repos`, `branch`, `approvals.ticket`), then the standard close from
-conventions §4 (commit → `aiflow_log.py end <ID> ticket` → announce → STOP):
+Do this *before* the gate's commit below (both layouts) — the ticket docs
+are committed on the ticket branch, never on a base branch.
 
-> 「ステージ1/6（チケット正規化）完了。対象: <repos>、ルート: <light|full>、ブランチ `<branch>` を作成。次: ステージ2（仕様作成）— `/aiflow <ID>`」
+### 1.7 Gate — confirm with the user
 
-**Light fast-track:** write `status.md` with **both** stages closed in this
-one run — `stage_done: 2`, `next: aiflow-impl`, `approvals.ticket` and
-`approvals.spec` both recorded from the single §1.5 confirmation — then the
-same conventions §4 close, but note both `aiflow_log.py end` calls
-(`ticket` and `spec` — both were started together, since no separate `spec`
-stage-boundary happened):
+**Full route** (from the start, or escalated in §1.5.2): summary — title,
+kind (+ evidence), components (+ evidence), recommended route (+ failing
+checks) — then `AskUserQuestion`: **Approve** / **Needs changes** (update
+ticket.md and ask again).
+
+**Light fast-track** (§1.5 completed): one combined confirmation for ticket
+**and** spec **and** tasks — title, root cause with evidence, the fix, the
+component, the task list — then **Approve** (both files approved now) /
+**Needs changes** (fix inline, ask again).
+
+Mention possible duplicates before either gate. Set `ticket.md` `status:
+approved` (both paths) and, on the fast-track, `spec.md` `status: approved`.
+Unless `triage.auto_light: true` and every check passed, the user confirms
+the route.
+
+### 1.8 Close
+
+**Full route (or escalated):** write `status.md` from `status-template.md`
+(`stage_done: 1`, `next: aiflow-spec`, `kind`, `route`, `components`,
+`branch`, `approvals.ticket`), then conventions §5 (commit → `aiflow_log.py
+end <ID> ticket` → announce → STOP):
+"Stage 1/6 (Ticket intake) done. Components: <list>. Route: full. Branch
+`<branch>`. Next: stage 2 (Spec) — `/aiflow <ID>`."
+
+**Light fast-track:** `status.md` with both stages closed — `stage_done: 2`,
+`next: aiflow-impl`, `approvals.ticket` and `approvals.spec` from the one
+confirmation — then the same close with **both** log calls:
 
 ```bash
 python3 aiflow/scripts/aiflow_log.py end <ID> ticket
 python3 aiflow/scripts/aiflow_log.py end <ID> spec
 ```
 
-> 「ステージ1-2/6（チケット正規化・仕様）完了（省略版・対話なし）。対象:
-> <repos>、根本原因: <一文>。`docs/aiflow/<ID>/spec.md` 承認済み。次: ステージ4
-> （修正実装）— `/aiflow <ID>`」
+"Stages 1–2/6 (Ticket intake + Spec) done — light route, no dialogue.
+Component: <name>. Root cause: <one sentence>. Next: stage 4
+(Implementation) — `/aiflow <ID>`."
 
 ---
 
-## Stage 2 — 仕様作成（完全版のみ）
+## Stage 2 — Spec (full route only)
 
 `python3 aiflow/scripts/aiflow_log.py start <ID> spec`
 
-**Full route only.** This section never runs for a light-route ticket — its
-spec was already written inline at §1.4. Refuse (and point at §1.4) if
-`route: light` and `stage_done: 1` somehow coexist; that combination means
-Stage 1 was interrupted mid-fast-track, not that this section should run.
+Never runs for a light ticket (its spec was written in §1.5). If `route:
+light` and `stage_done: 1` coexist, stage 1 was interrupted mid-fast-track —
+re-run §1.5 instead.
 
-Refuse if `ticket.md` is not `status: approved`. Check each repo is on the
-ticket branch (`git -C <repo> branch --show-current`); if not, check it out
-(never `-b`).
+Refuse if `ticket.md` isn't `status: approved`. Check each affected git root
+is on the ticket branch; if not, check it out (never `-b`).
 
 <HARD-GATE>
 No code, no plan, no implementation in this stage. Output is spec.md only.
@@ -219,51 +206,43 @@ No code, no plan, no implementation in this stage. Output is spec.md only.
 
 ### 2.1 Investigate (read-only)
 
-- **bug:** follow `systematic-debugging` Phase 1–2 **read-only** — trace from
-  the symptom to the root cause across repos with `graphify query/path`, then
-  read the exact lines. Every root-cause claim needs `repo/path:line`.
-  Do not edit code; do not write tests yet.
-- **feature:** explore the existing screens/APIs the feature touches, across
-  repos, and the contracts involved.
+- **bug:** `systematic-debugging` phases 1–2, read-only — trace the symptom
+  to the root cause across components (graph first if it exists), then read
+  the exact lines. Every root-cause claim needs `component/path:line`.
+- **feature:** explore the existing screens/endpoints/modules the feature
+  touches, across components, and the contracts involved.
 
-### 2.2 Dialogue (the old brainstorming flow, kept)
+### 2.2 Dialogue
 
-1. Resolve every item in 🔍 不明点 — one `AskUserQuestion` at a time.
-2. Propose 2–3 approaches with trade-offs, lead with the recommendation.
-3. Present the design in short sections (root cause / fix / per-repo changes /
-   contracts / behavior) and get agreement on each before moving on.
-   Scale to the ticket: a small bug gets a few sentences per section.
-4. If the change spans independent subsystems, propose splitting the ticket.
+1. Resolve every open question — one `AskUserQuestion` at a time.
+2. Propose 2–3 approaches with trade-offs; lead with the recommendation.
+3. Present the design in short sections (root cause or goal / approach /
+   per-component changes / contracts / behavior) and get agreement on each.
+   Scale to the ticket — a small change gets a few sentences per section.
+4. If it spans independent subsystems, propose splitting the ticket.
 
-YAGNI: no unrequested features. Follow each repo's existing patterns
-(`workflow.yaml` `repos.<repo>.notes`).
+YAGNI. Follow each component's existing patterns and `notes`.
 
 ### 2.3 Write + self-review
 
-Write `docs/aiflow/<ID>/spec.md` from `.claude/skills/aiflow-spec/spec-template.md`
-(full form — 検討して却下した案 lists the dialogue's 2–3 compared approaches).
-実装タスク here is written by Stage 3 (`/aiflow-plan`), not here — leave that
-section as "`/aiflow-plan` で作成". Then review it yourself with
-`spec-document-reviewer-prompt.md`'s checklist (for a spec touching 2+ repos,
-dispatch it as a subagent instead) and fix issues inline.
+Write `docs/aiflow/<ID>/spec.md` from `spec-template.md`, full form
+("Alternatives considered" lists the dialogue's approaches; "Implementation
+tasks" says "written by /aiflow-plan"). Self-review with
+`spec-document-reviewer-prompt.md`'s checklist (dispatch it as a subagent for
+a spec touching 2+ components) and fix inline.
 
-**Optional: append a wiki decision, only if this is a real one.** Full-route
-tickets are more likely to carry a genuine architectural choice than light
-ones — still only write an entry when 修正方針 actually is one (a new
-cross-repo contract, a bounded-context change, a pattern the team should
-follow going forward), never for routine per-ticket detail. If `wiki/`
-doesn't exist yet, skip silently. Otherwise write one file from
-`.claude/skills/aiflow-wiki/decision-template.md` into
-`wiki/architecture/decisions/`, sourced from this spec.
+**Optional wiki entry.** If the approach is a real architectural decision (a
+new contract, a boundary change, a pattern others should follow) and `wiki/`
+exists, add one file from `.claude/skills/aiflow-wiki/decision-template.md`
+to `wiki/architecture/decisions/`. Otherwise skip silently.
 
 ### 2.4 Gate
 
-`AskUserQuestion`: **承認** / **修正あり** (edit and re-run the self-review).
-If the user adds a repo, create its branch as in §1.6 and add it to `repos`.
+`AskUserQuestion`: **Approve** / **Needs changes** (edit, re-run the
+self-review). If the user adds a component, create its branch as in §1.6.
 
-### 2.5 Close stage 2
+### 2.5 Close
 
-`spec.md` `status: approved`; status.md `stage_done: 2`, `next: aiflow-plan`,
-`approvals.spec`; then conventions §4:
-
-> 「ステージ2/6（仕様作成）完了。`docs/aiflow/<ID>/spec.md` を承認済み。次: ステージ3（修正プラン）— `/aiflow <ID>`」
+`spec.md` `status: approved`; `status.md` `stage_done: 2`, `next: aiflow-plan`,
+`approvals.spec`; conventions §5: "Stage 2/6 (Spec) done. Next: stage 3
+(Plan) — `/aiflow <ID>`."
