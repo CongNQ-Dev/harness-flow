@@ -35,6 +35,7 @@ workspace_repo:
   base_branch: main                     # ticket branches start here; never committed to directly
   pr: true                              # at delivery, push the wrapper's ticket branch and open a
                                         # docs-only PR/MR (uses pr.tool, or pr_tool: here)
+  # pr_tool: glab                       # set when the wrapper's host differs from pr.tool
 
 # ---------------------------------------------------------------------------
 # Components — the units a task can change. One task = one component.

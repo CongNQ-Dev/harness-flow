@@ -4,7 +4,7 @@
   aiflow_log.py start <ID> <stage>     # called by a stage skill when it begins
   aiflow_log.py end   <ID> <stage>     # called by a stage skill right before it stops
   aiflow_log.py hook                   # Claude Code Stop hook (JSON on stdin)
-  aiflow_log.py summary <ID>           # print per-stage totals
+  aiflow_log.py summary <ID>           # print per-stage totals (re-prices with the current pricing.json)
 
 How it works: `start` drops a marker in aiflow/.state/. The Stop hook runs at
 the end of every turn; for each open marker it sums token usage from this
@@ -118,21 +118,41 @@ def usage_since(transcript, since, until):
     return models
 
 
-def cost(models):
+def _prices():
     try:
         with open(PRICING) as f:
-            prices = json.load(f)["models"]
+            return json.load(f)["models"]
     except (OSError, ValueError, KeyError):
-        return None
-    total, known = 0.0, False
+        return {}
+
+
+def cost(models, prices=None):
+    """(USD estimate or None, [models with no price]). Longest-prefix match, so
+    claude-sonnet-5 never prices claude-sonnet-5-5. One unpriced model makes the
+    whole estimate None — a partial sum would look like a real, smaller cost."""
+    prices = _prices() if prices is None else prices
+    total, unpriced = 0.0, []
     for model, agg in models.items():
-        p = next((v for k, v in prices.items() if model.startswith(k)), None)
-        if not p:
+        key = max((k for k in prices if model.startswith(k)), key=len, default=None)
+        if key is None:
+            unpriced.append(model)
             continue
-        known = True
-        total += sum(agg[k] * p[k] for k in ("input", "output", "cache_write_5m",
-                                              "cache_write_1h", "cache_read")) / 1e6
-    return round(total, 4) if known else None
+        total += sum(agg[k] * prices[key][k] for k in ("input", "output", "cache_write_5m",
+                                                        "cache_write_1h", "cache_read")) / 1e6
+    return (None if unpriced or not models else round(total, 4)), unpriced
+
+
+def reprice(log):
+    """Recompute every run's estimate from its stored token counts, so adding a
+    model to pricing.json fixes old entries too."""
+    prices = _prices()
+    for r in log["runs"]:
+        r["cost_usd_estimate"], r["unpriced_models"] = cost(r.get("models", {}), prices)
+        if not r["unpriced_models"]:
+            del r["unpriced_models"]
+    costs = [r["cost_usd_estimate"] for r in log["runs"]]
+    log["total_cost_usd_estimate"] = (None if not costs or None in costs
+                                      else round(sum(costs), 4))
 
 
 def write_entry(m, models, session_id, until):
@@ -154,13 +174,13 @@ def write_entry(m, models, session_id, until):
         "session_id": session_id,
         "models": models,
         "totals": totals,
-        "cost_usd_estimate": cost(models),
+        "cost_usd_estimate": None,  # set by reprice()
     }
     log["runs"] = [r for r in log["runs"]
                    if not (r["stage"] == m["stage"] and r["started_at"] == m["started_at"])]
     log["runs"].append(entry)
     log["runs"].sort(key=lambda r: r["started_at"])
-    log["total_cost_usd_estimate"] = round(sum(r["cost_usd_estimate"] or 0 for r in log["runs"]), 4)
+    reprice(log)
     with open(path, "w") as f:
         json.dump(log, f, ensure_ascii=False, indent=2)
 
@@ -200,13 +220,21 @@ def cmd_summary(tid):
         return
     with open(path) as f:
         log = json.load(f)
+    reprice(log)
+    with open(path, "w") as f:
+        json.dump(log, f, ensure_ascii=False, indent=2)
+    usd = lambda v: f"{v:.2f}" if v is not None else "n/a"
     print(f"{'stage':<10}{'min':>6}{'calls':>7}{'in+cache':>12}{'output':>10}{'USD(est)':>10}")
     for r in log["runs"]:
         t = r["totals"]
         inp = t["input"] + t["cache_write_5m"] + t["cache_write_1h"] + t["cache_read"]
         print(f"{r['stage']:<10}{r['wall_clock_sec'] // 60:>6}{t['calls']:>7}{inp:>12}"
-              f"{t['output']:>10}{(r['cost_usd_estimate'] or 0):>10.2f}")
-    print(f"total USD (API-equivalent estimate): {log.get('total_cost_usd_estimate', 0):.2f}")
+              f"{t['output']:>10}{usd(r['cost_usd_estimate']):>10}")
+    print(f"total USD (API-equivalent estimate): {usd(log['total_cost_usd_estimate'])}")
+    missing = sorted({m for r in log["runs"] for m in r.get("unpriced_models", [])})
+    if missing:
+        print(f"n/a = no price for {', '.join(missing)} — add it to aiflow/pricing.json, "
+              f"then run summary again.")
 
 
 if __name__ == "__main__":

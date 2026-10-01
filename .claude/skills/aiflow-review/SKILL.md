@@ -21,9 +21,13 @@ Otherwise `python3 aiflow/scripts/aiflow_status.py <ID>`:
 
 ## PR tool per git root
 
-For each git root, the tool is its component's `pr_tool` if set, else
-`pr.tool` (`gh` = GitHub, `glab` = GitLab). If components in one git root
-disagree, that's a config error — stop and say so. The repo identifier comes
+For each git root, the tool is its component's `pr_tool` if set — for the
+**wrapper** (workspace), `workspace_repo.pr_tool` — else `pr.tool` (`gh` =
+GitHub, `glab` = GitLab). If components in one git root disagree, that's a
+config error — stop and say so. Before using it, check it against the
+remote's host: `github.com` / a GitHub Enterprise host needs `gh`, a GitLab
+host needs `glab`. A mismatch (e.g. `pr.tool: gh` on a GitLab remote) →
+use the host's tool and tell the user to set `pr_tool` there. The repo identifier comes
 from `git -C <root> remote get-url origin`:
 
 - **gh:** `[HOST/]OWNER/REPO` — drop the host for github.com, keep it for

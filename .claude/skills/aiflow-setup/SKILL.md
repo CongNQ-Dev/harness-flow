@@ -128,7 +128,9 @@ the global settings) and ask **write it** / **change something**. On write:
   otherwise leave it uncommitted and tell the user to commit it on a branch
   of their choosing; workspace → same rule for the wrapper repo. Also set
   `workspace_repo.base_branch` from the wrapper's own default branch
-  (`git symbolic-ref refs/remotes/origin/HEAD`, else the current branch).
+  (`git symbolic-ref refs/remotes/origin/HEAD`, else the current branch),
+  and `workspace_repo.pr_tool` from the wrapper's remote host when it
+  differs from `pr.tool` (e.g. repos on GitHub, wrapper on GitLab).
 
 ## 5. Report
 

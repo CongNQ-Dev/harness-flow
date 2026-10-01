@@ -19,7 +19,14 @@ where the split happens.
 
 `python3 aiflow/scripts/aiflow_status.py <ID>`:
 
-- no `status.md` → **Stage 1**
+- no `status.md` → **Stage 1**. If `docs/aiflow/<ID>/ticket.md` already
+  exists, an earlier stage-1 run was interrupted: **resume it, don't start
+  over** — take `kind`, title and components from that ticket.md, check
+  out the ticket branch right away (§1.3, using the `branch:` slug if one
+  was recorded), skip §1.1–1.3 unless the user says the ticket changed,
+  and reuse a draft `spec.md` in §1.5 (re-verify its evidence, don't
+  rewrite it). Say so: "PDT-12 has an unfinished stage 1 (ticket.md from
+  <date>) — resuming from it."
 - `stage_done: 1` → **Stage 2** (only reachable on the full route — a light
   ticket never rests at `stage_done: 1`)
 - `stage_done >= 2` → already done: say so (a statement) and run `next_cmd`

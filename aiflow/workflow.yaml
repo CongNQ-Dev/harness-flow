@@ -31,6 +31,8 @@ workspace_repo:
   base_branch: main                     # ticket branches start here; never committed to directly
   pr: true                              # at delivery, push the wrapper's ticket branch and open a
                                         # docs-only PR/MR (uses pr.tool, or pr_tool: here)
+  pr_tool: glab                         # this wrapper is on GitLab (gitlab.shiftasia.com);
+                                        # the bump repos stay on gh (GitHub) via pr.tool
 
 # ---------------------------------------------------------------------------
 # Components — three separate git repos cloned beside this wrapper.
