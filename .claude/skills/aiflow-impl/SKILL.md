@@ -80,6 +80,21 @@ HEAD moved), so the final review queries current code.
 
 ## 4. Close
 
+**Verify the code really landed on the ticket branch first** — a stage-4
+"done" with the fix sitting uncommitted on a base branch is the worst
+failure this flow can produce. For each git root a task touched:
+
+```bash
+git -C <root> branch --show-current                       # must be the ticket branch
+git -C <root> status --short                              # no leftovers from the tasks
+git -C <root> log --oneline origin/<base_branch>..HEAD    # at least one commit per task
+```
+
+Any check fails → don't mark the stage done. Say exactly what's wrong
+("bump-app is on `main` with `lib/x.dart` uncommitted; the ticket branch has
+no commits") and stop. Move uncommitted work only with the user's OK
+(`git -C <root> stash` → `checkout <branch>` → `stash pop` → commit).
+
 `status.md` `stage_done: 4`, row done with the changed files per component,
 `next: aiflow-review` (full runs stage 5 next; light goes straight to stage 6
 — same skill). Conventions §5: "Stage 4/6 (Implementation) done — N tasks,
@@ -92,4 +107,4 @@ Never: skip either review · run the quality review before spec is ✅ · move
 on with open Critical/Important issues · let the implementer's self-review
 replace review · make a subagent read the plan file · fix code yourself in
 the controller (dispatch a fix subagent) · change files outside the task's
-component.
+component · mark the stage done without §4's branch check.

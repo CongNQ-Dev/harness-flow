@@ -75,6 +75,10 @@ Auth failing → stop and tell the user the login command (`gh auth login` /
 
 ### 6.1 Automated tests (fresh)
 
+First re-run aiflow-impl §4's branch check for every affected git root
+(ticket branch checked out, clean, has commits ahead of the base branch). An
+empty or wrong branch would open an empty PR — stop and say so instead.
+
 For each affected component run its `test` (and `lint`). Any failure → stop,
 show it, don't continue. (On the light route this is the only automated
 gate — read the output fully.)

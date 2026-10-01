@@ -9,40 +9,32 @@ Code **here**, not inside a repo.
 | `bump-admin/` | Next.js admin console | `develop` |
 | `bump-mobile-app/` | Flutter app (iOS/Android) | `main` |
 
-Facts (test commands, contracts, triage rules, models) live in
-`aiflow/workflow.yaml` — read it instead of guessing.
+The commands, project facts and shared rules come from `@aiflow/AIFLOW.md`
+(imported below) and `aiflow/workflow.yaml` — read those instead of guessing.
+Guide: `README.md`.
 
-## The one command
+## Rules specific to this workspace
 
-- `/aiflow PDT-XXXX` — run the next stage of a ticket, then stop. New tickets start here too.
-- `/aiflow` — board of all tickets.
-
-Everything else (`/aiflow-spec`, `/aiflow-plan`, `/aiflow-impl`, `/aiflow-testgen`,
-`/aiflow-review`, `/aiflow-analyze`) is what `/aiflow` calls; they can be run
-directly but nobody needs to remember them. Guide: `aiflow/README.ja.md`.
-
-When the user mentions a PDT ticket or asks to fix a bug / build a feature in
-any of the repos, use `/aiflow` rather than improvising a workflow.
-
-## Rules
-
-- Ticket artifacts: `docs/aiflow/<TICKET-ID>/` in this workspace, written in
-  **Japanese** (code, paths, identifiers stay as typed). Shared rules for every
-  stage: `.claude/skills/aiflow/conventions.md`.
-- Git: always `git -C <repo> ...`. Never commit to a base branch, never force-push.
-- Knowledge graph: when `graphify-out/graph.json` exists here, use
-  `graphify query "<question>"` / `graphify path "A" "B"` / `graphify explain "X"`
-  before grepping or reading source — it covers all three repos and links shared
-  types across them. Refresh with `/aiflow analyze`.
+- **Branches.** While a ticket is open, this wrapper repo **and** every repo
+  the ticket touches are on the same ticket branch (`bug/PDT-XXXX/…` /
+  `feature/PDT-XXXX/…`). Ticket docs are committed on the wrapper's ticket
+  branch, never on `main`; code only on each repo's ticket branch, never on
+  `develop`/`main`. Before working on a ticket, check that every repo involved
+  is on its branch and that no ticket code sits uncommitted on a base branch.
+- **Never commit the bump repos' secrets** — `bump-backend/` has `.env` and
+  `serviceAccountKey.json`; they must never be staged.
 - Each repo still has its own `CLAUDE.md` with repo-specific notes; they apply
   when working on files in that repo.
-- **Docs travel with every skill change.** Any edit under `.claude/skills/aiflow*/`
-  (a stage's behavior, a command, a stage's skill/section, the router's
-  dispatch table) is committed together with the matching update to
-  `README.md`, `aiflow/README.ja.md`, `aiflow/README.en.md`, and
-  `aiflow/guide.html` — not as a separate follow-up commit. Check all four for
-  anything the change made stale (a renamed command, a changed stage list, a
-  new gate) before calling the change done. If a skill edit genuinely touches
-  none of them, say so explicitly rather than skipping the check silently.
+- **The skills are generated, not edited here.** `.claude/skills/`,
+  `aiflow/scripts/`, `aiflow/AIFLOW.md`, `aiflow/AGENTS-TOOLS.md` and
+  `aiflow/workflow.yaml.template` come from the generic
+  [harness-ai-flow](https://gitlab.shiftasia.com/cong.nguyen.02/harness-ai-flow)
+  bundle. Change them there (and its `README.md` in the same commit), then
+  re-install here with `--force`; a local edit would be overwritten on the
+  next upgrade. BUMP-specific settings belong in `aiflow/workflow.yaml` only.
+- **Docs travel with every behavior change.** If a change to
+  `aiflow/workflow.yaml` or the flow changes how a ticket runs here (branches,
+  gates, commands, stages), update `README.md` in the same commit — or say
+  explicitly that nothing in it went stale.
 
 @aiflow/AIFLOW.md

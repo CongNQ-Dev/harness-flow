@@ -11,15 +11,12 @@ ai-flow-demo/                 ← this repo: the AI Flow (start Claude Code here
 └── bump-mobile-app/          ← source repo (GitHub, not tracked here)
 ```
 
-**Visual guide:** open [`aiflow/guide.html`](aiflow/guide.html) in a browser (日本語 / English).
-Full reference: [`aiflow/README.ja.md`](aiflow/README.ja.md) · [`aiflow/README.en.md`](aiflow/README.en.md)
-
-**Want this flow on a different project?** It's not BUMP-specific — every
-skill reads repo facts from `aiflow/workflow.yaml`, nothing is hard-coded.
-Run [`install.sh`](install.sh) against that project; it clones this repo into
-a temp dir and copies only the skill bundle, so you never clone it directly.
-See "Adopting this in another project" in
-[`aiflow/README.en.md`](aiflow/README.en.md).
+The flow itself is the generic
+[harness-ai-flow](https://gitlab.shiftasia.com/cong.nguyen.02/harness-ai-flow)
+bundle, installed here; everything BUMP-specific lives in
+`aiflow/workflow.yaml`. Its README is the full reference, including how to
+install the flow on another project and how to upgrade this one (re-install
+with `--force`).
 
 ## Quick start
 
@@ -61,8 +58,7 @@ Run `/aiflow PDT-XXXX` again after checking each stage's output. That's the whol
 
 Without `feature`, bug vs. feature is decided from evidence — primarily the
 Notion ticket's 種別 property, then the ticket body if that's missing — not
-guessed; see [`aiflow/README.en.md`](aiflow/README.en.md) § "How bug vs.
-feature is decided".
+guessed (the evidence order is in the `aiflow-spec` skill, §1.2).
 
 ## Stages
 
@@ -124,7 +120,8 @@ something progress tracking alone could answer.
 ## Rules the flow keeps
 
 - Every stage stops when it finishes. Nothing moves on without you.
-- Everything under `docs/aiflow/`, plus PR text, is written in Japanese.
+- Everything under `docs/aiflow/`, plus PR text, is written in
+  `workflow.yaml` `language:` (currently `en`).
 - Git always runs as `git -C <repo>`. It never commits to `develop`/`main` and never force-pushes.
   PRs go to each repo's own base branch (backend/admin `develop`, mobile `main`).
 - While a ticket is open, **this wrapper repo and every affected repo are on
