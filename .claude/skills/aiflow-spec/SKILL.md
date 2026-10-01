@@ -72,9 +72,24 @@ links. If the source needs a login, tell the user and wait.
    guess: `kind` sets the branch prefix, the template sections, and whether
    the light route is possible at all.
 
-### 1.3 Normalize
+### 1.3 Ticket branch first, then normalize
 
-Fill `.claude/skills/aiflow-spec/ticket-template.md` into
+**Check out the ticket branch before writing any file**, so nothing of this
+ticket ever lands on a base branch — not even a draft. `kind` is known now
+(§1.2), which is all the branch name needs:
+
+- Slug: short English snake_case from the ticket title
+  (`fix_duplicate_player_on_deeplink`). Branch: `workflow.yaml`
+  `branch.<kind>`.
+- In the repo that holds the ticket docs — the wrapper (`.`) for
+  **workspace**, the project repo for **in-repo** — run §1.6's commands now
+  (base: `workspace_repo.base_branch` for the wrapper, the component's
+  `base_branch` for in-repo). Say it in one line: "Switched to
+  `bug/SHOP-12/fix_…` (wrapper) — the ticket docs go there."
+- Component repos (workspace) get the same branch in §1.6, once §1.4 knows
+  which ones are affected.
+
+Then fill `.claude/skills/aiflow-spec/ticket-template.md` into
 `docs/aiflow/<ID>/ticket.md`, in `language` (conventions §7):
 
 - only what the ticket says; missing → `—`; never guess;
@@ -140,13 +155,11 @@ git -C <root> fetch origin <base_branch>
 git -C <root> checkout -b <branch> origin/<base_branch>   # exists → git -C <root> checkout <branch>
 ```
 
-**workspace:** also do it in the **wrapper repo** (`.`), from
-`workspace_repo.base_branch` (no remote → branch from the local base
-branch). The wrapper and every affected component repo end up on the same
-branch name.
-
-Do this *before* the gate's commit below (both layouts) — the ticket docs
-are committed on the ticket branch, never on a base branch.
+The repo holding the docs is already on the branch (§1.3) — skip it here.
+**workspace:** the wrapper branched from `workspace_repo.base_branch` (no
+remote → from the local base branch); now give every affected component repo
+the **same branch name**. Keep the slug chosen in §1.3 even if the
+investigation suggests a better one.
 
 ### 1.7 Gate — confirm with the user
 
