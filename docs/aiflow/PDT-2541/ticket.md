@@ -5,7 +5,7 @@ kind: bug
 title: "【Android】お知らせ詳細画面のフォントサイズが大きい"
 components: [bump-mobile-app]
 source: paste
-generated: {by: aiflow-spec, at: 2026-10-01}
+generated: {by: aiflow-spec, at: 2026-10-02}
 status: approved
 ---
 
@@ -58,16 +58,15 @@ Steps:
 
 - [ ] The notification detail screen displays text at the same perceived size on Android as on iOS
 - [ ] The fix does not affect text size when the OS font size accessibility setting is changed (behavior remains consistent)
-- [ ] Other WebView screens (e.g. MyPageWebView) are unaffected by this change
-- [ ] The screen continues to load and display notification content correctly on both platforms
+- [ ] Other WebView screens are unaffected by this change
 
 ## Impact
 
 | | |
 |---|---|
-| Screens / features / endpoints | お知らせ詳細画面 (`NewsDetailPage`) |
+| Screens / features / endpoints | お知らせ詳細画面 (NewsDetailPage) |
 | Users affected | All Android users |
-| Data / money / security impact | No |
+| Data / money / security impact | no |
 
 ## Related
 
@@ -76,7 +75,7 @@ Steps:
 | Designs | — |
 | Related tickets | — |
 | Related PRs/MRs | — |
-| Screenshots / recordings | Yes (screen-20260812-100225-1786496533458.mp4) |
+| Screenshots / recordings | yes (screen-20260812-100225-1786496533458.mp4) |
 | Notable comments | — |
 
 ## Open questions
@@ -87,22 +86,22 @@ none
 
 ### Affected components
 
-| Component | Verdict | Evidence |
+| Component | Verdict | Evidence (graph node / file:line / contract) |
 |---|---|---|
-| bump-mobile-app | affected | `NewsDetailPage` in `lib/legacy/screen/news_detail_page.dart` uses `AndroidWebViewController` without `setTextZoom(100)` — Android WebView inherits system font scale |
-| bump-backend | not affected | News content is served via URL loaded in WebView; this is a client-side rendering issue |
-| bump-admin | not affected | Admin console is unrelated |
+| bump-mobile-app | affected | `lib/legacy/screen/news_detail_page.dart:67–71` — Android WebView init block missing `setTextZoom(100)` |
+| bump-backend | not affected | Pure UI rendering issue; no API or data change involved |
+| bump-admin | not affected | Admin console is web-only; no mobile WebView code |
 
 ### Triage
 
 | Check | Result | Evidence |
 |---|---|---|
-| One component only | ✅ | Only `bump-mobile-app/lib/legacy/screen/news_detail_page.dart` changes |
-| Expected files changed ≤ 3 | ✅ | 1 file: `news_detail_page.dart` |
-| No API / schema / migration / contract change | ✅ | Pure client-side Flutter fix |
-| Root cause located (file:line) | ✅ | `news_detail_page.dart:67–71` — `AndroidWebViewController` block missing `setTextZoom(100)` |
-| Kind is bug | ✅ | Describes broken behavior; iOS works correctly |
-| No sensitive area touched | ✅ | Notification display; no payments, auth, or DB migration |
+| One component only | ✅ | Only `bump-mobile-app` |
+| Expected files changed ≤ 3 | ✅ | 1 file: `lib/legacy/screen/news_detail_page.dart` |
+| No API / schema / migration / contract change | ✅ | Client-side WebView setting only |
+| Root cause located (file:line) | ✅ | `news_detail_page.dart:67–71` — Android block missing `setTextZoom(100)` |
+| Kind is bug | ✅ | Broken behavior on Android since past versions |
+| No sensitive area touched | ✅ | No Firebase auth, DB migrations, or GraphQL schema involved |
 
 **Recommended route:** `light` (1→2→4→6)
-**Confirmed route:** `light`
+**Confirmed route:** `light` (1→2→4→6)
