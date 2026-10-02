@@ -71,3 +71,4 @@ n/a — no API, schema, or generated client changes.
   ```
   after the `setMediaPlaybackRequiresUserGesture(false)` call.
 - Test: Manual on an Android device/emulator — open the notification detail screen and confirm text is no longer disproportionately large. No unit test applicable (WebView rendering is not unit-testable).
+- [x] Done
