@@ -122,7 +122,8 @@ something progress tracking alone could answer.
 - Every stage stops when it finishes. Nothing moves on without you.
 - Everything under `docs/aiflow/`, plus PR text, is written in
   `workflow.yaml` `language:` (currently `en`).
-- Git always runs as `git -C <repo>`. It never commits to `develop`/`main` and never force-pushes.
+- Git always runs as `git -C <repo>`. It never commits to `develop`/`main`, never pushes directly to `main` (PR only) and never force-pushes.
+- Every review and approval records the reviewer's name — `human:<name>` or `ai:<role> (<model>)` in `reviews/*.md`, `status.md` approvals and PR comments.
   PRs go to each repo's own base branch (backend/admin `develop`, mobile `main`).
 - While a ticket is open, **this wrapper repo and every affected repo are on
   the same ticket branch** (`bug/PDT-XXXX/…` / `feature/PDT-XXXX/…`). Ticket

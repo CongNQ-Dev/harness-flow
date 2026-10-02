@@ -21,6 +21,11 @@ Guide: `README.md`.
   branch, never on `main`; code only on each repo's ticket branch, never on
   `develop`/`main`. Before working on a ticket, check that every repo involved
   is on its branch and that no ticket code sits uncommitted on a base branch.
+- **Never push directly to `main`** (or `develop`) in any repo, wrapper included —
+  changes reach a base branch only through a PR/MR.
+- **Always record the reviewer's name.** Anyone who reviews or approves
+  anything (human or AI reviewer) is named in the review file / approval entry /
+  PR comment — see `.claude/skills/aiflow/conventions.md` §6.
 - **Never commit the bump repos' secrets** — `bump-backend/` has `.env` and
   `serviceAccountKey.json`; they must never be staged.
 - Each repo still has its own `CLAUDE.md` with repo-specific notes; they apply

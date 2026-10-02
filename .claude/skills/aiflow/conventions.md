@@ -59,7 +59,9 @@ the folder name and the `<TICKET-ID>` in branch names and PR titles.
 ## 3. Git rules
 
 - Always `git -C <path> ...` — never `cd` and lose track of where you are.
-- Never commit to a `base_branch`. Never force-push. Never switch a branch
+- Never commit to a `base_branch`, and **never push directly to `main`** (or
+  any `base_branch`) — all changes reach it only through a PR/MR. Never
+  force-push. Never switch a branch
   while that git root has uncommitted changes — stop and tell the user.
 - Before the first code change in a git root, check `git -C <root> status
   --short`. Unrelated changes there → stop and ask.
@@ -119,6 +121,13 @@ user approves it via `AskUserQuestion`. On approval set the artifact's
 frontmatter `status: approved` and add `approvals.<stage-id>: human:<name> <date>`
 to `status.md`. A stage whose input artifact isn't `approved` refuses to run
 and says which approval is missing.
+
+**Always name the reviewer.** Whoever reviews or approves anything — a human
+(spec/plan/QA/PR approval, PR review) or an AI reviewer subagent (spec-compliance,
+code-quality, final review) — is recorded by name: a `reviewer:` line at the top
+of every `reviews/*.md` file (`human:<name>` or `ai:<role> (<model>)`), and
+the name in every `approvals.*` entry and PR review comment. Unknown human
+name → ask once; never leave a review anonymous.
 
 ## 7. Language
 

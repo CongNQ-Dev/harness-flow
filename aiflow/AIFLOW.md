@@ -21,7 +21,8 @@ feature, use `/aiflow` rather than improvising a workflow.
 - Ticket artifacts go in `docs/aiflow/<TICKET-ID>/`, written in
   `workflow.yaml` `language:` (code, paths and identifiers stay as typed).
 - Git: always `git -C <path> ...`; never commit to a base branch; never
-  force-push.
+  push directly to `main` (PR/MR only); never force-push.
+- Every review or approval records the reviewer's name (human or AI).
 - If `graphify-out/graph.json` exists, use `graphify query "<question>"` /
   `graphify path "A" "B"` / `graphify explain "X"` before grepping or reading
   source. Refresh with `/aiflow analyze`.
