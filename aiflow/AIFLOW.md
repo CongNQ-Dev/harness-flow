@@ -22,6 +22,8 @@ feature, use `/aiflow` rather than improvising a workflow.
   `workflow.yaml` `language:` (code, paths and identifiers stay as typed).
 - Git: always `git -C <path> ...`; never commit to a base branch; never
   push directly to `main` (PR/MR only); never force-push.
+- Every `git push` needs a fresh user confirmation each time — never push on
+  your own, and an earlier approval doesn't cover a later push.
 - Every review or approval records the reviewer's name (human or AI).
 - If `graphify-out/graph.json` exists, use `graphify query "<question>"` /
   `graphify path "A" "B"` / `graphify explain "X"` before grepping or reading

@@ -61,8 +61,11 @@ the folder name and the `<TICKET-ID>` in branch names and PR titles.
 - Always `git -C <path> ...` — never `cd` and lose track of where you are.
 - Never commit to a `base_branch`, and **never push directly to `main`** (or
   any `base_branch`) — all changes reach it only through a PR/MR. Never
-  force-push. Never switch a branch
-  while that git root has uncommitted changes — stop and tell the user.
+  force-push. **Every push needs a fresh confirmation**: before each
+  `git push` (any root, any branch) ask the user via `AskUserQuestion`, naming the
+  repo, branch and remote, and push only on a clear yes. An earlier approval
+  (a gate, the QA answer, "create the PR") never covers a later push. Never
+  switch a branch while that git root has uncommitted changes — stop and tell the user.
 - Before the first code change in a git root, check `git -C <root> status
   --short`. Unrelated changes there → stop and ask.
 - Docs commits: `docs(<ID>): <stage>`, always on the ticket branch — the

@@ -23,6 +23,9 @@ Guide: `README.md`.
   is on its branch and that no ticket code sits uncommitted on a base branch.
 - **Never push directly to `main`** (or `develop`) in any repo, wrapper included —
   changes reach a base branch only through a PR/MR.
+- **Every push needs a fresh confirmation.** Before each `git push` (any repo,
+  any branch) ask the user, naming repo/branch/remote; never push on your own,
+  and an earlier approval doesn't cover a later push.
 - **Always record the reviewer's name.** Anyone who reviews or approves
   anything (human or AI reviewer) is named in the review file / approval entry /
   PR comment — see `.claude/skills/aiflow/conventions.md` §6.

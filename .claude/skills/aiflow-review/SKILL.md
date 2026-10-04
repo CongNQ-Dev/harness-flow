@@ -92,8 +92,8 @@ gate — read the output fully.)
 Point the user at what to check: `test-cases.md` (full route) or the spec's
 acceptance criteria (light route). Then `AskUserQuestion`:
 
-- **Checked — create the PR(s) (recommended)** → 6.3. This answer is the
-  approval to push and open PRs/MRs.
+- **Checked — create the PR(s) (recommended)** → 6.3. This answer is NOT
+  approval to push: 6.4 asks again before every push.
 - **Found a bug the tests missed** → stop. Record it in
   `reviews/qa-findings.md`; the fix goes back through TDD — a failing test
   that reproduces it (`test-driven-development`; `systematic-debugging` for
@@ -118,6 +118,10 @@ consumers' PRs can link to it. **workspace** with `workspace_repo.pr: true`:
 the wrapper is one more git root — push its ticket branch last and open a
 docs-only PR/MR into `workspace_repo.base_branch` (Changes = "AI Flow
 ticket docs only"), linked with the others under Related.
+
+**Before each push**, `AskUserQuestion` (conventions §3): "Push `<branch>` of
+`<root>` to `origin`?" — repo, branch, remote named. Push only on a clear yes;
+on no, stop and report. Ask again for every root and every later re-push.
 
 ```bash
 git -C <root> push -u origin <branch>
