@@ -128,15 +128,34 @@ git -C <root> push -u origin <branch>
 # then the "create" command for that root's tool (table above)
 ```
 
-Title: `pr.title` with `<TICKET-ID>` and a title in `language`. Body (in
-`language`), in this order: **Summary** (2–3 bullets from the spec) ·
-**Changes** (this git root's components only) · **Related PRs/MRs** (the
-other roots' links for this ticket, or "none") · **Artifacts** (links to
-spec.md, plan.md, reviews/final-review.md — in this branch for in-repo /
-copied docs, or the wrapper's PR/MR for workspace without copying) ·
-**Test plan** (the TC list from test-cases.md, or the acceptance criteria on
-light). Once every PR/MR exists, edit the earlier ones' "Related" section so
-each links to all the others.
+Title: `pr.title` — it **must contain the task ID** (e.g. `[PDT-2541] …`) so
+the PR links to the ticket in Notion. Body: the team's PR template, headings
+kept **exactly as below (Japanese, never translated)**, content in `language`:
+
+```markdown
+### 概要
+### スクリーンショット（UIの変更があれば）
+### 相談項目（あれば）
+### 動作確認手順（自分がどう動作確認したかをレビュワーにもわかるように）
+```
+
+- **概要** — what this PR changes and why: 2–3 bullets from the spec, this git
+  root's components only. Then one line each for **Related PRs/MRs** (the
+  other roots' links for this ticket, or "none") and **Artifacts** (spec.md,
+  plan.md, reviews/final-review.md — in this branch for in-repo / copied
+  docs, or the wrapper's PR/MR for workspace without copying).
+- **スクリーンショット** — before/after images when the UI changed; otherwise
+  write "UIの変更なし" (or the `language` equivalent). Never invent images.
+- **相談項目** — points to ask the reviewer: open questions, trade-offs, the
+  final review's Minor findings. Omit the content (keep the heading, "なし")
+  if there are none.
+- **動作確認手順** — how it was actually verified, so the reviewer can redo
+  it: device/environment, numbered steps, result. Take it from the TC list in
+  `test-cases.md` and the manual-QA result (light route: the acceptance
+  criteria and what was checked). Say honestly what was not verified.
+
+Once every PR/MR exists, edit the earlier ones' "Related" line so each links
+to all the others.
 
 If `pr.post_review_comment: true` and a final review exists, post its
 "Summary for PR reviewers" plus the Minor findings as one comment per PR/MR.

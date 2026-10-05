@@ -112,7 +112,7 @@ branch:
   feature: feature/<TICKET-ID>/<slug>
 pr:
   tool: gh                              # gh (GitHub) | glab (GitLab). Per-component override: pr_tool.
-  title: "[<TICKET-ID>] <title in `language`>"
+  title: "[<TICKET-ID>] <title in `language`>"   # the task ID must stay in the title (Notion link)
   copy_artifacts_into_repo: true        # layout: workspace only — copy docs/aiflow/<ID>/ into each
                                         # component repo's branch so reviewers accept by reading md
                                         # in the PR. (in-repo: the docs are already on the branch.)

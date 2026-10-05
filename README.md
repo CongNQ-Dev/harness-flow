@@ -123,6 +123,7 @@ something progress tracking alone could answer.
 - Everything under `docs/aiflow/`, plus PR text, is written in
   `workflow.yaml` `language:` (currently `en`).
 - Git always runs as `git -C <repo>`. It never commits to `develop`/`main`, never pushes directly to `main` (PR only) and never force-pushes.
+- PR/MR titles carry the task ID (e.g. `[PDT-2541]`) and bodies follow the team template: 概要 / スクリーンショット / 相談項目 / 動作確認手順.
 - Every `git push` asks for a fresh confirmation (repo, branch, remote); an earlier approval never covers it.
 - Every review and approval records the reviewer's name — `human:<name>` or `ai:<role> (<model>)` in `reviews/*.md`, `status.md` approvals and PR comments.
   PRs go to each repo's own base branch (backend/admin `develop`, mobile `main`).
