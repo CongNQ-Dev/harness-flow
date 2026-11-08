@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Basic AI Flow</title>
+<style>
+:root{--bg:#fafaf9;--fg:#1c1917;--muted:#57534e;--card:#fff;--line:#e7e5e4;--accent:#2563eb;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--code:#f5f5f4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121110;--fg:#f5f5f4;--muted:#a8a29e;--card:#1c1917;--line:#2e2a27;--accent:#60a5fa;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--code:#262220}}
+:root[data-theme="dark"]{--bg:#121110;--fg:#f5f5f4;--muted:#a8a29e;--card:#1c1917;--line:#2e2a27;--accent:#60a5fa;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--code:#262220}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:920px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:2rem;margin:0 0 4px}h2{font-size:1.3rem;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)}
+p{margin:8px 0}.muted{color:var(--muted)}
+code{background:var(--code);padding:1px 6px;border-radius:4px;font-size:.9em}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0}
+.step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.step b{display:block;color:var(--accent);font-size:.8rem}
+.step small{color:var(--muted)}
+.step.skip{opacity:.55}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:.92rem}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--code);font-weight:600}tr:last-child td{border-bottom:0}
+.scroll{overflow-x:auto}
+.rules{display:grid;gap:10px}
+.rule{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:8px;padding:12px 14px}
+.rule.ok{border-left-color:var(--ok)}.rule.warn{border-left-color:var(--warn)}
+.rule b{display:block;margin-bottom:2px}
+pre{background:var(--code);border-radius:8px;padding:12px;overflow-x:auto;font-size:.88rem;margin:8px 0}
+.tag{display:inline-block;font-size:.75rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>Basic AI Flow</h1>
+<p class="muted"><a href="guide.en.html">English</a> · <b>Tiếng Việt</b> · <a href="README.vi.md">hướng dẫn dạng chữ</a></p>
+<p class="muted">Một quy trình AI cho <b>backend</b> (Go), <b>admin</b> (Next.js) và <b>mobile-app</b> (Flutter). Chạy từ thư mục gốc <code>basic-ai-flow</code>, từng giai đoạn một, luôn dừng lại chờ bạn duyệt.</p>
+
+<h2>Một lệnh duy nhất</h2>
+<div class="scroll"><table>
+<tr><th>Lệnh</th><th>Tác dụng</th></tr>
+<tr><td><code>/aiflow PROJ-XXXX</code></td><td>Chạy giai đoạn tiếp theo của ticket rồi dừng. Ticket mới bắt đầu từ giai đoạn 1.</td></tr>
+<tr><td><code>/aiflow</code></td><td>Bảng tổng hợp mọi ticket: giai đoạn, route, repo, bước tiếp theo.</td></tr>
+<tr><td><code>/aiflow PROJ-XXXX status</code></td><td>Tiến độ, cùng thời gian / token / chi phí ước tính theo giai đoạn.</td></tr>
+<tr><td><code>/aiflow PROJ-XXXX feature</code></td><td>Ticket phát triển mới (branch <code>feature/…</code>) thay vì sửa lỗi.</td></tr>
+<tr><td><code>/aiflow PROJ-XXXX redo spec</code></td><td>Làm lại một giai đoạn (<code>ticket spec plan impl review deliver</code>).</td></tr>
+<tr><td><code>/aiflow analyze</code> · <code>/aiflow wiki</code></td><td>Làm mới knowledge graph (miễn phí) · viết wiki kiến trúc (tốn token).</td></tr>
+<tr><td><code>/aiflow &lt;PR/MR URL&gt;</code></td><td>Review một PR/MR có sẵn.</td></tr>
+</table></div>
+
+<h2>6 giai đoạn</h2>
+<div class="steps">
+<div class="step"><b>1 · Ticket</b>Đọc Notion, bug hay feature, repo bị ảnh hưởng, phân loại, branch<br><small>bạn duyệt</small></div>
+<div class="step"><b>2 · Spec</b>Nguyên nhân gốc hoặc thiết kế<br><small>bạn duyệt</small></div>
+<div class="step skip"><b>3 · Kế hoạch</b>Các task TDD, mỗi task một repo<br><small>chỉ full · bạn duyệt</small></div>
+<div class="step"><b>4 · Triển khai</b>Mỗi task: người làm + review theo spec + review chất lượng</div>
+<div class="step skip"><b>5 · Review</b>Review tổng thể liên repo + test case<br><small>chỉ full</small></div>
+<div class="step"><b>6 · Bàn giao</b>Test, QA thủ công, mỗi repo một PR/MR Draft, sửa theo CI review, rồi Ready<br><small>QA + bạn duyệt</small></div>
+</div>
+<p><span class="tag">light</span> 1 → 2 → 4 → 6, chỉ khi: một repo, tối đa 3 file, không đổi API/schema/DB, đã xác định nguyên nhân gốc, là bug, không thuộc vùng nhạy cảm (thanh toán, xác thực, migration). Giai đoạn 1 và 2 chạy trong một lượt với một lần duyệt.</p>
+<p><span class="tag">full</span> Mọi trường hợp khác chạy đủ sáu giai đoạn. Route chỉ được nâng lên, không bao giờ âm thầm hạ xuống. Mỗi giai đoạn đều dừng; đọc kết quả rồi chạy lại <code>/aiflow PROJ-XXXX</code>.</p>
+<p class="muted">Kết quả nằm trong <code>docs/aiflow/&lt;ID&gt;/</code>: <code>ticket.md</code>, <code>spec.md</code>, <code>plan.md</code>, <code>reviews/</code>, <code>test-cases.md</code>, <code>status.md</code> (tiến độ, file duy nhất dùng để chọn giai đoạn tiếp theo) và <code>log.json</code> (thời gian, token, chi phí).</p>
+
+<h2>Quy tắc bắt buộc</h2>
+<div class="rules">
+<div class="rule"><b>Không bao giờ push thẳng vào <code>main</code></b>Thay đổi chỉ vào base branch qua PR/MR. Không commit vào <code>develop</code>/<code>main</code>, không force-push.</div>
+<div class="rule"><b>Không bao giờ commit thông tin bí mật</b>Key, token, mật khẩu, <code>.env*</code> và file credential không bao giờ được stage hay push; <code>git diff --cached</code> được kiểm tra trước mỗi commit.</div>
+<div class="rule warn"><b>Mọi thao tác ghi lên GitHub/GitLab đều hỏi trước</b>Gồm <code>git push</code>, tạo hay sửa PR/MR, và đăng comment. Agent hiển thị hành động, đích và nội dung chính xác, chỉ làm khi bạn đồng ý rõ ràng. Lần duyệt trước, câu trả lời QA hay một cờ cấu hình không bao giờ thay cho việc đó. Agent không bao giờ tự merge, approve hay đóng PR/MR.</div>
+<div class="rule ok"><b>Ghi tên người review</b>Mọi lần review và duyệt đều ghi <code>human:&lt;name&gt;</code> hoặc <code>ai:&lt;role&gt; (&lt;model&gt;)</code> trong <code>reviews/*.md</code>, phần duyệt của <code>status.md</code> và comment PR.</div>
+<div class="rule ok"><b>Một ticket branch ở mọi nơi</b>Khi một ticket đang mở, wrapper và mọi repo bị ảnh hưởng đều ở cùng branch <code>bug/PROJ-XXXX/…</code> hoặc <code>feature/PROJ-XXXX/…</code>.</div>
+</div>
+
+<h2>Template PR/MR</h2>
+<p>Tiêu đề chứa mã task Notion, ví dụ <code>[PROJ-123] …</code>, để PR liên kết với task. Nội dung giữ các mục sau.</p>
+<div class="scroll"><table>
+<tr><th>Mục</th><th>Nội dung</th></tr>
+<tr><td>Tổng quan</td><td>PR này thay đổi gì và vì sao; link tới các PR liên quan và spec/plan/review.</td></tr>
+<tr><td>Ảnh chụp màn hình</td><td>Ảnh trước/sau nếu UI thay đổi; nếu không thì ghi rõ là không đổi UI.</td></tr>
+<tr><td>Điểm cần trao đổi</td><td>Những điểm cần hỏi người review, kể cả các phát hiện mức Minor; ghi "Không có" nếu không có.</td></tr>
+<tr><td>Các bước kiểm tra</td><td>Đã kiểm tra thế nào để người review làm lại được: thiết bị, các bước, kết quả. Ghi rõ phần chưa test.</td></tr>
+</table></div>
+
+<h2>Thứ tự bàn giao (giai đoạn 6)</h2>
+<pre>1. Chạy test của từng repo
+2. Cổng QA            → "đã kiểm tra, tạo PR đi" (không phải đồng ý push)
+3. Xác nhận           → push &lt;branch&gt; của &lt;repo&gt; lên origin?
+4. Xác nhận           → tạo PR/MR ở dạng DRAFT (tiêu đề, base ← head, toàn bộ nội dung)
+5. CI review chạy     → chạy lại /aiflow &lt;ID&gt;: sửa hoặc trả lời mọi comment CI
+                        (mỗi lần push / trả lời đều hỏi trước), tới khi không còn comment mở
+6. Xác nhận           → chuyển Ready for review → khách hàng review
+7. Merge              → chỉ khi bạn yêu cầu trong chat</pre>
+<p class="muted">Mỗi repo, kể cả wrapper, dùng <code>gh</code> (GitHub) hoặc <code>glab</code> (GitLab) — tuỳ host đã chọn cho nó trong <code>/aiflow setup</code> (<code>pr.tool</code> / <code>pr_tool</code>).</p>
+
+<h2>Cập nhật quy trình</h2>
+<p>Skill và quy tắc đến từ bộ <code>harness-ai-flow</code> dùng chung. Hãy sửa ở đó (cùng README của nó), rồi cài lại ở đây bằng <code>install.sh --force</code>; mọi chỉnh sửa trong <code>.claude/skills/</code> sẽ bị ghi đè. Thiết lập riêng của dự án chỉ nằm trong <code>aiflow/workflow.yaml</code>.</p>
+<p>Tuỳ chọn: <code>aiflow-visual</code> là trợ lý trên trình duyệt (trang cục bộ cho mockup và sơ đồ); các giai đoạn chỉ đề xuất nó cho câu hỏi về hình ảnh và chỉ khi bạn đồng ý. Telemetry tắt; giữ <code>.superpowers/</code> ngoài git.</p>
+</main>
+</body>
+</html>
