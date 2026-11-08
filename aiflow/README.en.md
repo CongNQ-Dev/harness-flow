@@ -1,10 +1,10 @@
 # Basic AI Flow — guide
 
-English · [日本語](README.ja.md) · Visual version: [guide.en.html](guide.en.html)
+English · [Tiếng Việt](README.vi.md) · Visual version: [guide.en.html](guide.en.html)
 
 One AI-driven workflow for **backend** (Go), **admin** (Next.js) and
 **mobile-app** (Flutter). Start Claude Code in the workspace root
-(`ai-flow-demo`), not inside a repo. It runs one stage at a time and always
+(`basic-ai-flow`), not inside a repo. It runs one stage at a time and always
 stops for you.
 
 ## The one command
@@ -57,14 +57,14 @@ downgraded. `status.md` is the resume point (progress); `log.json` is usage
 ## PR/MR template
 
 The title carries the task ID, e.g. `[PROJ-123] …`, so the PR links to the
-Notion task. The body keeps the team headings in Japanese:
+Notion task. The body keeps these team headings (written as shown):
 
 | Heading | Content |
 |---|---|
-| 概要 | What this PR changes and why; links to related PRs and the spec/plan/review |
-| スクリーンショット（UIの変更があれば） | Before/after images if the UI changed, otherwise say there is no UI change |
-| 相談項目（あれば） | Points to ask the reviewer, incl. Minor findings; "なし" if none |
-| 動作確認手順 | How it was verified so the reviewer can repeat it: device, steps, result; say what was not tested |
+| Tổng quan (Overview) | What this PR changes and why; links to related PRs and the spec/plan/review |
+| Ảnh chụp màn hình (nếu có thay đổi UI) — Screenshots, if the UI changed | Before/after images if the UI changed, otherwise say there is no UI change |
+| Điểm cần trao đổi (nếu có) — Discussion points | Points to ask the reviewer, incl. Minor findings; "Không có" if none |
+| Các bước kiểm tra (Verification steps) | How it was verified so the reviewer can repeat it: device, steps, result; say what was not tested |
 
 ## Delivery order (stage 6)
 

@@ -1,13 +1,13 @@
 # Basic AI Flow
 
-English · [日本語](README.ja.md)
+English · [Tiếng Việt](README.vi.md)
 
 One AI-driven development workflow for **backend**, **admin** and
 **mobile-app**. This repo holds only the flow. The three source repos are
 cloned inside it and ignored by git, so they are never modified by this repo.
 
 ```
-ai-flow-demo/                 ← this repo: the AI Flow (start Claude Code here)
+basic-ai-flow/                ← this repo: the AI Flow (start Claude Code here)
 ├── backend/             ← source repo (GitHub, not tracked here)
 ├── admin/               ← source repo (GitHub, not tracked here)
 └── mobile-app/          ← source repo (GitHub, not tracked here)
@@ -61,7 +61,7 @@ Notion MCP, the browser, or by pasting the ticket text.
 Run `/aiflow PROJ-XXXX` again after checking each stage's output. That's the whole loop.
 
 Without `feature`, bug vs. feature is decided from evidence — primarily the
-Notion ticket's 種別 property, then the ticket body if that's missing — not
+Notion ticket's Type property, then the ticket body if that's missing — not
 guessed (the evidence order is in the `aiflow-spec` skill, §1.2).
 
 ## Stages
@@ -166,10 +166,11 @@ something progress tracking alone could answer.
   customer reviews. Run `/aiflow PROJ-XXXX` again after the CI review finishes
   (`delivery:` in `status.md`: `draft` → `ready`). Never Ready with open CI comments.
 - PR/MR titles carry the task ID (e.g. `[PROJ-123]`). Bodies keep the team
-  template headings in Japanese: 概要 / スクリーンショット / 相談項目 / 動作確認手順.
+  template headings: Tổng quan / Ảnh chụp màn hình / Điểm cần trao đổi / Các bước kiểm tra
+  (Overview / Screenshots / Discussion points / Verification steps).
 - Every review and approval records the reviewer's name — `human:<name>` or
   `ai:<role> (<model>)` in `reviews/*.md`, `status.md` approvals and PR comments.
 
 The flow's own rules live in the generic harness-ai-flow bundle
 (`conventions.md`, `aiflow/AIFLOW.md`); to pick up changes, re-install with
-`--force` (see the Quick start). Guides in English and Japanese: [aiflow/README.en.md](aiflow/README.en.md) · [aiflow/README.ja.md](aiflow/README.ja.md); visual versions: [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html).
+`--force` (see the Quick start). Guides in English and Vietnamese: [aiflow/README.en.md](aiflow/README.en.md) · [aiflow/README.vi.md](aiflow/README.vi.md); visual versions: [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).

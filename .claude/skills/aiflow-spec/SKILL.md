@@ -69,7 +69,7 @@ links. If the source needs a login, tell the user and wait.
 1. `/aiflow <ID> feature` → `feature`. Decided.
 2. The ticket system's own **type field** (Jira issue type, Linear/GitHub/GitLab
    labels, a Notion "Type" property, ...): a defect value (Bug, Defect,
-   Incident, 不具合, ...) → `bug`; a new/changed-behavior value (Feature,
+   Incident, Lỗi, ...) → `bug`; a new/changed-behavior value (Feature,
    Story, Enhancement, Improvement, ...) → `feature`. Record which value
    decided it in ticket.md — it's the evidence.
 3. No type field, or it's ambiguous (Task, Chore, empty): the body describes
