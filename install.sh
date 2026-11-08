@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Install AI Flow into a project, for any supported coding agent.
 #
-#   git clone https://github.com/CongNQ-Dev/ai-flow.git
-#   ./ai-flow/install.sh --dir ~/code/my-app --agent codex
+#   git clone https://github.com/CongNQ-Dev/harness-flow.git
+#   ./harness-flow/install.sh --dir ~/code/my-app --agent codex
 #
 # The skills in this repo (.claude/skills/) are the single source. The installer
 # copies them into the agent's skills folder, rewrites internal paths, adds the
@@ -77,7 +77,7 @@ PROJECT_DIR="${PROJECT_DIR:-$PWD}"
 mkdir -p "$PROJECT_DIR"
 PROJECT_DIR="$(cd "$PROJECT_DIR" && pwd)"
 if [[ "$PROJECT_DIR" == "$SRC" ]]; then
-  echo "Error: --dir points at the ai-flow repo itself. Choose the project to install into." >&2
+  echo "Error: --dir points at the harness-flow repo itself. Choose the project to install into." >&2
   exit 1
 fi
 

@@ -1,7 +1,7 @@
 # AI Flow on agents other than Claude Code
 
 Install for your agent with `install.sh --dir <project> --agent <agent>`
-(`install.ps1` on Windows) from the ai-flow repo; it places the skills, the
+(`install.ps1` on Windows) from the harness-flow repo; it places the skills, the
 `/aiflow` command and `AGENTS.md` as listed per agent below.
 
 The skills are written with **Claude Code's tool names**. They're plain

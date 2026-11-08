@@ -8,7 +8,7 @@
 ことはありません。
 
 ```
-ai-flow/                      ← このリポジトリ：AI Flow（ここで Claude Code を起動）
+harness-flow/                 ← このリポジトリ：AI Flow（ここで Claude Code を起動）
 ├── backend/             ← ソースリポジトリ（GitHub、ここでは追跡しない）
 ├── admin/               ← ソースリポジトリ（GitHub、ここでは追跡しない）
 └── mobile-app/          ← ソースリポジトリ（GitHub、ここでは追跡しない）
@@ -22,9 +22,9 @@ OpenClaw のどれを使うプロジェクトにも導入できます。プロ�
 ## 自分のプロジェクトに導入する
 
 ```bash
-git clone https://github.com/CongNQ-Dev/ai-flow.git
-./ai-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
-.\ai-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+./harness-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
+.\harness-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
 ```
 
 | `--agent` | スキルの配置先 | `/aiflow` の提供元 | ルールファイル |
@@ -48,8 +48,8 @@ git clone https://github.com/CongNQ-Dev/ai-flow.git
 ## クイックスタート（このリポジトリをワークスペースとして使う）
 
 ```bash
-git clone https://github.com/CongNQ-Dev/ai-flow.git
-cd ai-flow
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+cd harness-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git

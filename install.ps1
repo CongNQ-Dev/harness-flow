@@ -1,7 +1,7 @@
 # Install AI Flow into a project, for any supported coding agent (Windows).
 #
-#   git clone https://github.com/CongNQ-Dev/ai-flow.git
-#   .\ai-flow\install.ps1 -Dir C:\code\my-app -Agent codex
+#   git clone https://github.com/CongNQ-Dev/harness-flow.git
+#   .\harness-flow\install.ps1 -Dir C:\code\my-app -Agent codex
 #
 # Same behavior as install.sh. Requires Python 3 (the AI Flow scripts use it too).
 [CmdletBinding()]
@@ -48,7 +48,7 @@ function Invoke-Py([string]$code, [string[]]$pyArgs) {
 
 New-Item -ItemType Directory -Force -Path $Dir | Out-Null
 $Project = (Resolve-Path $Dir).Path
-if ($Project -eq (Resolve-Path $Src).Path) { throw '-Dir points at the ai-flow repo itself. Choose the project to install into.' }
+if ($Project -eq (Resolve-Path $Src).Path) { throw '-Dir points at the harness-flow repo itself. Choose the project to install into.' }
 $SkillsDir = Join-Path $Project $SkillsRel
 Write-Host "Installing AI Flow for $Label"
 Write-Host "  project: $Project"

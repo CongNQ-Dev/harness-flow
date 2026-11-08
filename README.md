@@ -7,7 +7,7 @@ One AI-driven development workflow for **backend**, **admin** and
 cloned inside it and ignored by git, so they are never modified by this repo.
 
 ```
-ai-flow/                      ← this repo: the AI Flow (start Claude Code here)
+harness-flow/                 ← this repo: the AI Flow (start Claude Code here)
 ├── backend/             ← source repo (GitHub, not tracked here)
 ├── admin/               ← source repo (GitHub, not tracked here)
 └── mobile-app/          ← source repo (GitHub, not tracked here)
@@ -21,9 +21,9 @@ lives in `aiflow/workflow.yaml`.
 ## Install into your project
 
 ```bash
-git clone https://github.com/CongNQ-Dev/ai-flow.git
-./ai-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
-.\ai-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+./harness-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
+.\harness-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
 ```
 
 | `--agent` | Skills go to | `/aiflow` comes from | Rules file |
@@ -48,8 +48,8 @@ stage).
 ## Quick start (this repo as the workspace)
 
 ```bash
-git clone https://github.com/CongNQ-Dev/ai-flow.git
-cd ai-flow
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+cd harness-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git

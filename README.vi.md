@@ -7,7 +7,7 @@ Một quy trình phát triển do AI dẫn dắt, dùng chung cho **backend**, *
 trong và bị git bỏ qua, nên repo này không bao giờ sửa chúng.
 
 ```
-ai-flow/                      ← repo này: AI Flow (khởi động Claude Code ở đây)
+harness-flow/                 ← repo này: AI Flow (khởi động Claude Code ở đây)
 ├── backend/             ← repo mã nguồn (GitHub, không theo dõi ở đây)
 ├── admin/               ← repo mã nguồn (GitHub, không theo dõi ở đây)
 └── mobile-app/          ← repo mã nguồn (GitHub, không theo dõi ở đây)
@@ -21,9 +21,9 @@ nằm trong `aiflow/workflow.yaml`.
 ## Cài vào project của bạn
 
 ```bash
-git clone https://github.com/CongNQ-Dev/ai-flow.git
-./ai-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
-.\ai-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+./harness-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
+.\harness-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
 ```
 
 | `--agent` | Skill đặt ở | `/aiflow` đến từ | File quy tắc |
@@ -47,8 +47,8 @@ khác. Chỉ Claude Code ghi log sử dụng (thời gian / token / chi phí the
 ## Bắt đầu nhanh (dùng chính repo này làm workspace)
 
 ```bash
-git clone https://github.com/CongNQ-Dev/ai-flow.git
-cd ai-flow
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+cd harness-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git
