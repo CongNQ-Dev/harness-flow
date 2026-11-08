@@ -24,12 +24,12 @@ ai-flow-demo/                 ← このリポジトリ：AI Flow（ここで Cl
 
 ```bash
 git clone https://github.com/cong-skills/basic-ai-flow.git
-cd ai-flow-demo
+cd basic-ai-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git
-gh auth login      # ソース 3 リポジトリ用（GitHub）
-glab auth login    # このラッパーリポジトリ用（GitLab）
+gh auth login      # GitHub 上のリポジトリがある場合  ─┐ /aiflow setup で選んだ
+glab auth login    # GitLab 上のリポジトリがある場合  ─┘ ホストの CLI にログイン
 claude
 ```
 
@@ -40,7 +40,8 @@ Claude Code の中で：
 /aiflow PROJ-123       チケットを開始・再開
 ```
 
-必要なもの：Claude Code、`python3`、`graphify`、`gh`、`glab`、および各リポジトリ
+必要なもの：Claude Code、`python3`、`graphify`、`gh` または `glab`（`/aiflow setup`
+で選んだホスト — GitHub か GitLab — 用）、および各リポジトリ
 のツールチェーン（Go · Node/yarn · FVM/Flutter）。Notion のチケットは Notion MCP、
 ブラウザ、またはチケット本文の貼り付けで読み込みます。
 
@@ -144,8 +145,9 @@ light ルート（小さなバグ）では、ステージ 1 と 2 は 2 回で�
   `/aiflow PROJ-XXXX` はチケットのブランチへ自動で戻り、`/aiflow` の一覧は
   ラッパーの現在のブランチで見えるチケットを表示します。
 - PR は各リポジトリ自身のベースブランチへ（backend/admin は `develop`、モバイルは
-  `main`）。ラッパーの MR は `glab`（GitLab）でこのリポジトリの
-  `main` へ。3 つのソースリポジトリは `gh`（GitHub）を使います。
+  `main`）。ラッパーの PR/MR はこのリポジトリの
+  `main` へ。各リポジトリは `/aiflow setup` で選んだホストに応じて `gh`（GitHub）
+  または `glab`（GitLab）を使います（`aiflow/workflow.yaml` の `pr.tool` / `pr_tool`）。
 
 **デリバリー（ステージ 6）— 自動で行うことはありません**
 - GitHub/GitLab への書き込み（`git push`、PR/MR の作成・編集、コメント投稿）は

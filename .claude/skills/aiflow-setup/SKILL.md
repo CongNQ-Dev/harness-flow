@@ -62,7 +62,7 @@ For each component, read its real files and fill:
 | `lint` | `scripts.lint` / `scripts.typecheck`, `golangci-lint`, `ruff`/`flake8`, `cargo clippy`, `./gradlew lint`, `flutter analyze`, `rubocop`. |
 | `base_branch` | `git -C <path> symbolic-ref refs/remotes/origin/HEAD` → the branch name; else `main`/`master`/`develop`, whichever exists. |
 | `remote` | `git -C <path> remote get-url origin`. |
-| `pr_tool` | host of `remote`: `github.com` or a GitHub Enterprise host → `gh`; `gitlab.com` or a self-hosted GitLab → `glab`. Set the global `pr.tool` to the most common one; set `pr_tool` only on components that differ. Check the CLI is installed and authenticated (`gh auth status` / `glab auth status`); if not, tell the user the exact login command — don't run it for them. |
+| `pr_tool` | **suggestion only — never written without asking (§ 2a).** From the host of `remote`: `github.com` → `gh`, `gitlab.com` → `glab`; any other host (self-managed / Enterprise) → unknown. |
 | `qa_surface` | from the stack: web frontend → `browser`, mobile app → `mobile-device`, HTTP/GraphQL service → `api`, desktop app → `desktop`, CLI → `cli`, published package → `library`. Confirm with the user in the summary. |
 | `notes` | anything in the repo that an engineer must know: code generators (`openapi`, `graphql-codegen`, `sqlc`, `prisma generate`, `build_runner`), wrappers (`bin/fvm`, `./gradlew`), docker-only test targets, "no unit-test runner". |
 | `guides` | files that already guide contributors or AI agents: `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`, `docs/ai/`, `.github/copilot-instructions.md`. |
@@ -72,6 +72,31 @@ For each component, read its real files and fill:
 an OpenAPI/Swagger file referenced by another component's codegen config, a
 GraphQL schema with a client codegen elsewhere, a shared protobuf. Propose
 each as a `contracts:` entry with its regenerate command; empty list is fine.
+
+## 2a. Git host — always ask
+
+The git host decides every PR/MR command (`gh` vs `glab`), so it is **always
+asked**, even when the remotes look obvious — this is the one exception to
+"detect first, ask second". Ask with `AskUserQuestion`, header "Git host":
+"Where are PRs/MRs created?" with options **GitHub (`gh`)**, **GitLab
+(`glab`)**, **Different per repo**. Put the detected host per repo in the
+question text and mark the option that matches them as "(Recommended)"; if a
+remote's host is neither `github.com` nor `gitlab.com`, say it couldn't be
+detected rather than guessing.
+
+- **GitHub** / **GitLab** → every repo (wrapper included) uses that tool:
+  `pr.tool: gh` or `pr.tool: glab`, no per-repo overrides.
+- **Different per repo** → one follow-up question per repo (the wrapper
+  repo included in `workspace` layout): GitHub or GitLab. Set the global
+  `pr.tool` to the most common answer, `pr_tool` only on components that
+  differ, and `workspace_repo.pr_tool` if the wrapper differs.
+- If a chosen host contradicts a repo's remote (e.g. GitLab chosen, remote on
+  `github.com`), say so and ask once more — don't silently override either.
+
+Then check each chosen CLI is installed and authenticated (`gh auth status` /
+`glab auth status`); if not, tell the user the exact login command — don't run
+it for them. On an agent without a structured question UI, ask in chat as a
+numbered list.
 
 ## 3. What only the user knows — ask (one `AskUserQuestion` round, up to 4 questions)
 
@@ -129,8 +154,8 @@ the global settings) and ask **write it** / **change something**. On write:
   of their choosing; workspace → same rule for the wrapper repo. Also set
   `workspace_repo.base_branch` from the wrapper's own default branch
   (`git symbolic-ref refs/remotes/origin/HEAD`, else the current branch),
-  and `workspace_repo.pr_tool` from the wrapper's remote host when it
-  differs from `pr.tool` (e.g. repos on GitHub, wrapper on GitLab).
+  and `workspace_repo.pr_tool` from the user's § 2a answer when the
+  wrapper's host differs from `pr.tool` (e.g. repos on GitHub, wrapper on GitLab).
 
 ## 5. Report
 

@@ -84,8 +84,9 @@ API/スキーマ/DB 変更なし、原因特定済み、バグである、セン
    対応します。
 7. merge はチャットで依頼したときのみ。
 
-ソースリポジトリは `gh`（GitHub、base は `develop`、モバイルは `main`）、
-このラッパーは `glab`（(GitLab, ��base は `main`）を使います。
+ラッパーを含む各リポジトリは、`/aiflow setup` で選んだホストに応じて `gh`（GitHub）
+または `glab`（GitLab）を使います（`aiflow/workflow.yaml` の `pr.tool` / `pr_tool`）。
+base は backend/admin が `develop`、モバイルとラッパーが `main`。
 
 ## フローの更新
 
