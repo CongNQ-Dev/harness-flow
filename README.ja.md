@@ -8,23 +8,66 @@
 ことはありません。
 
 ```
-ai-flow/                      ← このリポジトリ：AI Flow（ここで Claude Code を起動）
+harness-flow/                 ← このリポジトリ：AI Flow（ここで Claude Code を起動）
 ├── backend/             ← ソースリポジトリ（GitHub、ここでは追跡しない）
 ├── admin/               ← ソースリポジトリ（GitHub、ここでは追跡しない）
 └── mobile-app/          ← ソースリポジトリ（GitHub、ここでは追跡しない）
 ```
 
-フロー本体は汎用の
-`harness-ai-flow`
-バンドルをここにインストールしたものです。プロジェクト固有の設定はすべて
-`aiflow/workflow.yaml` にあります。他プロジェクトへの導入方法や、このリポジトリの
-更新方法（`--force` で再インストール）は、そちらの README が完全なリファレンスです。
+このリポジトリは AI Flow の本体で、単独で完結しています。`install.sh` /
+`install.ps1` で、Claude Code、Codex、GitHub Copilot、Cursor、OpenCode、Kilo Code、
+OpenClaw のどれを使うプロジェクトにも導入できます。プロジェクト固有の設定はすべて
+`aiflow/workflow.yaml` にあります。
 
-## クイックスタート
+## 自分のプロジェクトに導入する
 
 ```bash
-git clone https://github.com/CongNQ-Dev/ai-flow.git
-cd ai-flow
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+./harness-flow/install.sh --dir ~/code/my-app        # macOS / Linux
+.\harness-flow\install.ps1 -Dir C:\code\my-app        # Windows
+```
+
+インストーラーはオンボーディング形式です。4 つの質問に答えると、選んだものだけを設定します。
+
+1. **エージェント** — 1 つでも複数でも可（Codex と Copilot を使うチームなら両方）。
+2. **Git ホスト** — GitHub（`gh`）、GitLab（`glab`、gitlab.com またはセルフマネージド）、
+   またはリポジトリごとに選ぶ。CLI がインストール・ログイン済みかを確認し、未対応なら
+   実行すべきコマンドを表示します。
+3. **言語** — チケット文書と PR の言語。English、日本語、Tiếng Việt、または任意のコード。
+4. **機能** — ナレッジグラフ（`graphify`）、ビジュアルコンパニオン、プロジェクト wiki。
+   選ばなかった機能のスキルはインストールしません。
+
+回答は `aiflow/install.yaml` に保存され、`/aiflow setup` はそれを読んで同じ質問を
+繰り返しません。どの質問もフラグで指定でき、スクリプトや CI でも使えます。
+
+```bash
+./harness-flow/install.sh --dir ~/code/my-app --agent codex,copilot \
+  --git-host gitlab --gitlab-host gitlab.acme.io --language vi --features graph,wiki --yes
+```
+
+| `--agent` | スキルの配置先 | `/aiflow` の提供元 | ルールファイル |
+|---|---|---|---|
+| `claude` | `.claude/skills/` | `aiflow` スキル | `CLAUDE.md` (+ hooks in `.claude/settings.json`) |
+| `codex` | `.agents/skills/` | `$aiflow` | `AGENTS.md` |
+| `copilot` | `.github/skills/` | `.github/prompts/aiflow.prompt.md` | `AGENTS.md` |
+| `cursor` | `.cursor/skills/` | `.cursor/commands/aiflow.md` | `AGENTS.md` |
+| `opencode` | `.opencode/skills/` | `.opencode/commands/aiflow.md` | `AGENTS.md` |
+| `kilocode` | `.kilo/skills/` | `.kilo/commands/aiflow.md` | `AGENTS.md` |
+| `openclaw` | `skills/` | `aiflow` スキル | `AGENTS.md` |
+
+その後、エージェントでプロジェクトを開き `/aiflow setup`（Codex では `$aiflow setup`）を
+実行すると、リポジトリを検出し、残りだけを質問して `aiflow/workflow.yaml` を作ります。
+回答の変更や更新は、このリポジトリを pull してインストーラーを再実行します（`--force` で
+導入済みスキルも更新）。`aiflow/workflow.yaml`、`CLAUDE.md` / `AGENTS.md` の独自の記述
+（AI Flow のブロックは `<!-- aiflow:start/end -->` の間）、既存のフックは保持されます。
+スキルは Claude Code のツール名で書かれており、他のエージェント向けの対応表は
+`aiflow/AGENTS-TOOLS.md` にあります。使用量ログを記録するのは Claude Code だけです。
+
+## クイックスタート（このリポジトリをワークスペースとして使う）
+
+```bash
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+cd harness-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git
@@ -184,7 +227,7 @@ light ルート（小さなバグ）では、ステージ 1 と 2 は 2 回で�
    対応します。
 7. merge はチャットで依頼したときのみ。
 
-フロー自体のルールは汎用の harness-ai-flow バンドル（`conventions.md`、
-`aiflow/AIFLOW.md`）にあります。変更を取り込むには `--force` で再インストールして
-ください（クイックスタート参照）。ビジュアル版（英語・日本語・ベトナム語）：[aiflow/guide.en.html](aiflow/guide.en.html) ·
+フロー自体のルールは `conventions.md`（`aiflow` スキル内）と `aiflow/AIFLOW.md` に
+あります。AI Flow を導入したプロジェクトは、`--force` 付きでインストーラーを再実行すると
+変更を取り込めます。ビジュアル版（英語・日本語・ベトナム語）：[aiflow/guide.en.html](aiflow/guide.en.html) ·
 [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html)。

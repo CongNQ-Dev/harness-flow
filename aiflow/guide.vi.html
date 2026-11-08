@@ -35,7 +35,7 @@ pre{background:var(--code);border-radius:8px;padding:12px;overflow-x:auto;font-s
 <main>
 <h1>Basic AI Flow</h1>
 <p class="muted"><a href="guide.en.html">English</a> · <a href="guide.ja.html">日本語</a> · <b>Tiếng Việt</b> · <a href="../README.vi.md">hướng dẫn dạng chữ</a></p>
-<p class="muted">Một quy trình AI cho <b>backend</b> (Go), <b>admin</b> (Next.js) và <b>mobile-app</b> (Flutter). Chạy từ thư mục gốc <code>ai-flow</code>, từng giai đoạn một, luôn dừng lại chờ bạn duyệt.</p>
+<p class="muted">Một quy trình AI cho <b>backend</b> (Go), <b>admin</b> (Next.js) và <b>mobile-app</b> (Flutter). Chạy từ thư mục gốc <code>harness-flow</code>, từng giai đoạn một, luôn dừng lại chờ bạn duyệt.</p>
 
 <h2>Một lệnh duy nhất</h2>
 <div class="scroll"><table>
@@ -93,7 +93,7 @@ pre{background:var(--code);border-radius:8px;padding:12px;overflow-x:auto;font-s
 <p class="muted">Mỗi repo, kể cả wrapper, dùng <code>gh</code> (GitHub) hoặc <code>glab</code> (GitLab) — tuỳ host đã chọn cho nó trong <code>/aiflow setup</code> (<code>pr.tool</code> / <code>pr_tool</code>).</p>
 
 <h2>Cập nhật quy trình</h2>
-<p>Skill và quy tắc đến từ bộ <code>harness-ai-flow</code> dùng chung. Hãy sửa ở đó (cùng README của nó), rồi cài lại ở đây bằng <code>install.sh --force</code>; mọi chỉnh sửa trong <code>.claude/skills/</code> sẽ bị ghi đè. Thiết lập riêng của dự án chỉ nằm trong <code>aiflow/workflow.yaml</code>.</p>
+<p>Repo này là mã nguồn gốc của AI Flow. Cài vào bất kỳ project nào, cho mọi agent (Claude Code, Codex, Copilot, Cursor, OpenCode, Kilo Code, OpenClaw), bằng <code>install.sh --dir &lt;project&gt; --agent &lt;agent&gt;</code> (<code>install.ps1</code> trên Windows); chạy lại với <code>--force</code> để nâng cấp. Thiết lập riêng của dự án chỉ nằm trong <code>aiflow/workflow.yaml</code>.</p>
 <p>Tuỳ chọn: <code>aiflow-visual</code> là trợ lý trên trình duyệt (trang cục bộ cho mockup và sơ đồ); các giai đoạn chỉ đề xuất nó cho câu hỏi về hình ảnh và chỉ khi bạn đồng ý. Telemetry tắt; giữ <code>.superpowers/</code> ngoài git.</p>
 </main>
 </body>

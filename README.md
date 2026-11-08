@@ -7,24 +7,67 @@ One AI-driven development workflow for **backend**, **admin** and
 cloned inside it and ignored by git, so they are never modified by this repo.
 
 ```
-ai-flow/                      ← this repo: the AI Flow (start Claude Code here)
+harness-flow/                 ← this repo: the AI Flow (start Claude Code here)
 ├── backend/             ← source repo (GitHub, not tracked here)
 ├── admin/               ← source repo (GitHub, not tracked here)
 └── mobile-app/          ← source repo (GitHub, not tracked here)
 ```
 
-The flow itself is the generic
-`harness-ai-flow`
-bundle, installed here; everything project-specific lives in
-`aiflow/workflow.yaml`. Its README is the full reference, including how to
-install the flow on another project and how to upgrade this one (re-install
-with `--force`).
+This repo is the source of AI Flow and is self-contained: `install.sh` /
+`install.ps1` install it into any project, for Claude Code, Codex, GitHub
+Copilot, Cursor, OpenCode, Kilo Code or OpenClaw. Everything project-specific
+lives in `aiflow/workflow.yaml`.
 
-## Quick start
+## Install into your project
 
 ```bash
-git clone https://github.com/CongNQ-Dev/ai-flow.git
-cd ai-flow
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+./harness-flow/install.sh --dir ~/code/my-app        # macOS / Linux
+.\harness-flow\install.ps1 -Dir C:\code\my-app        # Windows
+```
+
+The installer is an onboarding: it asks four things and sets up only what you pick.
+
+1. **Agent(s)** — one or several (a team on Codex and Copilot gets both).
+2. **Git host** — GitHub (`gh`), GitLab (`glab`, gitlab.com or self-managed) or
+   different per repo. It checks the CLI is installed and logged in, and prints
+   the command to run if not.
+3. **Language** of ticket docs and PR text — English, 日本語, Tiếng Việt or any code.
+4. **Features** — knowledge graph (`graphify`), visual companion, project wiki.
+   Skills for features you skip aren't installed.
+
+The answers go to `aiflow/install.yaml`; `/aiflow setup` reads it and doesn't ask
+them again. Every question also has a flag, for scripts and CI:
+
+```bash
+./harness-flow/install.sh --dir ~/code/my-app --agent codex,copilot \
+  --git-host gitlab --gitlab-host gitlab.acme.io --language vi --features graph,wiki --yes
+```
+
+| `--agent` | Skills go to | `/aiflow` comes from | Rules file |
+|---|---|---|---|
+| `claude` | `.claude/skills/` | the `aiflow` skill | `CLAUDE.md` (+ hooks in `.claude/settings.json`) |
+| `codex` | `.agents/skills/` | `$aiflow` | `AGENTS.md` |
+| `copilot` | `.github/skills/` | `.github/prompts/aiflow.prompt.md` | `AGENTS.md` |
+| `cursor` | `.cursor/skills/` | `.cursor/commands/aiflow.md` | `AGENTS.md` |
+| `opencode` | `.opencode/skills/` | `.opencode/commands/aiflow.md` | `AGENTS.md` |
+| `kilocode` | `.kilo/skills/` | `.kilo/commands/aiflow.md` | `AGENTS.md` |
+| `openclaw` | `skills/` | the `aiflow` skill | `AGENTS.md` |
+
+Then open the project with your agent and run `/aiflow setup` (`$aiflow setup`
+in Codex); it detects your repos, asks only what's left and writes
+`aiflow/workflow.yaml`. To change an answer or upgrade, pull this repo and
+re-run the installer (`--force` refreshes installed skills): your
+`aiflow/workflow.yaml`, your own text in `CLAUDE.md` / `AGENTS.md` (the AI Flow
+block sits between `<!-- aiflow:start/end -->` markers) and your existing hooks
+are kept. The skills use Claude Code's tool names; `aiflow/AGENTS-TOOLS.md` maps
+them for the other agents. Only Claude Code records the usage log.
+
+## Quick start (this repo as the workspace)
+
+```bash
+git clone https://github.com/CongNQ-Dev/harness-flow.git
+cd harness-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git
@@ -94,6 +137,7 @@ is not in a sensitive area (billing, auth, migration). Everything else runs
 
 | Path | Purpose |
 |---|---|
+| `install.sh` · `install.ps1` | Install AI Flow into another project, for any supported agent |
 | `CLAUDE.md` | Workspace rules Claude Code loads on start |
 | `.claude/skills/aiflow*/` | The flow: router `aiflow` plus the stage skills, their templates and subagent prompts |
 | `.claude/skills/*` (others) | Engineering disciplines used internally (TDD, debugging, verification, code review), hidden from the `/` menu |
@@ -189,6 +233,6 @@ customer reviews.**
    handled the same way on the next `/aiflow <ID>`.
 7. Merge only when you ask for it in chat.
 
-The flow's own rules live in the generic harness-ai-flow bundle
-(`conventions.md`, `aiflow/AIFLOW.md`); to pick up changes, re-install with
-`--force` (see the Quick start). Visual version (English / Japanese / Vietnamese): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).
+The flow's own rules live in `conventions.md` (in the `aiflow` skill) and
+`aiflow/AIFLOW.md`; a project that installed AI Flow picks up changes by
+re-running the installer with `--force`. Visual version (English / Japanese / Vietnamese): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).
