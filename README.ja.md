@@ -1,18 +1,10 @@
-# Basic AI Flow
+# AI Flow
 
 [English](README.md) · 日本語 · [Tiếng Việt](README.vi.md)
 
-**backend**、**admin**、**mobile-app** を横断する、AI 駆動の開発
-フローです。このリポジトリが持つのはフローだけです。3 つのソースリポジトリは
-この中にクローンして git の管理対象外にするため、このリポジトリから変更される
-ことはありません。
-
-```
-harness-flow/                 ← このリポジトリ：AI Flow（ここで Claude Code を起動）
-├── backend/             ← ソースリポジトリ（GitHub、ここでは追跡しない）
-├── admin/               ← ソースリポジトリ（GitHub、ここでは追跡しない）
-└── mobile-app/          ← ソースリポジトリ（GitHub、ここでは追跡しない）
-```
+チケットの受付から Pull Request まで進める、AI 駆動のワークフローです。どのプロジェクト・
+どの技術スタックでも、1 リポジトリでも複数でも使えます。操作は `/aiflow <TICKET-ID>` の
+1 つだけで、1 ステージずつ進め、必ず承認を待って止まります。
 
 このリポジトリは AI Flow の本体で、単独で完結しています。`install.sh` /
 `install.ps1` で、Claude Code、Codex、GitHub Copilot、Cursor、OpenCode、Kilo Code、
@@ -63,14 +55,26 @@ git clone https://github.com/CongNQ-Dev/harness-flow.git
 スキルは Claude Code のツール名で書かれており、他のエージェント向けの対応表は
 `aiflow/AGENTS-TOOLS.md` にあります。使用量ログを記録するのは Claude Code だけです。
 
-## クイックスタート（このリポジトリをワークスペースとして使う）
+## 複数リポジトリのワークスペース（任意）
+
+複数のリポジトリをまとめて AI Flow で扱いたいときは、このリポジトリ自体をワークスペースにして、
+その中に対象リポジトリをクローンします（git の管理対象外なので、このリポジトリから変更されることは
+ありません）。
+
+```
+harness-flow/            ← このリポジトリをワークスペースとして使う（ここでエージェントを起動）
+├── <repo-1>/            ← あなたのソースリポジトリ（ここにクローン、追跡しない）
+├── <repo-2>/
+└── <repo-3>/
+```
+
 
 ```bash
 git clone https://github.com/CongNQ-Dev/harness-flow.git
 cd harness-flow
-git clone https://github.com/<your-org>/backend.git
-git clone https://github.com/<your-org>/admin.git
-git clone https://github.com/<your-org>/mobile-app.git
+git clone https://github.com/<your-org>/<repo-1>.git
+git clone https://github.com/<your-org>/<repo-2>.git
+git clone https://github.com/<your-org>/<repo-3>.git
 gh auth login      # GitHub 上のリポジトリがある場合  ─┐ /aiflow setup で選んだ
 glab auth login    # GitLab 上のリポジトリがある場合  ─┘ ホストの CLI にログイン
 claude
@@ -79,13 +83,13 @@ claude
 Claude Code の中で：
 
 ```text
-/aiflow analyze        ナレッジグラフを一度作成（3 リポジトリ、最新なら数秒）
+/aiflow analyze        ナレッジグラフを一度作成（全リポジトリ、最新なら数秒）
 /aiflow PROJ-123       チケットを開始・再開
 ```
 
 必要なもの：Claude Code、`python3`、`graphify`、`gh` または `glab`（`/aiflow setup`
 で選んだホスト — GitHub か GitLab — 用）、および各リポジトリ
-のツールチェーン（Go · Node/yarn · FVM/Flutter）。Notion のチケットは Notion MCP、
+自身のツールチェーン。Notion のチケットは Notion MCP、
 ブラウザ、またはチケット本文の貼り付けで読み込みます。
 
 ## コマンドは 1 つだけ
@@ -132,6 +136,15 @@ light ルート（小さなバグ）では、ステージ 1 と 2 は 2 回で�
 ション）でない場合に限ります。それ以外は **full** です。ルートは人が確認します。
 ルールは [`aiflow/workflow.yaml`](aiflow/workflow.yaml) にあります。
 
+## プロジェクト wiki
+
+任意の機能です（インストール時に選択、`--features wiki`）。`/aiflow wiki` を実行すると、AI が
+実際のコードを読み、整理されたアーキテクチャ文書を `wiki/` に書きます。コンポーネントごとの概要
+ページ、コンポーネント間のコントラクトとその根拠、実際のアーキテクチャ上の決定が対象です。各ステージは
+アーキテクチャを一から推測し直す前にこの wiki を読むので、後続のチケットも文脈を持って始められます。
+wiki は git にコミットされ、トークンを使うのは実行したときだけです。`/aiflow wiki refresh` で更新します。
+詳細：`.claude/skills/aiflow-wiki/SKILL.md`。
+
 ## このリポジトリの中身
 
 | パス | 用途 |
@@ -171,8 +184,8 @@ light ルート（小さなバグ）では、ステージ 1 と 2 は 2 回で�
 - `docs/aiflow/` 配下の全成果物と PR の文面は、`workflow.yaml` の `language:`
   （現在は `en`）で書かれます。
 - ソースを読む前に、まずナレッジグラフを照会します。
-- コードについては各リポジトリチームのガイドが優先されます（例：mobile-app
-  の `CLAUDE.md`、`docs/ai/`、project-specific スキル）。
+- コードについては各リポジトリチームのガイドが優先されます（例：各リポジトリ自身の
+  `CLAUDE.md`、`docs/ai/`、project-specific スキル）。
 
 **Git とブランチ**
 - Git は常に `git -C <repo>` で実行します。`develop`/`main` へのコミット、`main`
@@ -187,8 +200,7 @@ light ルート（小さなバグ）では、ステージ 1 と 2 は 2 回で�
   デリバリー時、ラッパーは各リポジトリの PR と並んで文書のみの MR を持ちます。
   `/aiflow PROJ-XXXX` はチケットのブランチへ自動で戻り、`/aiflow` の一覧は
   ラッパーの現在のブランチで見えるチケットを表示します。
-- PR は各リポジトリ自身のベースブランチへ（backend/admin は `develop`、モバイルは
-  `main`）。ラッパーの PR/MR はこのリポジトリの
+- PR は各リポジトリ自身のベースブランチへ（`develop`、`main` など）。ラッパーの PR/MR はこのリポジトリの
   `main` へ。各リポジトリは `/aiflow setup` で選んだホストに応じて `gh`（GitHub）
   または `glab`（GitLab）を使います（`aiflow/workflow.yaml` の `pr.tool` / `pr_tool`）。
 
