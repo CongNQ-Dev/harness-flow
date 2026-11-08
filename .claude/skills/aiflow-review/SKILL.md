@@ -144,26 +144,26 @@ PR/MR only on a clear yes. Same for every later write to the host — editing th
 
 Title: `pr.title` — it **must contain the task ID** (e.g. `[PROJ-123] …`) so
 the PR links to the ticket in Notion. Body: the team's PR template, headings
-kept **exactly as below (Vietnamese, never translated)**, content in `language`:
+kept **exactly as below (Japanese, never translated)**, content in `language`:
 
 ```markdown
-### Tổng quan
-### Ảnh chụp màn hình (nếu có thay đổi UI)
-### Điểm cần trao đổi (nếu có)
-### Các bước kiểm tra (đã kiểm tra thế nào để người review làm lại được)
+### 概要
+### スクリーンショット（UIの変更があれば）
+### 相談項目（あれば）
+### 動作確認手順（自分がどう動作確認したかをレビュワーにもわかるように）
 ```
 
-- **Tổng quan** — what this PR changes and why: 2–3 bullets from the spec, this git
+- **概要** — what this PR changes and why: 2–3 bullets from the spec, this git
   root's components only. Then one line each for **Related PRs/MRs** (the
   other roots' links for this ticket, or "none") and **Artifacts** (spec.md,
   plan.md, reviews/final-review.md — in this branch for in-repo / copied
   docs, or the wrapper's PR/MR for workspace without copying).
-- **Ảnh chụp màn hình** — before/after images when the UI changed; otherwise
-  write "Không thay đổi UI" (or the `language` equivalent). Never invent images.
-- **Điểm cần trao đổi** — points to ask the reviewer: open questions, trade-offs, the
-  final review's Minor findings. Omit the content (keep the heading, "Không có")
+- **スクリーンショット** — before/after images when the UI changed; otherwise
+  write "UIの変更なし" (or the `language` equivalent). Never invent images.
+- **相談項目** — points to ask the reviewer: open questions, trade-offs, the
+  final review's Minor findings. Omit the content (keep the heading, "なし")
   if there are none.
-- **Các bước kiểm tra** — how it was actually verified, so the reviewer can redo
+- **動作確認手順** — how it was actually verified, so the reviewer can redo
   it: device/environment, numbered steps, result. Take it from the TC list in
   `test-cases.md` and the manual-QA result (light route: the acceptance
   criteria and what was checked). Say honestly what was not verified.
