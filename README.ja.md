@@ -165,9 +165,26 @@ light ルート（小さなバグ）では、ステージ 1 と 2 は 2 回で�
 - すべてのレビューと承認にレビュアー名を記録します。`reviews/*.md`、`status.md`
   の承認欄、PR コメントに `human:<名前>` または `ai:<役割> (<モデル>)` を残します。
 
+### デリバリーの順序（ステージ 6）
+
+**Draft の PR/MR → CI レビューが実行 → CI の指摘をすべて対応 → Ready for review →
+顧客がレビュー。**
+
+1. 各リポジトリのテストを実行。
+2. QA ゲート：「確認済み、PR を作成」— これは push の承諾では**ありません**。
+3. 確認 → `<repo>` の `<branch>` を `origin` へ push。
+4. 確認 → PR/MR を **Draft で**作成（タイトル、base ← head、本文全文を提示）。
+   ここで停止し、`status.md` は `delivery: draft` になります。
+5. CI レビューが終わったら、もう一度 `/aiflow <ID>` を実行。CI のコメントとチェックを
+   読み取り（読み取りのみ）、レビュアー名とともに `reviews/ci-review.md` に記録し、
+   1 件ずつ修正または回答します。push・返信・resolve は毎回事前に確認します。CI の
+   未対応コメントがなくなり、チェックが通るまで繰り返します。
+6. 確認 → PR/MR を **Ready for review** に変更（CI の指摘が残っている間は不可）。
+   `delivery: ready`。顧客がレビューし、そのコメントも次の `/aiflow <ID>` で同様に
+   対応します。
+7. merge はチャットで依頼したときのみ。
+
 フロー自体のルールは汎用の harness-ai-flow バンドル（`conventions.md`、
 `aiflow/AIFLOW.md`）にあります。変更を取り込むには `--force` で再インストールして
-ください（クイックスタート参照）。英語・日本語のガイド：
-[aiflow/README.en.md](aiflow/README.en.md) · [aiflow/README.ja.md](aiflow/README.ja.md)、
-ビジュアル版：[aiflow/guide.en.html](aiflow/guide.en.html) ·
+ください（クイックスタート参照）。ビジュアル版（英語・日本語）：[aiflow/guide.en.html](aiflow/guide.en.html) ·
 [aiflow/guide.ja.html](aiflow/guide.ja.html)。
