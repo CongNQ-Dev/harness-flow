@@ -7,7 +7,7 @@ Một quy trình phát triển do AI dẫn dắt, dùng chung cho **backend**, *
 trong và bị git bỏ qua, nên repo này không bao giờ sửa chúng.
 
 ```
-basic-ai-flow/                ← repo này: AI Flow (khởi động Claude Code ở đây)
+ai-flow/                      ← repo này: AI Flow (khởi động Claude Code ở đây)
 ├── backend/             ← repo mã nguồn (GitHub, không theo dõi ở đây)
 ├── admin/               ← repo mã nguồn (GitHub, không theo dõi ở đây)
 └── mobile-app/          ← repo mã nguồn (GitHub, không theo dõi ở đây)
@@ -21,8 +21,8 @@ tham khảo đầy đủ, gồm cách cài quy trình vào dự án khác và c�
 ## Bắt đầu nhanh
 
 ```bash
-git clone https://github.com/CongNQ-Dev/basic-ai-flow.git
-cd basic-ai-flow
+git clone https://github.com/CongNQ-Dev/ai-flow.git
+cd ai-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git

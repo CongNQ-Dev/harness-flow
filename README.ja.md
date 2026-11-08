@@ -8,7 +8,7 @@
 ことはありません。
 
 ```
-ai-flow-demo/                 ← このリポジトリ：AI Flow（ここで Claude Code を起動）
+ai-flow/                      ← このリポジトリ：AI Flow（ここで Claude Code を起動）
 ├── backend/             ← ソースリポジトリ（GitHub、ここでは追跡しない）
 ├── admin/               ← ソースリポジトリ（GitHub、ここでは追跡しない）
 └── mobile-app/          ← ソースリポジトリ（GitHub、ここでは追跡しない）
@@ -23,8 +23,8 @@ ai-flow-demo/                 ← このリポジトリ：AI Flow（ここで Cl
 ## クイックスタート
 
 ```bash
-git clone https://github.com/CongNQ-Dev/basic-ai-flow.git
-cd basic-ai-flow
+git clone https://github.com/CongNQ-Dev/ai-flow.git
+cd ai-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git
