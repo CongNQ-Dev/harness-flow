@@ -103,7 +103,7 @@ numbered list.
 1. **Output language** for artifacts and PR text (`language:`). Exactly two
    options — **English** (`en`) and **Tiếng Việt** (`vi`) — and the third
    choice is the question UI's built-in "Other", where the user types any
-   language (한국어, Français, Deutsch, ...; store its ISO code, e.g. `ko`).
+   language (日本語, 한국어, Français, ...; store its ISO code, e.g. `ja`).
    On an agent without a structured question UI, ask in chat as a numbered
    list: `1. English  2. Tiếng Việt  3. Other — type the language`.
 2. **Ticket source** — list the ticket-system MCP servers connected in this

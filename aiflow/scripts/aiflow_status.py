@@ -36,7 +36,7 @@ def normalize_id(raw):
         return f"{manifest_value('project_code', 'TICKET').upper()}-{raw}"
     return raw.upper()
 
-# n -> (id, display name, skill that runs it, routes it belongs to)
+# n -> (id, Japanese name, skill that runs it, routes it belongs to)
 STAGES = {
     1: ("ticket", "Ticket intake", "aiflow-spec", ("light", "full")),
     2: ("spec", "Spec", "aiflow-spec", ("light", "full")),
