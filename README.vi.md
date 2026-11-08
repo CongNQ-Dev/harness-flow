@@ -1,17 +1,10 @@
-# Basic AI Flow
+# AI Flow
 
 [English](README.md) · [日本語](README.ja.md) · Tiếng Việt
 
-Một quy trình phát triển do AI dẫn dắt, dùng chung cho **backend**, **admin** và
-**mobile-app**. Repo này chỉ chứa quy trình. Ba repo mã nguồn được clone vào bên
-trong và bị git bỏ qua, nên repo này không bao giờ sửa chúng.
-
-```
-harness-flow/                 ← repo này: AI Flow (khởi động Claude Code ở đây)
-├── backend/             ← repo mã nguồn (GitHub, không theo dõi ở đây)
-├── admin/               ← repo mã nguồn (GitHub, không theo dõi ở đây)
-└── mobile-app/          ← repo mã nguồn (GitHub, không theo dõi ở đây)
-```
+Một quy trình do AI dẫn dắt, đưa ticket từ lúc tiếp nhận đến pull request, cho bất kỳ dự án và
+stack nào — một repo hay nhiều repo. Bạn chỉ chạy một lệnh, `/aiflow <TICKET-ID>`; nó chạy
+từng giai đoạn một và luôn dừng lại chờ bạn duyệt.
 
 Repo này là mã nguồn gốc của AI Flow và tự đứng một mình: `install.sh` /
 `install.ps1` cài nó vào bất kỳ project nào, cho Claude Code, Codex, GitHub
@@ -63,14 +56,25 @@ riêng của bạn trong `CLAUDE.md` / `AGENTS.md` (khối AI Flow nằm giữa 
 theo tên công cụ của Claude Code; `aiflow/AGENTS-TOOLS.md` ánh xạ chúng cho các agent
 khác. Chỉ Claude Code ghi log sử dụng.
 
-## Bắt đầu nhanh (dùng chính repo này làm workspace)
+## Workspace nhiều repo (tuỳ chọn)
+
+Muốn chạy AI Flow trên nhiều repo từ một chỗ, hãy dùng chính repo này làm workspace và clone
+các repo của bạn vào bên trong (chúng bị git bỏ qua nên repo này không bao giờ sửa chúng):
+
+```
+harness-flow/            ← repo này dùng làm workspace (khởi động agent ở đây)
+├── <repo-1>/            ← một trong các repo mã nguồn của bạn (clone vào đây, không theo dõi)
+├── <repo-2>/
+└── <repo-3>/
+```
+
 
 ```bash
 git clone https://github.com/CongNQ-Dev/harness-flow.git
 cd harness-flow
-git clone https://github.com/<your-org>/backend.git
-git clone https://github.com/<your-org>/admin.git
-git clone https://github.com/<your-org>/mobile-app.git
+git clone https://github.com/<your-org>/<repo-1>.git
+git clone https://github.com/<your-org>/<repo-2>.git
+git clone https://github.com/<your-org>/<repo-3>.git
 gh auth login      # nếu có repo trên GitHub  ─┐ đăng nhập CLI của host
 glab auth login    # nếu có repo trên GitLab  ─┘ bạn chọn trong /aiflow setup
 claude
@@ -79,13 +83,13 @@ claude
 Trong Claude Code:
 
 ```text
-/aiflow analyze        dựng knowledge graph một lần (cả 3 repo, vài giây nếu đã mới)
+/aiflow analyze        dựng knowledge graph một lần (mọi repo, vài giây nếu đã mới)
 /aiflow PROJ-123       bắt đầu hoặc tiếp tục một ticket
 ```
 
 Cần có: Claude Code, `python3`, `graphify`, `gh` và/hoặc `glab` (theo host bạn chọn
-trong `/aiflow setup` — GitHub hoặc GitLab), cùng toolchain của từng repo
-(Go · Node/yarn · FVM/Flutter). Ticket Notion được đọc qua Notion MCP, trình duyệt,
+trong `/aiflow setup` — GitHub hoặc GitLab), cùng toolchain riêng của
+từng repo. Ticket Notion được đọc qua Notion MCP, trình duyệt,
 hoặc bằng cách dán nội dung ticket.
 
 ## Một lệnh duy nhất
@@ -131,6 +135,14 @@ API/schema/DB, đã xác định được nguyên nhân gốc, là bug, và khô
 (thanh toán, xác thực, migration). Mọi trường hợp khác chạy **full**. Bạn là người xác
 nhận route. Quy tắc nằm trong [`aiflow/workflow.yaml`](aiflow/workflow.yaml).
 
+## Wiki dự án
+
+Tính năng tuỳ chọn (chọn lúc cài, `--features wiki`). `/aiflow wiki` cho AI đọc code thật của bạn và
+viết tài liệu kiến trúc được chắt lọc vào `wiki/`: một trang tổng quan cho mỗi component, các hợp đồng
+giữa các component kèm lý do, và các quyết định kiến trúc thực sự. Các giai đoạn đọc wiki này trước khi tự
+suy ra kiến trúc lại, nên ticket sau bắt đầu với sẵn ngữ cảnh. Wiki được commit vào git, chỉ tốn token
+khi bạn chạy, và `/aiflow wiki refresh` để cập nhật. Chi tiết: `.claude/skills/aiflow-wiki/SKILL.md`.
+
 ## Repo này có gì
 
 | Đường dẫn | Mục đích |
@@ -174,7 +186,7 @@ nhất" — yêu cầu tối ưu chi phí, thứ mà chỉ theo dõi tiến đ�
   `language:` trong `workflow.yaml` (hiện là `en`).
 - Knowledge graph được truy vấn trước khi đọc bất kỳ file mã nguồn nào.
 - Hướng dẫn riêng của từng team repo được ưu tiên cho phần code, ví dụ `CLAUDE.md`,
-  `docs/ai/` và các skill riêng của dự án trong mobile-app.
+  `docs/ai/` và các skill riêng của dự án trong repo đó.
 
 **Git và branch**
 - Git luôn chạy dạng `git -C <repo>`. Không bao giờ commit vào `develop`/`main`,
@@ -189,7 +201,7 @@ nhất" — yêu cầu tối ưu chi phí, thứ mà chỉ theo dõi tiến đ�
   wrapper có MR riêng chỉ chứa tài liệu, song song với PR của các repo.
   `/aiflow PROJ-XXXX` tự chuyển về các branch của ticket; bảng `/aiflow` hiển thị các
   ticket thấy được trên branch hiện tại của wrapper.
-- PR đi vào base branch của từng repo (backend/admin là `develop`, mobile là `main`).
+- PR đi vào base branch của từng repo (`develop`, `main`, …).
   PR/MR của wrapper đi vào `main` của repo này. Mỗi repo dùng `gh` (GitHub) hoặc
   `glab` (GitLab) — tuỳ host bạn chọn cho nó trong `/aiflow setup` (`pr.tool` /
   `pr_tool` trong `aiflow/workflow.yaml`).

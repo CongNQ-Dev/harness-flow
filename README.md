@@ -1,17 +1,11 @@
-# Basic AI Flow
+# AI Flow
 
 English · [日本語](README.ja.md) · [Tiếng Việt](README.vi.md)
 
-One AI-driven development workflow for **backend**, **admin** and
-**mobile-app**. This repo holds only the flow. The three source repos are
-cloned inside it and ignored by git, so they are never modified by this repo.
-
-```
-harness-flow/                 ← this repo: the AI Flow (start Claude Code here)
-├── backend/             ← source repo (GitHub, not tracked here)
-├── admin/               ← source repo (GitHub, not tracked here)
-└── mobile-app/          ← source repo (GitHub, not tracked here)
-```
+One AI-driven workflow that takes a ticket from intake to a pull request, for any
+project and any stack — one repo or several. You run one command,
+`/aiflow <TICKET-ID>`; it runs one stage at a time and always stops for your
+approval.
 
 This repo is the source of AI Flow and is self-contained: `install.sh` /
 `install.ps1` install it into any project, for Claude Code, Codex, GitHub
@@ -63,14 +57,26 @@ block sits between `<!-- aiflow:start/end -->` markers) and your existing hooks
 are kept. The skills use Claude Code's tool names; `aiflow/AGENTS-TOOLS.md` maps
 them for the other agents. Only Claude Code records the usage log.
 
-## Quick start (this repo as the workspace)
+## Multi-repo workspace (optional)
+
+To run AI Flow across several repos from one place, use this repo itself as the
+workspace and clone your repos inside it (they are git-ignored, so this repo never
+modifies them):
+
+```
+harness-flow/            ← this repo used as the workspace (start your agent here)
+├── <repo-1>/            ← one of your source repos (cloned here, not tracked)
+├── <repo-2>/
+└── <repo-3>/
+```
+
 
 ```bash
 git clone https://github.com/CongNQ-Dev/harness-flow.git
 cd harness-flow
-git clone https://github.com/<your-org>/backend.git
-git clone https://github.com/<your-org>/admin.git
-git clone https://github.com/<your-org>/mobile-app.git
+git clone https://github.com/<your-org>/<repo-1>.git
+git clone https://github.com/<your-org>/<repo-2>.git
+git clone https://github.com/<your-org>/<repo-3>.git
 gh auth login      # if a repo is on GitHub  ─┐ log in to the CLI for the host
 glab auth login    # if a repo is on GitLab  ─┘ you pick in /aiflow setup
 claude
@@ -79,13 +85,13 @@ claude
 Inside Claude Code:
 
 ```text
-/aiflow analyze        build the knowledge graph once (all 3 repos, ~seconds when up to date)
+/aiflow analyze        build the knowledge graph once (all repos, ~seconds when up to date)
 /aiflow PROJ-123       start or continue a ticket
 ```
 
 Requirements: Claude Code, `python3`, `graphify`, `gh` and/or `glab` (for the host
 you choose in `/aiflow setup` — GitHub or GitLab), plus each repo's
-toolchain (Go · Node/yarn · FVM/Flutter). Notion tickets are read via the
+own toolchain. Notion tickets are read via the
 Notion MCP, the browser, or by pasting the ticket text.
 
 ## The one command
@@ -133,6 +139,16 @@ is not in a sensitive area (billing, auth, migration). Everything else runs
 **full**. You confirm the route. The rules are in
 [`aiflow/workflow.yaml`](aiflow/workflow.yaml).
 
+## Project wiki
+
+An optional feature (chosen at install time, `--features wiki`). `/aiflow wiki`
+has the AI read your real code and write curated architecture docs into `wiki/`:
+one overview page per component, the contracts between components with their
+rationale, and real architecture decisions. The stages read it before
+re-deriving the architecture themselves, so later tickets start with context.
+It is committed to git, costs tokens only when you run it, and `/aiflow wiki
+refresh` updates it. Details: `.claude/skills/aiflow-wiki/SKILL.md`.
+
 ## What's in this repo
 
 | Path | Purpose |
@@ -177,7 +193,7 @@ something progress tracking alone could answer.
 - Everything under `docs/aiflow/`, plus PR text, is written in
   `workflow.yaml` `language:` (currently `en`).
 - The knowledge graph is queried before any source file is read.
-- Each repo team's own guidance wins for code, e.g. mobile-app's
+- Each repo team's own guidance wins for code, e.g. a repo's own
   `CLAUDE.md`, `docs/ai/` and project-specific skills.
 
 **Git and branches**
@@ -193,8 +209,7 @@ something progress tracking alone could answer.
   delivery the wrapper gets its own docs-only MR alongside the repos' PRs.
   `/aiflow PROJ-XXXX` switches back to a ticket's branches by itself; the
   `/aiflow` board shows the tickets visible on the wrapper's current branch.
-- PRs go to each repo's own base branch (backend/admin `develop`, mobile
-  `main`). The wrapper's PR/MR goes to this repo's `main`. Each
+- PRs go to each repo's own base branch (`develop`, `main`, …). The wrapper's PR/MR goes to this repo's `main`. Each
   repo uses `gh` (GitHub) or `glab` (GitLab) — whichever host you chose for it
   in `/aiflow setup` (`pr.tool` / `pr_tool` in `aiflow/workflow.yaml`).
 
