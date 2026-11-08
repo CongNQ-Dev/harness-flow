@@ -7,7 +7,7 @@ One AI-driven development workflow for **backend**, **admin** and
 cloned inside it and ignored by git, so they are never modified by this repo.
 
 ```
-ai-flow-demo/                 ← this repo: the AI Flow (start Claude Code here)
+ai-flow/                      ← this repo: the AI Flow (start Claude Code here)
 ├── backend/             ← source repo (GitHub, not tracked here)
 ├── admin/               ← source repo (GitHub, not tracked here)
 └── mobile-app/          ← source repo (GitHub, not tracked here)
@@ -23,8 +23,8 @@ with `--force`).
 ## Quick start
 
 ```bash
-git clone https://github.com/CongNQ-Dev/basic-ai-flow.git
-cd basic-ai-flow
+git clone https://github.com/CongNQ-Dev/ai-flow.git
+cd ai-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git
