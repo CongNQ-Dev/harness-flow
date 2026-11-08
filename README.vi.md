@@ -13,12 +13,38 @@ ai-flow/                      ← repo này: AI Flow (khởi động Claude Code
 └── mobile-app/          ← repo mã nguồn (GitHub, không theo dõi ở đây)
 ```
 
-Bản thân quy trình là bộ `harness-ai-flow` dùng chung, được cài vào đây; mọi thiết
-lập riêng của dự án nằm trong `aiflow/workflow.yaml`. README của bộ đó là tài liệu
-tham khảo đầy đủ, gồm cách cài quy trình vào dự án khác và cách nâng cấp dự án này
-(cài lại với `--force`).
+Repo này là mã nguồn gốc của AI Flow và tự đứng một mình: `install.sh` /
+`install.ps1` cài nó vào bất kỳ project nào, cho Claude Code, Codex, GitHub
+Copilot, Cursor, OpenCode, Kilo Code hoặc OpenClaw. Mọi thiết lập riêng của dự án
+nằm trong `aiflow/workflow.yaml`.
 
-## Bắt đầu nhanh
+## Cài vào project của bạn
+
+```bash
+git clone https://github.com/CongNQ-Dev/ai-flow.git
+./ai-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
+.\ai-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
+```
+
+| `--agent` | Skill đặt ở | `/aiflow` đến từ | File quy tắc |
+|---|---|---|---|
+| `claude` | `.claude/skills/` | skill `aiflow` | `CLAUDE.md` (+ hooks in `.claude/settings.json`) |
+| `codex` | `.agents/skills/` | `$aiflow` | `AGENTS.md` |
+| `copilot` | `.github/skills/` | `.github/prompts/aiflow.prompt.md` | `AGENTS.md` |
+| `cursor` | `.cursor/skills/` | `.cursor/commands/aiflow.md` | `AGENTS.md` |
+| `opencode` | `.opencode/skills/` | `.opencode/commands/aiflow.md` | `AGENTS.md` |
+| `kilocode` | `.kilo/skills/` | `.kilo/commands/aiflow.md` | `AGENTS.md` |
+| `openclaw` | `skills/` | skill `aiflow` | `AGENTS.md` |
+
+Sau đó mở project bằng agent của bạn và chạy `/aiflow setup` (trong Codex là
+`$aiflow setup`); lệnh này tạo `aiflow/workflow.yaml`. Muốn nâng cấp thì pull repo
+này và chạy lại installer với `--force`: `aiflow/workflow.yaml`, nội dung riêng của
+bạn trong `CLAUDE.md` / `AGENTS.md` (khối AI Flow nằm giữa hai dấu
+`<!-- aiflow:start/end -->`) và các hook sẵn có đều được giữ nguyên. Skill được viết
+theo tên công cụ của Claude Code; `aiflow/AGENTS-TOOLS.md` ánh xạ chúng cho các agent
+khác. Chỉ Claude Code ghi log sử dụng (thời gian / token / chi phí theo giai đoạn).
+
+## Bắt đầu nhanh (dùng chính repo này làm workspace)
 
 ```bash
 git clone https://github.com/CongNQ-Dev/ai-flow.git
@@ -90,6 +116,7 @@ nhận route. Quy tắc nằm trong [`aiflow/workflow.yaml`](aiflow/workflow.yam
 
 | Đường dẫn | Mục đích |
 |---|---|
+| `install.sh` · `install.ps1` | Cài AI Flow vào project khác, cho mọi agent được hỗ trợ |
 | `CLAUDE.md` | Quy tắc workspace mà Claude Code nạp khi khởi động |
 | `.claude/skills/aiflow*/` | Quy trình: router `aiflow` cùng các skill giai đoạn, template và prompt cho subagent |
 | `.claude/skills/*` (còn lại) | Các kỷ luật kỹ thuật dùng nội bộ (TDD, debug, kiểm chứng, review code), ẩn khỏi menu `/` |
@@ -183,6 +210,6 @@ khách hàng review.**
    lần `/aiflow <ID>` tiếp theo.
 7. Chỉ merge khi bạn yêu cầu trong chat.
 
-Quy tắc của quy trình nằm trong bộ harness-ai-flow dùng chung (`conventions.md`,
-`aiflow/AIFLOW.md`); muốn nhận thay đổi thì cài lại với `--force` (xem phần Bắt đầu
-nhanh). Bản trực quan (tiếng Anh / tiếng Nhật / tiếng Việt): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).
+Quy tắc của quy trình nằm trong `conventions.md` (trong skill `aiflow`) và
+`aiflow/AIFLOW.md`; project đã cài AI Flow nhận thay đổi bằng cách chạy lại installer
+với `--force`. Bản trực quan (tiếng Anh / tiếng Nhật / tiếng Việt): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).

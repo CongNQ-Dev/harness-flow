@@ -93,7 +93,7 @@ pre{background:var(--code);border-radius:8px;padding:12px;overflow-x:auto;font-s
 <p class="muted">ラッパーを含む各リポジトリは、<code>/aiflow setup</code> で選んだホストに応じて <code>gh</code>（GitHub）または <code>glab</code>（GitLab）を使います（<code>pr.tool</code> / <code>pr_tool</code>）。</p>
 
 <h2>フローの更新</h2>
-<p>スキルとルールは汎用の <code>harness-ai-flow</code> バンドルから提供されます。変更はそちら（README も同時に）で行い、ここでは <code>install.sh --force</code> で再インストールします。<code>.claude/skills/</code> の直接編集は上書きされます。プロジェクト固有の設定は <code>aiflow/workflow.yaml</code> のみ。</p>
+<p>このリポジトリが AI Flow の本体です。<code>install.sh --dir &lt;project&gt; --agent &lt;agent&gt;</code>（Windows では <code>install.ps1</code>）で、どのエージェント（Claude Code、Codex、Copilot、Cursor、OpenCode、Kilo Code、OpenClaw）を使うプロジェクトにも導入できます。更新は <code>--force</code> で再実行します。プロジェクト固有の設定は <code>aiflow/workflow.yaml</code> のみ。</p>
 <p>任意: <code>aiflow-visual</code> はブラウザ補助（モックアップや図を表示するローカルページ）です。各ステージは視覚的な質問のときだけ、同意を得てから提案します。テレメトリは無効で、<code>.superpowers/</code> は git に含めません。</p>
 </main>
 </body>

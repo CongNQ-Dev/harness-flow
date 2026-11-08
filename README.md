@@ -13,14 +13,39 @@ ai-flow/                      ← this repo: the AI Flow (start Claude Code here
 └── mobile-app/          ← source repo (GitHub, not tracked here)
 ```
 
-The flow itself is the generic
-`harness-ai-flow`
-bundle, installed here; everything project-specific lives in
-`aiflow/workflow.yaml`. Its README is the full reference, including how to
-install the flow on another project and how to upgrade this one (re-install
-with `--force`).
+This repo is the source of AI Flow and is self-contained: `install.sh` /
+`install.ps1` install it into any project, for Claude Code, Codex, GitHub
+Copilot, Cursor, OpenCode, Kilo Code or OpenClaw. Everything project-specific
+lives in `aiflow/workflow.yaml`.
 
-## Quick start
+## Install into your project
+
+```bash
+git clone https://github.com/CongNQ-Dev/ai-flow.git
+./ai-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
+.\ai-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
+```
+
+| `--agent` | Skills go to | `/aiflow` comes from | Rules file |
+|---|---|---|---|
+| `claude` | `.claude/skills/` | the `aiflow` skill | `CLAUDE.md` (+ hooks in `.claude/settings.json`) |
+| `codex` | `.agents/skills/` | `$aiflow` | `AGENTS.md` |
+| `copilot` | `.github/skills/` | `.github/prompts/aiflow.prompt.md` | `AGENTS.md` |
+| `cursor` | `.cursor/skills/` | `.cursor/commands/aiflow.md` | `AGENTS.md` |
+| `opencode` | `.opencode/skills/` | `.opencode/commands/aiflow.md` | `AGENTS.md` |
+| `kilocode` | `.kilo/skills/` | `.kilo/commands/aiflow.md` | `AGENTS.md` |
+| `openclaw` | `skills/` | the `aiflow` skill | `AGENTS.md` |
+
+Then open the project with your agent and run `/aiflow setup` (`$aiflow setup`
+in Codex); it writes `aiflow/workflow.yaml`. To upgrade, pull this repo and
+re-run the installer with `--force`: your `aiflow/workflow.yaml`, your own text
+in `CLAUDE.md` / `AGENTS.md` (the AI Flow block sits between
+`<!-- aiflow:start/end -->` markers) and your existing hooks are kept. The
+skills use Claude Code's tool names; `aiflow/AGENTS-TOOLS.md` maps them for the
+other agents. Only Claude Code records the usage log (time / tokens / cost per
+stage).
+
+## Quick start (this repo as the workspace)
 
 ```bash
 git clone https://github.com/CongNQ-Dev/ai-flow.git
@@ -94,6 +119,7 @@ is not in a sensitive area (billing, auth, migration). Everything else runs
 
 | Path | Purpose |
 |---|---|
+| `install.sh` · `install.ps1` | Install AI Flow into another project, for any supported agent |
 | `CLAUDE.md` | Workspace rules Claude Code loads on start |
 | `.claude/skills/aiflow*/` | The flow: router `aiflow` plus the stage skills, their templates and subagent prompts |
 | `.claude/skills/*` (others) | Engineering disciplines used internally (TDD, debugging, verification, code review), hidden from the `/` menu |
@@ -189,6 +215,6 @@ customer reviews.**
    handled the same way on the next `/aiflow <ID>`.
 7. Merge only when you ask for it in chat.
 
-The flow's own rules live in the generic harness-ai-flow bundle
-(`conventions.md`, `aiflow/AIFLOW.md`); to pick up changes, re-install with
-`--force` (see the Quick start). Visual version (English / Japanese / Vietnamese): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).
+The flow's own rules live in `conventions.md` (in the `aiflow` skill) and
+`aiflow/AIFLOW.md`; a project that installed AI Flow picks up changes by
+re-running the installer with `--force`. Visual version (English / Japanese / Vietnamese): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).

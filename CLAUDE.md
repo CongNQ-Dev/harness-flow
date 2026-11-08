@@ -44,13 +44,13 @@ Guide: `README.md` / `README.ja.md` / `README.vi.md`; visual versions in English
   docs, so its hook would rebuild an almost empty graph — don't install it
   there (`/aiflow analyze` already handles both). Hooks live in `.git/hooks/`,
   so they are local to each machine and not committed.
-- **The skills are generated, not edited here.** `.claude/skills/`,
-  `aiflow/scripts/`, `aiflow/AIFLOW.md`, `aiflow/AGENTS-TOOLS.md` and
-  `aiflow/workflow.yaml.template` come from the generic
-  `harness-ai-flow`
-  bundle. Change them there (and its `README.md` in the same commit), then
-  re-install here with `--force`; a local edit would be overwritten on the
-  next upgrade. Project-specific settings belong in `aiflow/workflow.yaml` only.
+- **This repo is the source of AI Flow.** `.claude/skills/`, `aiflow/scripts/`,
+  `aiflow/AIFLOW.md`, `aiflow/AGENTS-TOOLS.md` and `aiflow/workflow.yaml.template`
+  are edited here and shipped to other projects by `install.sh` / `install.ps1`,
+  for any agent. The installer rewrites `.claude/skills/` paths for the target
+  agent, so keep internal references in that form. If a change affects what gets
+  installed (folders, command files, rules block), update both installers in the
+  same commit. Project-specific settings belong in `aiflow/workflow.yaml` only.
 - **Docs travel with every behavior change.** If a change to
   `aiflow/workflow.yaml` or the flow changes how a ticket runs here (branches,
   gates, commands, stages), update `README.md`, `README.ja.md`, `README.vi.md` **and the three visual guides**

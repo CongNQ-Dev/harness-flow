@@ -12,7 +12,7 @@ ticket source, PR tool, triage rules — live in `aiflow/workflow.yaml`. Read
 it instead of guessing. Shared rules for every stage: `conventions.md` in
 the `aiflow` skill's folder (`.claude/skills/aiflow/` for Claude Code,
 `.agents/skills/aiflow/` for Codex, `.github/skills/`, `.cursor/skills/`,
-`.opencode/skills/` or `skills/` for the others). Not Claude Code? Read
+`.opencode/skills/`, `.kilo/skills/` or `skills/` for the others). Not Claude Code? Read
 `aiflow/AGENTS-TOOLS.md` for the tool-name mapping.
 
 When the user mentions a ticket or issue ID, or asks to fix a bug / build a

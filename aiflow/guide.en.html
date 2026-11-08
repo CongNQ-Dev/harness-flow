@@ -93,7 +93,7 @@ pre{background:var(--code);border-radius:8px;padding:12px;overflow-x:auto;font-s
 <p class="muted">Each repo, the wrapper included, uses <code>gh</code> (GitHub) or <code>glab</code> (GitLab) — whichever host was chosen for it in <code>/aiflow setup</code> (<code>pr.tool</code> / <code>pr_tool</code>).</p>
 
 <h2>Updating the flow</h2>
-<p>Skills and rules come from the generic <code>harness-ai-flow</code> bundle. Change them there (with its README), then re-install here with <code>install.sh --force</code>; edits under <code>.claude/skills/</code> are overwritten. Project-specific settings live only in <code>aiflow/workflow.yaml</code>.</p>
+<p>This repo is the source of AI Flow. Install it into any project, for any agent (Claude Code, Codex, Copilot, Cursor, OpenCode, Kilo Code, OpenClaw), with <code>install.sh --dir &lt;project&gt; --agent &lt;agent&gt;</code> (<code>install.ps1</code> on Windows); re-run with <code>--force</code> to upgrade. Project-specific settings live only in <code>aiflow/workflow.yaml</code>.</p>
 <p>Optional: <code>aiflow-visual</code> is a browser companion (local page for mockups and diagrams); stages offer it only for visual questions and only after you agree. Telemetry is off; keep <code>.superpowers/</code> out of git.</p>
 </main>
 </body>

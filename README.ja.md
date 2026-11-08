@@ -14,13 +14,38 @@ ai-flow/                      ← このリポジトリ：AI Flow（ここで Cl
 └── mobile-app/          ← ソースリポジトリ（GitHub、ここでは追跡しない）
 ```
 
-フロー本体は汎用の
-`harness-ai-flow`
-バンドルをここにインストールしたものです。プロジェクト固有の設定はすべて
-`aiflow/workflow.yaml` にあります。他プロジェクトへの導入方法や、このリポジトリの
-更新方法（`--force` で再インストール）は、そちらの README が完全なリファレンスです。
+このリポジトリは AI Flow の本体で、単独で完結しています。`install.sh` /
+`install.ps1` で、Claude Code、Codex、GitHub Copilot、Cursor、OpenCode、Kilo Code、
+OpenClaw のどれを使うプロジェクトにも導入できます。プロジェクト固有の設定はすべて
+`aiflow/workflow.yaml` にあります。
 
-## クイックスタート
+## 自分のプロジェクトに導入する
+
+```bash
+git clone https://github.com/CongNQ-Dev/ai-flow.git
+./ai-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
+.\ai-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
+```
+
+| `--agent` | スキルの配置先 | `/aiflow` の提供元 | ルールファイル |
+|---|---|---|---|
+| `claude` | `.claude/skills/` | `aiflow` スキル | `CLAUDE.md` (+ hooks in `.claude/settings.json`) |
+| `codex` | `.agents/skills/` | `$aiflow` | `AGENTS.md` |
+| `copilot` | `.github/skills/` | `.github/prompts/aiflow.prompt.md` | `AGENTS.md` |
+| `cursor` | `.cursor/skills/` | `.cursor/commands/aiflow.md` | `AGENTS.md` |
+| `opencode` | `.opencode/skills/` | `.opencode/commands/aiflow.md` | `AGENTS.md` |
+| `kilocode` | `.kilo/skills/` | `.kilo/commands/aiflow.md` | `AGENTS.md` |
+| `openclaw` | `skills/` | `aiflow` スキル | `AGENTS.md` |
+
+その後、エージェントでプロジェクトを開き `/aiflow setup`（Codex では `$aiflow setup`）を
+実行すると `aiflow/workflow.yaml` が作られます。更新するときは、このリポジトリを pull して
+`--force` 付きでインストーラーを再実行します。`aiflow/workflow.yaml`、`CLAUDE.md` /
+`AGENTS.md` の独自の記述（AI Flow のブロックは `<!-- aiflow:start/end -->` の間にあります）、
+既存のフックは保持されます。スキルは Claude Code のツール名で書かれており、他のエージェント
+向けの対応表は `aiflow/AGENTS-TOOLS.md` にあります。使用量ログ（ステージごとの時間・トークン・
+コスト）を記録するのは Claude Code だけです。
+
+## クイックスタート（このリポジトリをワークスペースとして使う）
 
 ```bash
 git clone https://github.com/CongNQ-Dev/ai-flow.git
@@ -184,7 +209,7 @@ light ルート（小さなバグ）では、ステージ 1 と 2 は 2 回で�
    対応します。
 7. merge はチャットで依頼したときのみ。
 
-フロー自体のルールは汎用の harness-ai-flow バンドル（`conventions.md`、
-`aiflow/AIFLOW.md`）にあります。変更を取り込むには `--force` で再インストールして
-ください（クイックスタート参照）。ビジュアル版（英語・日本語・ベトナム語）：[aiflow/guide.en.html](aiflow/guide.en.html) ·
+フロー自体のルールは `conventions.md`（`aiflow` スキル内）と `aiflow/AIFLOW.md` に
+あります。AI Flow を導入したプロジェクトは、`--force` 付きでインストーラーを再実行すると
+変更を取り込めます。ビジュアル版（英語・日本語・ベトナム語）：[aiflow/guide.en.html](aiflow/guide.en.html) ·
 [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html)。

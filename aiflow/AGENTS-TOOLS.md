@@ -1,5 +1,9 @@
 # AI Flow on agents other than Claude Code
 
+Install for your agent with `install.sh --dir <project> --agent <agent>`
+(`install.ps1` on Windows) from the ai-flow repo; it places the skills, the
+`/aiflow` command and `AGENTS.md` as listed per agent below.
+
 The skills are written with **Claude Code's tool names**. They're plain
 markdown instructions, so any agent that can read/write files, run shell
 commands and follow instructions can drive them — map the tool names below,
@@ -70,6 +74,11 @@ subagent tools where it has them; otherwise the fallback rules above.
 Skills in `.opencode/skills/`; `/aiflow` is `.opencode/commands/aiflow.md`.
 Project rules come from `AGENTS.md`. Use OpenCode's own subagent/task and
 todo tools where available; otherwise the fallback rules above.
+
+### Kilo Code
+Skills in `.kilo/skills/`; `/aiflow` is `.kilo/commands/aiflow.md`.
+Project rules come from `AGENTS.md`. Use Kilo Code's own tools where it has
+them; otherwise the fallback rules above.
 
 ### OpenClaw
 Skills in `skills/` (the installer adds `user-invocable: true` and
