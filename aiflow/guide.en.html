@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Basic AI Flow</title>
+<style>
+:root{--bg:#fafaf9;--fg:#1c1917;--muted:#57534e;--card:#fff;--line:#e7e5e4;--accent:#2563eb;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--code:#f5f5f4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121110;--fg:#f5f5f4;--muted:#a8a29e;--card:#1c1917;--line:#2e2a27;--accent:#60a5fa;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--code:#262220}}
+:root[data-theme="dark"]{--bg:#121110;--fg:#f5f5f4;--muted:#a8a29e;--card:#1c1917;--line:#2e2a27;--accent:#60a5fa;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--code:#262220}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:920px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:2rem;margin:0 0 4px}h2{font-size:1.3rem;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)}
+p{margin:8px 0}.muted{color:var(--muted)}
+code{background:var(--code);padding:1px 6px;border-radius:4px;font-size:.9em}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0}
+.step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.step b{display:block;color:var(--accent);font-size:.8rem}
+.step small{color:var(--muted)}
+.step.skip{opacity:.55}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:.92rem}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--code);font-weight:600}tr:last-child td{border-bottom:0}
+.scroll{overflow-x:auto}
+.rules{display:grid;gap:10px}
+.rule{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:8px;padding:12px 14px}
+.rule.ok{border-left-color:var(--ok)}.rule.warn{border-left-color:var(--warn)}
+.rule b{display:block;margin-bottom:2px}
+pre{background:var(--code);border-radius:8px;padding:12px;overflow-x:auto;font-size:.88rem;margin:8px 0}
+.tag{display:inline-block;font-size:.75rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>Basic AI Flow</h1>
+<p class="muted"><b>English</b> · <a href="guide.ja.html">日本語</a> · <a href="README.en.md">text guide</a></p>
+<p class="muted">One AI workflow for <b>backend</b> (Go), <b>admin</b> (Next.js) and <b>mobile-app</b> (Flutter). Run it from the <code>ai-flow-demo</code> root, one stage at a time, always stopping for your approval.</p>
+
+<h2>The one command</h2>
+<div class="scroll"><table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>/aiflow PROJ-XXXX</code></td><td>Runs the next stage of the ticket, then stops. A new ticket starts at stage 1.</td></tr>
+<tr><td><code>/aiflow</code></td><td>Board of every ticket: stage, route, repos, next step.</td></tr>
+<tr><td><code>/aiflow PROJ-XXXX status</code></td><td>Progress, plus time / tokens / estimated cost per stage.</td></tr>
+<tr><td><code>/aiflow PROJ-XXXX feature</code></td><td>New-development ticket (<code>feature/…</code> branch) instead of a bug fix.</td></tr>
+<tr><td><code>/aiflow PROJ-XXXX redo spec</code></td><td>Redo a stage (<code>ticket spec plan impl review deliver</code>).</td></tr>
+<tr><td><code>/aiflow analyze</code> · <code>/aiflow wiki</code></td><td>Refresh the knowledge graph (free) · write the architecture wiki (costs tokens).</td></tr>
+<tr><td><code>/aiflow &lt;PR/MR URL&gt;</code></td><td>Review an existing PR/MR.</td></tr>
+</table></div>
+
+<h2>6 stages</h2>
+<div class="steps">
+<div class="step"><b>1 · Ticket</b>Read Notion, bug vs feature, affected repos, triage, branch<br><small>you approve</small></div>
+<div class="step"><b>2 · Spec</b>Root cause or design<br><small>you approve</small></div>
+<div class="step skip"><b>3 · Plan</b>TDD tasks, one repo each<br><small>full only · you approve</small></div>
+<div class="step"><b>4 · Implement</b>Per task: implementer + spec review + quality review</div>
+<div class="step skip"><b>5 · Review</b>Final review across repos + test cases<br><small>full only</small></div>
+<div class="step"><b>6 · Delivery</b>Tests, manual QA, Draft PR/MR per repo, CI-review fixes, then Ready<br><small>QA + you approve</small></div>
+</div>
+<p><span class="tag">light</span> 1 → 2 → 4 → 6, only when: one repo, 3 files or fewer, no API/schema/DB change, root cause located, it is a bug, not a sensitive area (billing, auth, migration). Stages 1 and 2 run in one turn with one approval.</p>
+<p><span class="tag">full</span> Everything else runs all six stages. The route is only upgraded, never silently downgraded. Each stage stops; read the output, then run <code>/aiflow PROJ-XXXX</code> again.</p>
+<p class="muted">Output lives in <code>docs/aiflow/&lt;ID&gt;/</code>: <code>ticket.md</code>, <code>spec.md</code>, <code>plan.md</code>, <code>reviews/</code>, <code>test-cases.md</code>, <code>status.md</code> (progress, the only file used to pick the next stage) and <code>log.json</code> (time, tokens, cost).</p>
+
+<h2>Mandatory rules</h2>
+<div class="rules">
+<div class="rule"><b>Never push directly to <code>main</code></b>Changes reach a base branch only through a PR/MR. No commits on <code>develop</code>/<code>main</code>, no force-push.</div>
+<div class="rule"><b>Never commit secrets</b>Keys, tokens, passwords, <code>.env*</code> and credentials files are never staged or pushed; <code>git diff --cached</code> is checked before every commit.</div>
+<div class="rule warn"><b>Every write to GitHub/GitLab asks first</b>That is <code>git push</code>, creating or editing a PR/MR, and posting a comment. The agent shows the action, the target and the exact text, and acts only on a clear yes. An earlier approval, the QA answer or a config flag never covers it. It never merges, approves or closes a PR/MR on its own.</div>
+<div class="rule ok"><b>Name the reviewer</b>Every review and approval records <code>human:&lt;name&gt;</code> or <code>ai:&lt;role&gt; (&lt;model&gt;)</code> in <code>reviews/*.md</code>, <code>status.md</code> approvals and PR comments.</div>
+<div class="rule ok"><b>One ticket branch everywhere</b>While a ticket is open, the wrapper and every affected repo are on the same <code>bug/PROJ-XXXX/…</code> or <code>feature/PROJ-XXXX/…</code> branch.</div>
+</div>
+
+<h2>PR/MR template</h2>
+<p>The title carries the Notion task ID, e.g. <code>[PROJ-123] …</code>, so the PR links to the task. The body keeps the team headings in Japanese.</p>
+<div class="scroll"><table>
+<tr><th>Heading</th><th>Content</th></tr>
+<tr><td>概要</td><td>What this PR changes and why; links to related PRs and the spec/plan/review.</td></tr>
+<tr><td>スクリーンショット</td><td>Before/after images if the UI changed; otherwise state there is no UI change.</td></tr>
+<tr><td>相談項目</td><td>Points to ask the reviewer, including Minor findings; なし if none.</td></tr>
+<tr><td>動作確認手順</td><td>How it was verified so the reviewer can repeat it: device, steps, result. Say what was not tested.</td></tr>
+</table></div>
+
+<h2>Delivery order (stage 6)</h2>
+<pre>1. Run each repo's tests
+2. QA gate           → "checked, create the PRs" (not consent to push)
+3. Confirm           → push &lt;branch&gt; of &lt;repo&gt; to origin?
+4. Confirm           → create the PR/MR as a DRAFT (title, base ← head, full body)
+5. CI review runs    → run /aiflow &lt;ID&gt; again: fix or answer every CI comment
+                       (each push / reply asks first), until none is open
+6. Confirm           → mark Ready for review → the customer reviews
+7. Merge             → only when you ask for it in chat</pre>
+<p class="muted">Source repos use <code>gh</code> (GitHub, base <code>develop</code>/<code>main</code>); the wrapper uses <code>glab</code> (GitLab, base <code>main</code>).</p>
+
+<h2>Updating the flow</h2>
+<p>Skills and rules come from the generic <code>harness-ai-flow</code> bundle. Change them there (with its README), then re-install here with <code>install.sh --force</code>; edits under <code>.claude/skills/</code> are overwritten. Project-specific settings live only in <code>aiflow/workflow.yaml</code>.</p>
+<p>Optional: <code>aiflow-visual</code> is a browser companion (local page for mockups and diagrams); stages offer it only for visual questions and only after you agree. Telemetry is off; keep <code>.superpowers/</code> out of git.</p>
+</main>
+</body>
+</html>

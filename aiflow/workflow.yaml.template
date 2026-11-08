@@ -1,0 +1,179 @@
+# AI Flow — project manifest
+#
+# Every aiflow-* skill reads this file first. It is the ONLY place project
+# facts live: component names, paths, stacks, test commands, branches, ticket
+# source, PR tool. The skills never hard-code any of that.
+#
+# Easiest way to fill it in: run `/aiflow setup` in Claude Code — it detects
+# most values from your repo(s) and asks only what it can't detect.
+# Or copy this file to aiflow/workflow.yaml and edit by hand.
+
+project: <short-name>                   # e.g. acme-shop
+project_code: <CODE>                    # ticket-ID prefix, e.g. SHOP. A bare number
+                                        # (GitHub/GitLab issue "123") becomes SHOP-123.
+language: en                            # every artifact under docs/aiflow/, PR title/body and PR
+                                        # comments is written in this language (en, ja, vi, ...).
+                                        # Skill templates are written in English — the AI
+                                        # translates their headings when language isn't en.
+artifacts_dir: docs/aiflow              # one folder per ticket: docs/aiflow/<TICKET-ID>/
+
+# ---------------------------------------------------------------------------
+# Layout
+#   in-repo   — AI Flow is installed inside your project's own git repo
+#               (single repo or monorepo). Ticket docs are committed on the
+#               ticket branch together with the code, and ship in the same PR.
+#   workspace — a separate wrapper repo holds AI Flow; your component repos are
+#               cloned beside it (and gitignored by it). The wrapper is a git
+#               root too: it gets the same ticket branch as the component
+#               repos, ticket docs are committed there, and at delivery it gets
+#               its own docs PR/MR (plus a copy in each component repo's PR).
+# ---------------------------------------------------------------------------
+layout: in-repo
+
+# layout: workspace only — the wrapper repo itself.
+workspace_repo:
+  base_branch: main                     # ticket branches start here; never committed to directly
+  pr: true                              # at delivery, push the wrapper's ticket branch and open a
+                                        # docs-only PR/MR (uses pr.tool, or pr_tool: here)
+  # pr_tool: glab                       # set when the wrapper's host differs from pr.tool
+
+# ---------------------------------------------------------------------------
+# Components — the units a task can change. One task = one component.
+#
+#   single repo  → one component, path: .
+#   monorepo     → one component per package/app, paths inside the repo
+#                  (e.g. apps/web, services/api). They share one git root,
+#                  so they share one branch and one PR.
+#   multi-repo   → layout: workspace, one component per cloned repo
+#                  (path: <clone folder>). Each has its own branch and PR.
+#
+# Components whose paths resolve to the same git root always share a branch
+# and a PR; the skills work that out at run time (git rev-parse), you don't
+# declare it.
+# ---------------------------------------------------------------------------
+components:
+  <name>:                               # e.g. app, api, web, mobile — any short id
+    path: .                             # relative to the folder this file's aiflow/ sits in
+    remote: <git URL>                   # only needed for layout: workspace (used to clone/PR)
+    base_branch: main                   # PRs from this component target this branch
+    stack: <language / framework / DB / key libraries, one line>
+    qa_surface: api                     # how a human verifies a change here — one of:
+                                        #   api           request the tester sends + expected response
+                                        #   browser       URL + role + clicks
+                                        #   mobile-device real iOS/Android device, build flavor + account
+                                        #   desktop       installed app on a named OS
+                                        #   cli           commands the tester runs + expected output
+                                        #   library       a small usage snippet + expected result
+                                        #   none          automated tests are the only check
+    test: <command that runs the automated tests>
+    test_task: <narrower per-task test command>     # optional
+    lint: <lint / type-check command>
+    notes: >-
+      <What an engineer must know before touching this component: required
+      wrappers, generated files that must never be hand-edited, how to bring
+      up test infrastructure, "no unit-test runner — verify with type-check
+      + lint + manual test cases" if that's really the case.>
+    # guides: [CLAUDE.md, docs/CONTRIBUTING.md]   # the component team's own docs — read
+    #                                              # before editing; they win over AI Flow for code
+    # team_skills:                                 # the team's own skills, <path>/.claude/skills/<skill>/
+    #   code_review: <skill-name>
+    #   tests: <skill-name>
+    # pr_tool: glab                                # override pr.tool for this component only
+
+# Cross-component contracts — when a spec touches one side, check the other.
+# Leave empty for a single component, or when components share no generated
+# client / schema / API.
+contracts: []
+# contracts:
+#   - name: <e.g. Public REST API>
+#     owner: <component> (<path to schema/spec>)
+#     consumers: [<component>, ...]
+#     regenerate: "<command, run inside the consumer, that regenerates its client>"
+
+# ---------------------------------------------------------------------------
+# Tickets — where a ticket's content comes from.
+#   ask     — each time, offer the ticket-system MCP servers connected in this
+#             Claude Code session (Notion, Jira, Linear, GitHub, GitLab,
+#             Asana, ...) plus the gh/glab CLI for issues, then "paste text".
+#   notion | jira | linear | github | gitlab | asana | clickup | youtrack
+#           — always use that one (skip the question).
+#   paste   — always ask the user to paste the ticket text.
+# ---------------------------------------------------------------------------
+tickets:
+  source: ask
+  lists_dir: aiflow/ticket-lists        # optional: .md files listing ticket IDs + links;
+                                        # offered when /aiflow is run without an ID
+
+# ---------------------------------------------------------------------------
+# Branches & PRs
+# ---------------------------------------------------------------------------
+branch:
+  bug: bug/<TICKET-ID>/<slug>           # slug = short English snake_case
+  feature: feature/<TICKET-ID>/<slug>
+pr:
+  tool: gh                              # gh (GitHub) | glab (GitLab). Per-component override: pr_tool.
+  title: "[<TICKET-ID>] <title in `language`>"   # the task ID must stay in the title (Notion link)
+  copy_artifacts_into_repo: true        # layout: workspace only — copy docs/aiflow/<ID>/ into each
+                                        # component repo's branch so reviewers accept by reading md
+                                        # in the PR. (in-repo: the docs are already on the branch.)
+  draft_first: true                     # open every PR/MR as a Draft; CI review runs; fix all CI comments;
+                                        # only then (asking you) mark it Ready for the customer's review
+  post_review_comment: true             # offer to post the final-review summary as a PR/MR comment (always asks first)
+
+# ---------------------------------------------------------------------------
+# Stages — the pipeline itself. Leave as-is unless you're deliberately
+# changing which stages exist. `gate: true` = a human approves before moving on.
+#
+# Light route: for a small bug, stages 1 and 2 run as ONE step (triage +
+# spec written inline, one approval), then 4 and 6. Full route runs 1–6.
+# ---------------------------------------------------------------------------
+stages:
+  - {n: 1, id: ticket,  name: Ticket intake,          cmd: aiflow-spec,   writes: [ticket.md, status.md], gate: true}
+  - {n: 2, id: spec,    name: Spec,                   cmd: aiflow-spec,   writes: [spec.md],               gate: true}
+  - {n: 3, id: plan,    name: Plan,                   cmd: aiflow-plan,   writes: [plan.md],               gate: true,  routes: [full]}
+  - {n: 4, id: impl,    name: Implementation,         cmd: aiflow-impl,   writes: [code, reviews/task*.md], gate: false}
+  - {n: 5, id: review,  name: Review & test cases,    cmd: aiflow-review, writes: [reviews/final-review.md, test-cases.md], gate: false, routes: [full]}
+  - {n: 6, id: deliver, name: Delivery (PR),          cmd: aiflow-review, writes: [PR per git root],       gate: true}
+
+# ---------------------------------------------------------------------------
+# Triage — light (small bug, 1→2→4→6) vs full (1→6). Decided at the end of
+# stage 1, re-checked against real code before anything is written. The
+# human confirms unless auto_light is true AND every check passes.
+# Tune the thresholds to what "small" and "risky" mean for your project.
+# ---------------------------------------------------------------------------
+triage:
+  auto_light: false
+  light_requires_all:
+    - one component only
+    - "expected files changed <= 3"
+    - no API / schema / DB migration / contract change
+    - root cause located with evidence (file:line)
+    - kind is bug (not a feature)
+    - no sensitive area touched
+  sensitive_areas:                      # always full route
+    - <e.g. payments / billing>
+    - <e.g. authentication / permissions>
+    - DB migration
+
+# Subagent models per route (the Agent tool's `model:` values).
+models:
+  light: {implementer: sonnet, reviewer: sonnet}
+  full:  {implementer: sonnet, reviewer: opus, final_reviewer: opus, test_case_writer: sonnet}
+
+# Knowledge graph — optional. Needs the `graphify` CLI. Without it every
+# skill falls back to normal code search; nothing breaks.
+knowledge_graph:
+  enabled: true
+  graph: graphify-out/graph.json        # built by /aiflow analyze
+  include_docs: []                      # extra doc folders for `/aiflow analyze docs` (costs tokens)
+
+# Usage log — time / tokens / estimated cost per stage, in docs/aiflow/<ID>/log.json.
+usage_log:
+  enabled: true
+  pricing: aiflow/pricing.json
+
+# Project wiki — curated architecture docs written by /aiflow wiki (costs
+# tokens, never auto-run). Tickets may append small decision entries.
+wiki:
+  dir: wiki                             # committed, never gitignored
+  update_from_tickets: true

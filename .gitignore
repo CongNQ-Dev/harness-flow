@@ -1,0 +1,12 @@
+backend/
+admin/
+mobile-app/
+
+# AI Flow
+graphify-out/
+aiflow/.state/
+.DS_Store
+.claude/settings.local.json
+
+# AI Flow visual companion (local mockups)
+.superpowers/

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Basic AI Flow</title>
+<style>
+:root{--bg:#fafaf9;--fg:#1c1917;--muted:#57534e;--card:#fff;--line:#e7e5e4;--accent:#2563eb;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--code:#f5f5f4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121110;--fg:#f5f5f4;--muted:#a8a29e;--card:#1c1917;--line:#2e2a27;--accent:#60a5fa;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--code:#262220}}
+:root[data-theme="dark"]{--bg:#121110;--fg:#f5f5f4;--muted:#a8a29e;--card:#1c1917;--line:#2e2a27;--accent:#60a5fa;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--code:#262220}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:920px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:2rem;margin:0 0 4px}h2{font-size:1.3rem;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)}
+p{margin:8px 0}.muted{color:var(--muted)}
+code{background:var(--code);padding:1px 6px;border-radius:4px;font-size:.9em}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0}
+.step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.step b{display:block;color:var(--accent);font-size:.8rem}
+.step small{color:var(--muted)}
+.step.skip{opacity:.55}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:.92rem}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--code);font-weight:600}tr:last-child td{border-bottom:0}
+.scroll{overflow-x:auto}
+.rules{display:grid;gap:10px}
+.rule{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:8px;padding:12px 14px}
+.rule.ok{border-left-color:var(--ok)}.rule.warn{border-left-color:var(--warn)}
+.rule b{display:block;margin-bottom:2px}
+pre{background:var(--code);border-radius:8px;padding:12px;overflow-x:auto;font-size:.88rem;margin:8px 0}
+.tag{display:inline-block;font-size:.75rem;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+</style>
+</head>
+<body>
+<main>
+<h1>Basic AI Flow</h1>
+<p class="muted"><a href="guide.en.html">English</a> · <b>日本語</b> · <a href="README.ja.md">テキスト版ガイド</a></p>
+<p class="muted"><b>backend</b>（Go）、<b>admin</b>（Next.js）、<b>mobile-app</b>（Flutter）を横断する AI フローです。<code>ai-flow-demo</code> 直下から、1 回に 1 ステージずつ実行し、必ず承認で止まります。</p>
+
+<h2>コマンドは 1 つだけ</h2>
+<div class="scroll"><table>
+<tr><th>コマンド</th><th>動作</th></tr>
+<tr><td><code>/aiflow PROJ-XXXX</code></td><td>チケットの次のステージを実行して停止。新規チケットはステージ 1 から。</td></tr>
+<tr><td><code>/aiflow</code></td><td>全チケットの一覧（ステージ・ルート・リポジトリ・次の手順）。</td></tr>
+<tr><td><code>/aiflow PROJ-XXXX status</code></td><td>進捗と、ステージごとの時間・トークン・概算コスト。</td></tr>
+<tr><td><code>/aiflow PROJ-XXXX feature</code></td><td>バグ修正ではなく新規開発（<code>feature/…</code> ブランチ）として開始。</td></tr>
+<tr><td><code>/aiflow PROJ-XXXX redo spec</code></td><td>ステージのやり直し（<code>ticket spec plan impl review deliver</code>）。</td></tr>
+<tr><td><code>/aiflow analyze</code> · <code>/aiflow wiki</code></td><td>ナレッジグラフ更新（無料）· アーキテクチャ Wiki 作成（トークン消費あり）。</td></tr>
+<tr><td><code>/aiflow &lt;PR/MR の URL&gt;</code></td><td>既存の PR/MR をレビュー。</td></tr>
+</table></div>
+
+<h2>6 つのステージ</h2>
+<div class="steps">
+<div class="step"><b>1 · チケット</b>Notion 取得、bug/feature 判定、影響リポジトリ、難易度判断、ブランチ作成<br><small>承認</small></div>
+<div class="step"><b>2 · 仕様</b>原因分析または設計<br><small>承認</small></div>
+<div class="step skip"><b>3 · 計画</b>TDD タスク（1 タスク 1 リポジトリ）<br><small>full のみ・承認</small></div>
+<div class="step"><b>4 · 実装</b>タスクごとに実装・仕様レビュー・品質レビュー</div>
+<div class="step skip"><b>5 · レビュー</b>リポジトリ横断の最終レビュー＋テストケース<br><small>full のみ</small></div>
+<div class="step"><b>6 · デリバリー</b>テスト、手動 QA、Draft の PR/MR、CI 指摘の修正、その後 Ready<br><small>QA・承認</small></div>
+</div>
+<p><span class="tag">light</span> 1 → 2 → 4 → 6。次をすべて満たす場合のみ：1 リポジトリ、3 ファイル以内、API/スキーマ/DB 変更なし、原因特定済み、バグである、センシティブ領域（課金・認証・マイグレーション）ではない。ステージ 1・2 は 1 ターンで、承認も 1 回。</p>
+<p><span class="tag">full</span> それ以外は 6 ステージすべて。ルートは引き上げのみで、黙って下げることはありません。各ステージは停止するので、結果を確認してから再度 <code>/aiflow PROJ-XXXX</code> を実行します。</p>
+<p class="muted">成果物は <code>docs/aiflow/&lt;ID&gt;/</code>：<code>ticket.md</code>、<code>spec.md</code>、<code>plan.md</code>、<code>reviews/</code>、<code>test-cases.md</code>、<code>status.md</code>（進捗。次のステージ判定に使う唯一のファイル）、<code>log.json</code>（時間・トークン・コスト）。</p>
+
+<h2>必須ルール</h2>
+<div class="rules">
+<div class="rule"><b><code>main</code> へ直接 push しない</b>ベースブランチへの反映は PR/MR のみ。<code>develop</code>/<code>main</code> へのコミットも force-push も禁止。</div>
+<div class="rule"><b>機密情報は commit しない</b>キー、トークン、パスワード、<code>.env*</code>、認証情報ファイルは stage も push もしません。commit のたびに <code>git diff --cached</code> を確認します。</div>
+<div class="rule warn"><b>GitHub/GitLab への書き込みは毎回確認</b><code>git push</code>、PR/MR の作成・編集、コメント投稿が対象。操作内容・対象・投稿する本文を提示し、明確な承諾があったときだけ実行します。以前の承認、QA の回答、設定フラグでは代替できません。PR/MR の merge・approve・close は自動では行いません。</div>
+<div class="rule ok"><b>レビュアー名を記録</b>すべてのレビューと承認に <code>human:&lt;名前&gt;</code> または <code>ai:&lt;役割&gt; (&lt;モデル&gt;)</code> を、<code>reviews/*.md</code>、<code>status.md</code> の承認欄、PR コメントに残します。</div>
+<div class="rule ok"><b>全リポジトリで同じチケットブランチ</b>チケットが開いている間、ラッパーと影響を受ける全リポジトリが同じ <code>bug/PROJ-XXXX/…</code> または <code>feature/PROJ-XXXX/…</code> ブランチにいます。</div>
+</div>
+
+<h2>PR/MR テンプレート</h2>
+<p>タイトルに Notion のタスク ID（例：<code>[PROJ-123] …</code>）を含め、タスクと連携します。本文はチームの見出しをそのまま使います。</p>
+<div class="scroll"><table>
+<tr><th>見出し</th><th>内容</th></tr>
+<tr><td>概要</td><td>この PR で何をなぜ変えたか。関連 PR と spec/plan/レビューへのリンク。</td></tr>
+<tr><td>スクリーンショット</td><td>UI 変更の前後画像。変更がなければその旨を記載。</td></tr>
+<tr><td>相談項目</td><td>レビュアーに聞きたい点（Minor の指摘を含む）。なければ「なし」。</td></tr>
+<tr><td>動作確認手順</td><td>レビュアーが再現できるように：端末、手順、結果。未確認の範囲も正直に記載。</td></tr>
+</table></div>
+
+<h2>デリバリーの順序（ステージ 6）</h2>
+<pre>1. 各リポジトリのテストを実行
+2. QA ゲート         → 「確認済み、PR を作成」（push の承諾ではない）
+3. 確認              → &lt;repo&gt; の &lt;branch&gt; を origin へ push？
+4. 確認              → PR/MR を DRAFT で作成（タイトル、base ← head、本文全文）
+5. CI レビュー実行   → /aiflow &lt;ID&gt; を再実行：CI の指摘を 1 件ずつ修正または回答
+                       （push・返信は毎回確認）、未対応が 0 になるまで
+6. 確認              → Ready for review に変更 → 顧客がレビュー
+7. merge             → チャットで依頼したときのみ</pre>
+<p class="muted">ソースリポジトリは <code>gh</code>（GitHub、base は <code>develop</code>/<code>main</code>）、ラッパーは <code>glab</code>（(GitLab, ��base は <code>main</code>）を使います。</p>
+
+<h2>フローの更新</h2>
+<p>スキルとルールは汎用の <code>harness-ai-flow</code> バンドルから提供されます。変更はそちら（README も同時に）で行い、ここでは <code>install.sh --force</code> で再インストールします。<code>.claude/skills/</code> の直接編集は上書きされます。プロジェクト固有の設定は <code>aiflow/workflow.yaml</code> のみ。</p>
+<p>任意: <code>aiflow-visual</code> はブラウザ補助（モックアップや図を表示するローカルページ）です。各ステージは視覚的な質問のときだけ、同意を得てから提案します。テレメトリは無効で、<code>.superpowers/</code> は git に含めません。</p>
+</main>
+</body>
+</html>
