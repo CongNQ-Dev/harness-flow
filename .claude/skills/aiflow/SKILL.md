@@ -19,6 +19,13 @@ user only asked for help, in which case show the help text below.
 
 ## Dispatch on the arguments
 
+Optional skills — `aiflow-analyze` (with `graphify`), `aiflow-wiki`,
+`aiflow-visual` — exist only if they were chosen at install time
+(`aiflow/install.yaml` `features:`). If a request needs one that isn't
+installed, say so in one line and how to add it (re-run the installer with
+that feature), instead of failing or improvising it. Never offer
+`aiflow-visual` when it isn't installed.
+
 | Input | Action |
 |---|---|
 | *(nothing)* | Board: `python3 aiflow/scripts/aiflow_status.py`, then the help text below. If `tickets.lists_dir` has files, mention that `/aiflow` can pick a ticket from them. |

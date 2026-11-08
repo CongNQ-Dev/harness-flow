@@ -23,8 +23,26 @@ OpenClaw のどれを使うプロジェクトにも導入できます。プロ�
 
 ```bash
 git clone https://github.com/CongNQ-Dev/harness-flow.git
-./harness-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
-.\harness-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
+./harness-flow/install.sh --dir ~/code/my-app        # macOS / Linux
+.\harness-flow\install.ps1 -Dir C:\code\my-app        # Windows
+```
+
+インストーラーはオンボーディング形式です。4 つの質問に答えると、選んだものだけを設定します。
+
+1. **エージェント** — 1 つでも複数でも可（Codex と Copilot を使うチームなら両方）。
+2. **Git ホスト** — GitHub（`gh`）、GitLab（`glab`、gitlab.com またはセルフマネージド）、
+   またはリポジトリごとに選ぶ。CLI がインストール・ログイン済みかを確認し、未対応なら
+   実行すべきコマンドを表示します。
+3. **言語** — チケット文書と PR の言語。English、日本語、Tiếng Việt、または任意のコード。
+4. **機能** — ナレッジグラフ（`graphify`）、ビジュアルコンパニオン、プロジェクト wiki。
+   選ばなかった機能のスキルはインストールしません。
+
+回答は `aiflow/install.yaml` に保存され、`/aiflow setup` はそれを読んで同じ質問を
+繰り返しません。どの質問もフラグで指定でき、スクリプトや CI でも使えます。
+
+```bash
+./harness-flow/install.sh --dir ~/code/my-app --agent codex,copilot \
+  --git-host gitlab --gitlab-host gitlab.acme.io --language vi --features graph,wiki --yes
 ```
 
 | `--agent` | スキルの配置先 | `/aiflow` の提供元 | ルールファイル |
@@ -38,12 +56,12 @@ git clone https://github.com/CongNQ-Dev/harness-flow.git
 | `openclaw` | `skills/` | `aiflow` スキル | `AGENTS.md` |
 
 その後、エージェントでプロジェクトを開き `/aiflow setup`（Codex では `$aiflow setup`）を
-実行すると `aiflow/workflow.yaml` が作られます。更新するときは、このリポジトリを pull して
-`--force` 付きでインストーラーを再実行します。`aiflow/workflow.yaml`、`CLAUDE.md` /
-`AGENTS.md` の独自の記述（AI Flow のブロックは `<!-- aiflow:start/end -->` の間にあります）、
-既存のフックは保持されます。スキルは Claude Code のツール名で書かれており、他のエージェント
-向けの対応表は `aiflow/AGENTS-TOOLS.md` にあります。使用量ログ（ステージごとの時間・トークン・
-コスト）を記録するのは Claude Code だけです。
+実行すると、リポジトリを検出し、残りだけを質問して `aiflow/workflow.yaml` を作ります。
+回答の変更や更新は、このリポジトリを pull してインストーラーを再実行します（`--force` で
+導入済みスキルも更新）。`aiflow/workflow.yaml`、`CLAUDE.md` / `AGENTS.md` の独自の記述
+（AI Flow のブロックは `<!-- aiflow:start/end -->` の間）、既存のフックは保持されます。
+スキルは Claude Code のツール名で書かれており、他のエージェント向けの対応表は
+`aiflow/AGENTS-TOOLS.md` にあります。使用量ログを記録するのは Claude Code だけです。
 
 ## クイックスタート（このリポジトリをワークスペースとして使う）
 

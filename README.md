@@ -22,8 +22,26 @@ lives in `aiflow/workflow.yaml`.
 
 ```bash
 git clone https://github.com/CongNQ-Dev/harness-flow.git
-./harness-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
-.\harness-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
+./harness-flow/install.sh --dir ~/code/my-app        # macOS / Linux
+.\harness-flow\install.ps1 -Dir C:\code\my-app        # Windows
+```
+
+The installer is an onboarding: it asks four things and sets up only what you pick.
+
+1. **Agent(s)** — one or several (a team on Codex and Copilot gets both).
+2. **Git host** — GitHub (`gh`), GitLab (`glab`, gitlab.com or self-managed) or
+   different per repo. It checks the CLI is installed and logged in, and prints
+   the command to run if not.
+3. **Language** of ticket docs and PR text — English, 日本語, Tiếng Việt or any code.
+4. **Features** — knowledge graph (`graphify`), visual companion, project wiki.
+   Skills for features you skip aren't installed.
+
+The answers go to `aiflow/install.yaml`; `/aiflow setup` reads it and doesn't ask
+them again. Every question also has a flag, for scripts and CI:
+
+```bash
+./harness-flow/install.sh --dir ~/code/my-app --agent codex,copilot \
+  --git-host gitlab --gitlab-host gitlab.acme.io --language vi --features graph,wiki --yes
 ```
 
 | `--agent` | Skills go to | `/aiflow` comes from | Rules file |
@@ -37,13 +55,13 @@ git clone https://github.com/CongNQ-Dev/harness-flow.git
 | `openclaw` | `skills/` | the `aiflow` skill | `AGENTS.md` |
 
 Then open the project with your agent and run `/aiflow setup` (`$aiflow setup`
-in Codex); it writes `aiflow/workflow.yaml`. To upgrade, pull this repo and
-re-run the installer with `--force`: your `aiflow/workflow.yaml`, your own text
-in `CLAUDE.md` / `AGENTS.md` (the AI Flow block sits between
-`<!-- aiflow:start/end -->` markers) and your existing hooks are kept. The
-skills use Claude Code's tool names; `aiflow/AGENTS-TOOLS.md` maps them for the
-other agents. Only Claude Code records the usage log (time / tokens / cost per
-stage).
+in Codex); it detects your repos, asks only what's left and writes
+`aiflow/workflow.yaml`. To change an answer or upgrade, pull this repo and
+re-run the installer (`--force` refreshes installed skills): your
+`aiflow/workflow.yaml`, your own text in `CLAUDE.md` / `AGENTS.md` (the AI Flow
+block sits between `<!-- aiflow:start/end -->` markers) and your existing hooks
+are kept. The skills use Claude Code's tool names; `aiflow/AGENTS-TOOLS.md` maps
+them for the other agents. Only Claude Code records the usage log.
 
 ## Quick start (this repo as the workspace)
 

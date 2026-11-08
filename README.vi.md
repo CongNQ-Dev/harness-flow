@@ -22,8 +22,26 @@ nằm trong `aiflow/workflow.yaml`.
 
 ```bash
 git clone https://github.com/CongNQ-Dev/harness-flow.git
-./harness-flow/install.sh --dir ~/code/my-app --agent codex     # macOS / Linux
-.\harness-flow\install.ps1 -Dir C:\code\my-app -Agent codex     # Windows
+./harness-flow/install.sh --dir ~/code/my-app        # macOS / Linux
+.\harness-flow\install.ps1 -Dir C:\code\my-app        # Windows
+```
+
+Installer chạy theo kiểu onboarding: hỏi bốn câu và chỉ cài những gì bạn chọn.
+
+1. **Agent** — một hoặc nhiều (team dùng cả Codex và Copilot thì chọn cả hai).
+2. **Git host** — GitHub (`gh`), GitLab (`glab`, gitlab.com hoặc tự host) hoặc
+   mỗi repo một kiểu. Installer kiểm tra CLI đã cài và đăng nhập chưa, nếu chưa thì
+   in ra lệnh cần chạy.
+3. **Ngôn ngữ** của tài liệu ticket và nội dung PR — English, 日本語, Tiếng Việt hoặc mã bất kỳ.
+4. **Tính năng** — knowledge graph (`graphify`), visual companion, wiki dự án.
+   Tính năng nào bỏ qua thì skill của nó không được cài.
+
+Câu trả lời được lưu vào `aiflow/install.yaml`; `/aiflow setup` đọc file này và không
+hỏi lại. Mỗi câu hỏi đều có tham số tương ứng, dùng được trong script và CI:
+
+```bash
+./harness-flow/install.sh --dir ~/code/my-app --agent codex,copilot \
+  --git-host gitlab --gitlab-host gitlab.acme.io --language vi --features graph,wiki --yes
 ```
 
 | `--agent` | Skill đặt ở | `/aiflow` đến từ | File quy tắc |
@@ -37,12 +55,13 @@ git clone https://github.com/CongNQ-Dev/harness-flow.git
 | `openclaw` | `skills/` | skill `aiflow` | `AGENTS.md` |
 
 Sau đó mở project bằng agent của bạn và chạy `/aiflow setup` (trong Codex là
-`$aiflow setup`); lệnh này tạo `aiflow/workflow.yaml`. Muốn nâng cấp thì pull repo
-này và chạy lại installer với `--force`: `aiflow/workflow.yaml`, nội dung riêng của
-bạn trong `CLAUDE.md` / `AGENTS.md` (khối AI Flow nằm giữa hai dấu
+`$aiflow setup`); lệnh này dò các repo, chỉ hỏi phần còn thiếu và tạo
+`aiflow/workflow.yaml`. Muốn đổi câu trả lời hay nâng cấp thì pull repo này và chạy
+lại installer (`--force` để làm mới các skill đã cài): `aiflow/workflow.yaml`, nội dung
+riêng của bạn trong `CLAUDE.md` / `AGENTS.md` (khối AI Flow nằm giữa hai dấu
 `<!-- aiflow:start/end -->`) và các hook sẵn có đều được giữ nguyên. Skill được viết
 theo tên công cụ của Claude Code; `aiflow/AGENTS-TOOLS.md` ánh xạ chúng cho các agent
-khác. Chỉ Claude Code ghi log sử dụng (thời gian / token / chi phí theo giai đoạn).
+khác. Chỉ Claude Code ghi log sử dụng.
 
 ## Bắt đầu nhanh (dùng chính repo này làm workspace)
 

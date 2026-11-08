@@ -14,6 +14,15 @@ status.md, no stop rule.
 Ask the user only for what isn't on disk, and show what you detected so they
 can correct it in one pass instead of answering twenty questions.
 
+**Onboarding answers come first.** If `aiflow/install.yaml` exists (written by
+the installer's onboarding), its answers are already the user's: `git_host`
+(and `gitlab_host`), `language` and `features` are **not asked again** — use
+them, and list them in the § 4 summary as "from install.yaml" so the user can
+still change them there. `features.knowledge_graph` → `knowledge_graph.enabled`;
+`features.visual: false` → never offer `aiflow-visual`; `features.wiki: false`
+→ leave `wiki:` as in the template but note `/aiflow wiki` is not installed.
+To change an onboarding answer later, the user re-runs the installer.
+
 ## 0. Existing config?
 
 If `aiflow/workflow.yaml` already exists, read it, show a short summary
@@ -73,7 +82,13 @@ an OpenAPI/Swagger file referenced by another component's codegen config, a
 GraphQL schema with a client codegen elsewhere, a shared protobuf. Propose
 each as a `contracts:` entry with its regenerate command; empty list is fine.
 
-## 2a. Git host — always ask
+## 2a. Git host — always ask (unless onboarding answered it)
+
+`install.yaml` `git_host: github` / `gitlab` → every repo uses that tool
+(`pr.tool: gh` / `glab`), no question — but still flag a repo whose remote
+contradicts it (ask once about that repo only). `git_host: mixed` → skip the
+first question and go straight to the per-repo follow-ups below. No
+`install.yaml` → ask as follows.
 
 The git host decides every PR/MR command (`gh` vs `glab`), so it is **always
 asked**, even when the remotes look obvious — this is the one exception to
@@ -100,7 +115,8 @@ numbered list.
 
 ## 3. What only the user knows — ask (one `AskUserQuestion` round, up to 4 questions)
 
-1. **Output language** for artifacts and PR text (`language:`). Exactly two
+1. **Output language** for artifacts and PR text (`language:`) — skip this
+   question when `install.yaml` has `language`. Otherwise exactly two
    options — **English** (`en`) and **Tiếng Việt** (`vi`) — and the third
    choice is the question UI's built-in "Other", where the user types any
    language (日本語, 한국어, Français, ...; store its ISO code, e.g. `ja`).
