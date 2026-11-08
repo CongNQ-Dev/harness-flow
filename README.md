@@ -1,6 +1,6 @@
 # Basic AI Flow
 
-English · [日本語](README.ja.md)
+English · [日本語](README.ja.md) · [Tiếng Việt](README.vi.md)
 
 One AI-driven development workflow for **backend**, **admin** and
 **mobile-app**. This repo holds only the flow. The three source repos are
@@ -191,4 +191,4 @@ customer reviews.**
 
 The flow's own rules live in the generic harness-ai-flow bundle
 (`conventions.md`, `aiflow/AIFLOW.md`); to pick up changes, re-install with
-`--force` (see the Quick start). Visual version (English / Japanese): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html).
+`--force` (see the Quick start). Visual version (English / Japanese / Vietnamese): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).

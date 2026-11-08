@@ -11,8 +11,8 @@ Code **here**, not inside a repo.
 
 The commands, project facts and shared rules come from `@aiflow/AIFLOW.md`
 (imported below) and `aiflow/workflow.yaml` — read those instead of guessing.
-Guide: `README.md` / `README.ja.md`; visual versions in English and Japanese:
-`aiflow/guide.en.html`, `aiflow/guide.ja.html`.
+Guide: `README.md` / `README.ja.md` / `README.vi.md`; visual versions in English, Japanese and Vietnamese:
+`aiflow/guide.en.html`, `aiflow/guide.ja.html`, `aiflow/guide.vi.html`.
 
 ## Rules specific to this workspace
 
@@ -53,8 +53,8 @@ Guide: `README.md` / `README.ja.md`; visual versions in English and Japanese:
   next upgrade. Project-specific settings belong in `aiflow/workflow.yaml` only.
 - **Docs travel with every behavior change.** If a change to
   `aiflow/workflow.yaml` or the flow changes how a ticket runs here (branches,
-  gates, commands, stages), update `README.md`, `README.ja.md` **and the two visual guides**
-  (`aiflow/guide.en.html`, `aiflow/guide.ja.html`), kept in sync with each other, in the same commit — or
+  gates, commands, stages), update `README.md`, `README.ja.md`, `README.vi.md` **and the three visual guides**
+  (`aiflow/guide.en.html`, `aiflow/guide.ja.html`, `aiflow/guide.vi.html`), kept in sync with each other, in the same commit — or
   say explicitly that nothing in them went stale.
 
 @aiflow/AIFLOW.md

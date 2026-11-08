@@ -1,6 +1,6 @@
 # Basic AI Flow
 
-[English](README.md) · 日本語
+[English](README.md) · 日本語 · [Tiếng Việt](README.vi.md)
 
 **backend**、**admin**、**mobile-app** を横断する、AI 駆動の開発
 フローです。このリポジトリが持つのはフローだけです。3 つのソースリポジトリは
@@ -186,5 +186,5 @@ light ルート（小さなバグ）では、ステージ 1 と 2 は 2 回で�
 
 フロー自体のルールは汎用の harness-ai-flow バンドル（`conventions.md`、
 `aiflow/AIFLOW.md`）にあります。変更を取り込むには `--force` で再インストールして
-ください（クイックスタート参照）。ビジュアル版（英語・日本語）：[aiflow/guide.en.html](aiflow/guide.en.html) ·
-[aiflow/guide.ja.html](aiflow/guide.ja.html)。
+ください（クイックスタート参照）。ビジュアル版（英語・日本語・ベトナム語）：[aiflow/guide.en.html](aiflow/guide.en.html) ·
+[aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html)。
