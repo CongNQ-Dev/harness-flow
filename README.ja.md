@@ -23,7 +23,7 @@ ai-flow-demo/                 ← このリポジトリ：AI Flow（ここで Cl
 ## クイックスタート
 
 ```bash
-git clone https://github.com/cong-skills/basic-ai-flow.git
+git clone https://github.com/CongNQ-Dev/basic-ai-flow.git
 cd basic-ai-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
