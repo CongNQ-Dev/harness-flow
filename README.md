@@ -170,6 +170,25 @@ something progress tracking alone could answer.
 - Every review and approval records the reviewer's name — `human:<name>` or
   `ai:<role> (<model>)` in `reviews/*.md`, `status.md` approvals and PR comments.
 
+### Delivery order (stage 6)
+
+**Draft PR/MR → CI review runs → every CI comment handled → Ready for review →
+customer reviews.**
+
+1. Run each repo's tests.
+2. QA gate: "checked, create the PRs" — this is **not** consent to push.
+3. Confirm → push `<branch>` of `<repo>` to `origin`.
+4. Confirm → create the PR/MR **as a Draft** (title, base ← head and full body
+   shown). The flow stops; `status.md` says `delivery: draft`.
+5. When the CI review has finished, run `/aiflow <ID>` again. The agent reads the
+   CI comments and checks (read-only), writes them to `reviews/ci-review.md` with
+   the reviewer's name, and fixes or answers each one. Each push, reply or
+   resolve asks you first. Repeat until no CI comment is open and checks are green.
+6. Confirm → mark the PR/MR **Ready for review** (never while a CI comment is
+   open). `delivery: ready`; the customer reviews, and their comments are
+   handled the same way on the next `/aiflow <ID>`.
+7. Merge only when you ask for it in chat.
+
 The flow's own rules live in the generic harness-ai-flow bundle
 (`conventions.md`, `aiflow/AIFLOW.md`); to pick up changes, re-install with
-`--force` (see the Quick start). Guides in English and Japanese: [aiflow/README.en.md](aiflow/README.en.md) · [aiflow/README.ja.md](aiflow/README.ja.md); visual versions: [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html).
+`--force` (see the Quick start). Visual version (English / Japanese): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html).
