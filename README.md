@@ -235,4 +235,4 @@ customer reviews.**
 
 The flow's own rules live in `conventions.md` (in the `aiflow` skill) and
 `aiflow/AIFLOW.md`; a project that installed AI Flow picks up changes by
-re-running the installer with `--force`. Visual version (English / Japanese / Vietnamese): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).
+re-running the installer with `--force`. Visual version (English / Japanese / Vietnamese): [aiflow/guide.en.html](https://congnq-dev.github.io/harness-flow/aiflow/guide.en.html) · [aiflow/guide.ja.html](https://congnq-dev.github.io/harness-flow/aiflow/guide.ja.html) · [aiflow/guide.vi.html](https://congnq-dev.github.io/harness-flow/aiflow/guide.vi.html).

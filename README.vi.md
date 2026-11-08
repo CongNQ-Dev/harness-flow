@@ -231,4 +231,4 @@ khách hàng review.**
 
 Quy tắc của quy trình nằm trong `conventions.md` (trong skill `aiflow`) và
 `aiflow/AIFLOW.md`; project đã cài AI Flow nhận thay đổi bằng cách chạy lại installer
-với `--force`. Bản trực quan (tiếng Anh / tiếng Nhật / tiếng Việt): [aiflow/guide.en.html](aiflow/guide.en.html) · [aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html).
+với `--force`. Bản trực quan (tiếng Anh / tiếng Nhật / tiếng Việt): [aiflow/guide.en.html](https://congnq-dev.github.io/harness-flow/aiflow/guide.en.html) · [aiflow/guide.ja.html](https://congnq-dev.github.io/harness-flow/aiflow/guide.ja.html) · [aiflow/guide.vi.html](https://congnq-dev.github.io/harness-flow/aiflow/guide.vi.html).
