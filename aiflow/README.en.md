@@ -85,8 +85,9 @@ customer reviews.**
    handled the same way on the next `/aiflow <ID>`.
 7. Merge only when you ask for it in chat.
 
-Source repos use `gh` (GitHub; base `develop`, mobile `main`); this wrapper
-uses `glab` (GitLab, base `main`).
+Each repo — the wrapper included — uses `gh` (GitHub) or `glab` (GitLab),
+whichever host was chosen for it in `/aiflow setup` (`pr.tool` / `pr_tool` in
+`aiflow/workflow.yaml`). Bases: backend/admin `develop`, mobile and wrapper `main`.
 
 ## Updating the flow
 

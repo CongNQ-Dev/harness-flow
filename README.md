@@ -23,13 +23,13 @@ with `--force`).
 ## Quick start
 
 ```bash
-git clone https://github.com/cong-skills/basic-ai-flow.git
-cd ai-flow-demo
+git clone https://github.com/CongNQ-Dev/basic-ai-flow.git
+cd basic-ai-flow
 git clone https://github.com/<your-org>/backend.git
 git clone https://github.com/<your-org>/admin.git
 git clone https://github.com/<your-org>/mobile-app.git
-gh auth login      # the 3 source repos (GitHub)
-glab auth login    # this wrapper repo (GitLab)
+gh auth login      # if a repo is on GitHub  ─┐ log in to the CLI for the host
+glab auth login    # if a repo is on GitLab  ─┘ you pick in /aiflow setup
 claude
 ```
 
@@ -40,7 +40,8 @@ Inside Claude Code:
 /aiflow PROJ-123       start or continue a ticket
 ```
 
-Requirements: Claude Code, `python3`, `graphify`, `gh`, `glab`, plus each repo's
+Requirements: Claude Code, `python3`, `graphify`, `gh` and/or `glab` (for the host
+you choose in `/aiflow setup` — GitHub or GitLab), plus each repo's
 toolchain (Go · Node/yarn · FVM/Flutter). Notion tickets are read via the
 Notion MCP, the browser, or by pasting the ticket text.
 
@@ -149,8 +150,9 @@ something progress tracking alone could answer.
   `/aiflow PROJ-XXXX` switches back to a ticket's branches by itself; the
   `/aiflow` board shows the tickets visible on the wrapper's current branch.
 - PRs go to each repo's own base branch (backend/admin `develop`, mobile
-  `main`). The wrapper's MR goes to this repo's `main` via `glab`
-  (GitLab); the three source repos use `gh` (GitHub).
+  `main`). The wrapper's PR/MR goes to this repo's `main`. Each
+  repo uses `gh` (GitHub) or `glab` (GitLab) — whichever host you chose for it
+  in `/aiflow setup` (`pr.tool` / `pr_tool` in `aiflow/workflow.yaml`).
 
 **Delivery (stage 6) — nothing is automatic**
 - Every write to GitHub/GitLab — `git push`, creating or editing a PR/MR,
