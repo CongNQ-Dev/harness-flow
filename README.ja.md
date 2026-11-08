@@ -229,5 +229,5 @@ light ルート（小さなバグ）では、ステージ 1 と 2 は 2 回で�
 
 フロー自体のルールは `conventions.md`（`aiflow` スキル内）と `aiflow/AIFLOW.md` に
 あります。AI Flow を導入したプロジェクトは、`--force` 付きでインストーラーを再実行すると
-変更を取り込めます。ビジュアル版（英語・日本語・ベトナム語）：[aiflow/guide.en.html](aiflow/guide.en.html) ·
-[aiflow/guide.ja.html](aiflow/guide.ja.html) · [aiflow/guide.vi.html](aiflow/guide.vi.html)。
+変更を取り込めます。ビジュアル版（英語・日本語・ベトナム語）：[aiflow/guide.en.html](https://congnq-dev.github.io/harness-flow/aiflow/guide.en.html) ·
+[aiflow/guide.ja.html](https://congnq-dev.github.io/harness-flow/aiflow/guide.ja.html) · [aiflow/guide.vi.html](https://congnq-dev.github.io/harness-flow/aiflow/guide.vi.html)。
